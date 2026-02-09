@@ -1,0 +1,345 @@
+/* Signup.css */
+.Signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.Signup-Input {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.otp-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Reusing input styles from Login for consistency, but defining here for isolation */
+.Signup-Input input {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  color: var(--color-text-main);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.Signup-Input input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.Signup-Input input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.password {
+  position: relative;
+  width: 100%;
+}
+
+.password input {
+  width: 100%;
+  padding-right: 40px;
+  /* Space for eye icon */
+}
+
+.password button {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password button:hover {
+  color: var(--color-text-main);
+}
+
+.Submit {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.Submit button {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--color-primary);
+  color: white;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.Submit button:disabled {
+  background-color: var(--color-surface-hover);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.Submit button:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.socal-box {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+}
+
+.Social-Signup-text {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.social-Platform {
+  display: flex;
+  gap: 20px;
+}
+
+.social-Platform button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-main);
+  transition: all 0.2s ease;
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+}
+
+.social-Platform button i {
+  font-size: 1.2rem;
+}
+
+.social-Platform button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  color: var(--color-primary);
+}
+
+.error {
+  color: #ff4d4d;
+  font-size: 0.85rem;
+  text-align: center;
+  min-height: 20px;
+  margin-bottom: 10px;
+}
+
+/* OTP Overlay - Glassmorphism Modal */
+.otp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.otp-box {
+  background: var(--color-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 30px;
+  width: 90%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.otp-box .title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.otp-box .title h2 {
+  font-size: 1.5rem;
+  color: var(--color-text-main);
+}
+
+.otp-box .title button {
+  color: var(--color-text-secondary);
+  transition: color 0.2s;
+  font-size: 1.2rem;
+}
+
+.otp-box .title button:hover {
+  color: var(--color-text-main);
+}
+
+.otp-subtext {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.otp-subtext b {
+  color: var(--color-text-main);
+}
+
+.otp-input {
+  width: 100%;
+  padding: 12px;
+  text-align: center;
+  font-size: 1.5rem;
+  letter-spacing: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  color: var(--color-text-main);
+}
+
+.otp-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.otp-verify-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--color-primary);
+  color: white;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.otp-verify-btn:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.otp-resend-btn {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.otp-resend-btn:hover {
+  color: var(--color-primary);
+}
+
+.otp-error {
+  color: #ff4d4d;
+  font-size: 0.9rem;
+  text-align: center;
+  background: rgba(255, 77, 77, 0.1);
+  padding: 8px;
+  border-radius: 4px;
+}
+
+/* Want to Watch / Closing Box - Matches OTP Box Style */
+.closing-box {
+  position: absolute;
+  z-index: 10;
+  background: var(--color-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 30px;
+  width: 90%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  animation: scaleIn 0.3s ease-out;
+}
+
+.closing-box .heading {
+  text-align: center;
+}
+
+.closing-box .heading h2 {
+  font-size: 1.5rem;
+  color: var(--color-text-main);
+  margin-bottom: 8px;
+}
+
+.closing-box .heading p {
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.closing-box .selection {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.closing-box .selection button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+/* Discard button - Danger Style */
+.closing-box .selection button:first-child {
+  background: rgba(255, 77, 77, 0.1);
+  color: #ff4d4d;
+  border: 1px solid rgba(255, 77, 77, 0.2);
+}
+
+.closing-box .selection button:first-child:hover {
+  background: rgba(255, 77, 77, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Cancel button - Primary Style */
+.closing-box .selection button:last-child {
+  background: var(--color-primary);
+  color: white;
+  border: 1px solid var(--color-primary);
+}
+
+.closing-box .selection button:last-child:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-2px);
+}

@@ -1,0 +1,136 @@
+/* Header.css */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 0;
+    z-index: 1000;
+    transition: background-color 0.4s ease, padding 0.4s ease;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
+}
+
+.header.scrolled {
+    background-color: var(--color-bg);
+    padding: 10px 0;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.logo {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--color-text-main);
+    letter-spacing: -1px;
+}
+
+.logo-accent {
+    color: var(--color-primary);
+}
+
+.desktop-nav ul {
+    display: flex;
+    gap: 20px;
+}
+
+.desktop-nav a {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.desktop-nav a:hover,
+.desktop-nav a.active {
+    color: var(--color-text-main);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.icon {
+    color: var(--color-text-main);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.icon:hover {
+    color: var(--color-text-secondary);
+}
+
+.profile-icon {
+    width: 32px;
+    height: 32px;
+    background-color: var(--color-surface-hover);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-main);
+    transition: transform 0.2s ease;
+}
+
+.profile-icon:hover {
+    transform: scale(1.1);
+    background-color: var(--color-primary);
+}
+
+.mobile-menu-toggle {
+    display: none;
+    color: var(--color-text-main);
+}
+
+.mobile-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--color-surface);
+    padding: 20px;
+    border-top: 1px solid var(--color-border);
+}
+
+.mobile-menu ul {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+.mobile-menu a {
+    font-size: 1.1rem;
+    color: var(--color-text-secondary);
+}
+
+.mobile-menu a.active {
+    color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+    .desktop-nav {
+        display: none;
+    }
+
+    .mobile-menu-toggle {
+        display: block;
+    }
+
+    .header-left {
+        gap: 0;
+    }
+}

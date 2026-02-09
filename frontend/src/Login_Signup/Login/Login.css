@@ -1,0 +1,152 @@
+/* Login.css */
+.Login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+.timer {
+  text-align: right;
+}
+.Login-Input {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.input-group {
+  position: relative;
+  width: 100%;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 40px 12px 16px;
+  /* Padding right for icon */
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  color: var(--color-text-main);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.input-group input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-toggle:hover {
+  color: var(--color-text-main);
+}
+
+.reset-link {
+  align-self: flex-end;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  margin-top: -10px;
+}
+
+.reset-link:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.submit-btn:disabled {
+  background-color: var(--color-surface-hover);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.social-login {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.social-text {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.social-buttons {
+  display: flex;
+  gap: 20px;
+}
+
+.social-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-main);
+  transition: all 0.2s ease;
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+}
+
+.social-btn i {
+  font-size: 1.2rem;
+}
+
+.social-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  color: var(--color-primary);
+}
+
+.error-message {
+  color: #ff4d4d;
+  font-size: 0.85rem;
+  text-align: center;
+  background: rgba(255, 77, 77, 0.1);
+  padding: 10px;
+  border-radius: 4px;
+  width: 100%;
+  margin-bottom: 15px;
+}

@@ -1,114 +1,235 @@
-import React, { useState } from "react";
-import { Play, Info } from "lucide-react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { Play, Info, ChevronRight, Star, TrendingUp, Sparkles } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { HOME_DATA } from "./HomeData";
 import "./Home.css";
 
-const MOCK_DATA = {
-  hero: {
-    title: "Cyberpunk: Edgerunners",
-    description: "In a dystopia riddled with corruption and cybernetic implants, a talented but reckless street kid strives to become a mercenary outlaw — an edgerunner.",
-    image: "https://images4.alphacoders.com/132/1328972.jpeg", // High quality Anime wallpaper
-  },
-  categories: [
-    {
-      title: "Trending Now",
-      items: [
-        "https://m.media-amazon.com/images/M/MV5BMmM2ODIyNDQtZjViYi00ZDYyLTlhMDItOTZiYWRlOTg3NDQ4XkEyXkFqcGdeQXVyMTEyNzgwMDUw._V1_.jpg",
-        "https://m.media-amazon.com/images/M/MV5BODcwNWE3OTMtMDc3MS00NDFjLWE1OTAtNDU3NjgxODMxY2UyXkEyXkFqcGdeQXVyNTAyODkwOQ@@._V1_.jpg",
-        "https://m.media-amazon.com/images/M/MV5BNGYyNmI3M2YtNzYzZS00OTViLTkxYjAtZDQ1MjQwZmJiMmZlXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_FMjpg_UX1000_.jpg",
-        "https://m.media-amazon.com/images/M/MV5BNjgwNzE5ODgtYzYyNS00MzU1LWI1NzAtMWEyNzE1MTZiNjMzXkEyXkFqcGdeQXVyAMSzNzA5NzE@._V1_.jpg",
-        "https://m.media-amazon.com/images/M/MV5BMjYxZjFkMzUtYjA2YS00OGIxLWE0OTgtYjc3ZjE2ZDRjZWNhXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_.jpg",
-        "https://m.media-amazon.com/images/M/MV5BYTJlZDcwY2QtYzRhMy00MjAtMjRjNS0wNWViNmJjM2I1ZDVhXkEyXkFqcGdeQXVyODMyNTM0MjM@._V1_.jpg"
-      ]
-    },
-    {
-      title: "New Releases",
-      items: [
-        "https://m.media-amazon.com/images/M/MV5BMDBmYTZjNjUtN2M1MS00MTQ2LTk2ODgtNzc2M2QyZGE5NTVjXkEyXkFqcGdeQXVyNzAwMjU2MTY@._V1_.jpg",
-        "https://m.media-amazon.com/images/M/MV5BN2FjNmEyNWMtYzM0ZS00NjIyLTg5YzYtYThlMGVjNzE1OGViXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_FMjpg_UX1000_.jpg",
-        "https://m.media-amazon.com/images/M/MV5BN2RjZDJhYzUtOTQ5Yy00OWM3LWE5NjEtZTM5ZGUzZmU3YjIzXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg",
-        "https://m.media-amazon.com/images/M/MV5BODZhNzlmOGItMTA1Zi00YjhjLThkNzYtNjY0YmExM2MzMWM1XkEyXkFqcGdeQXVyMTEyNzgwMDUw._V1_.jpg",
-        "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_.jpg",
-        "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_.jpg"
-      ]
-    },
-    {
-      title: "Anime Hits",
-      items: [
-        "https://m.media-amazon.com/images/M/MV5BZmQ5NGFiNWEtMmMyMC00MDdiLTg4YjktOGY5Yzc2MDUxMTE1XkEyXkFqcGdeQXVyNTA4NzY1MzY@._V1_FMjpg_UX1000_.jpg",
-        "https://m.media-amazon.com/images/M/MV5BODkyYTRlMDItMDlhMC00MTEzLWI3NWEtZmIyMjE2NmU5Yjg4XkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_.jpg",
-        "https://m.media-amazon.com/images/M/MV5BNjRjMjg2MTEtYTUxOS00MTViLWIxMDQtYjVjYjgyYmIyMTJiXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_.jpg",
-        "https://m.media-amazon.com/images/M/MV5BOWNhMWMzYkQtNjA2Yi00MWViLTg1MGQtYzYzYjgwYjgxMzRhXkEyXkFqcGdeQXVyMTEyNzgwMDUw._V1_FMjpg_UX1000_.jpg",
-        "https://m.media-amazon.com/images/M/MV5BNDFjYTIxMjctYTQ2ZC00OGQ4LWE3NzYtZWJkNjIyNDRhNjE1XkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_.jpg",
-        "https://m.media-amazon.com/images/M/MV5CNTYzYTFkODktYjU0MS00MzExLTk3OWQtYWJjZGFlOTdhZmVlXkEyXkFqcGdeQXVyMTM1NjM2ODg1._V1_.jpg"
-      ]
-    }
-  ]
-};
-
 export default function Home() {
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+
+  // Auto-rotate hero slider
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentHeroIndex((prev) => (prev + 1) % HOME_DATA.hero.length);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const currentHero = HOME_DATA.hero[currentHeroIndex];
+
   return (
     <div className="home-container">
-      {/* Hero Section */}
-      <div
-        className="hero"
-        style={{ backgroundImage: `url(${MOCK_DATA.hero.image})` }}
-      >
-        <div className="hero-overlay"></div>
-        <div className="hero-content">
-          <motion.h1
-            className="hero-title"
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            {MOCK_DATA.hero.title}
-          </motion.h1>
-          <motion.p
-            className="hero-description"
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-          >
-            {MOCK_DATA.hero.description}
-          </motion.p>
+      {/* Hero Slider Section */}
+      <div className="hero-slider">
+        <AnimatePresence mode="wait">
           <motion.div
-            className="hero-buttons"
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.6 }}
+            key={currentHero.id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="hero-slide-bg"
+            style={{ backgroundImage: `url(${currentHero.image})` }}
           >
-            <button className="btn btn-play">
-              <Play fill="black" size={24} /> Play
-            </button>
-            <button className="btn btn-info">
-              <Info size={24} /> More Info
-            </button>
+            <div className="hero-overlay"></div>
           </motion.div>
+        </AnimatePresence>
+
+        <div className="hero-content">
+          <motion.div
+            key={currentHero.id}
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+          >
+            <div className="hero-meta-tags">
+              <span className="meta-tag">{currentHero.type}</span>
+              <span className="meta-tag">{currentHero.year}</span>
+              <span className="meta-tag highlight">{currentHero.rating}</span>
+            </div>
+            <h1 className="hero-title">{currentHero.title}</h1>
+            <p className="hero-description">{currentHero.description}</p>
+
+            <div className="hero-buttons">
+              <button className="btn btn-play">
+                <Play fill="black" size={20} /> Play Now
+              </button>
+              <button className="btn btn-info">
+                <Info size={20} /> More Info
+              </button>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Hero Indicators */}
+        <div className="hero-indicators">
+          {HOME_DATA.hero.map((_, index) => (
+            <button
+              key={index}
+              className={`indicator ${index === currentHeroIndex ? "active" : ""}`}
+              onClick={() => setCurrentHeroIndex(index)}
+            />
+          ))}
         </div>
       </div>
 
-      {/* Content Rows - Fixed structure as requested */}
-      <div className="content-rows">
-        {MOCK_DATA.categories.map((category, index) => (
-          <div key={index} className="category-row">
-            <h3 className="category-title">{category.title}</h3>
-            <div className="row-container">
-              {/* Directly mapping items in a scrollable div */}
-              {category.items.map((item, i) => (
-                <motion.div
-                  key={i}
-                  className="movie-card"
-                  whileHover={{ scale: 1.1, zIndex: 10 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  <img src={item} alt={`${category.title} ${i}`} />
-                </motion.div>
+      {/* AI Recommendations Section */}
+      <section className="section ai-section">
+        <div className="section-header">
+          <Sparkles className="section-icon ai-icon" />
+          <h2 className="section-title">
+            AI Picks <span className="subtitle">{HOME_DATA.aiRecommendations.message}</span>
+          </h2>
+        </div>
+        <div className="horizontal-scroll">
+          {HOME_DATA.aiRecommendations.items.map((item) => (
+            <motion.div
+              key={item.id}
+              className="card ai-card"
+              whileHover={{ scale: 1.05 }}
+            >
+              <img src={item.image} alt={item.title} />
+              <div className="ai-match-badge">{item.match} Match</div>
+              <div className="card-info">
+                <h4>{item.title}</h4>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Projected Interests Section */}
+      <section className="section">
+        <h2 className="section-title">Because You Watched...</h2>
+        <div className="horizontal-scroll">
+          {HOME_DATA.projectedInterests.map((item) => (
+            <div key={item.id} className="card standard-card">
+              <img src={item.image} alt={item.title} />
+              <div className="card-reason">
+                <TrendingUp size={14} /> {item.reason}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+
+      {/* Platform Hubs */}
+      <section className="section platform-section">
+        <h2 className="section-title">Explore Platforms</h2>
+
+        {/* Prime Video */}
+        <div className="platform-row">
+          <h3 className="platform-name prime">Prime Video</h3>
+          <div className="horizontal-scroll">
+            {HOME_DATA.platforms.prime.map(item => (
+              <motion.div key={item.id} whileHover={{ y: -5 }} className="card platform-card">
+                <img src={item.image} alt={item.title} />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Jio Cinema */}
+        <div className="platform-row">
+          <h3 className="platform-name jio">JioCinema</h3>
+          <div className="horizontal-scroll">
+            {HOME_DATA.platforms.jio.map(item => (
+              <motion.div key={item.id} whileHover={{ y: -5 }} className="card platform-card">
+                <img src={item.image} alt={item.title} />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Crunchyroll */}
+        <div className="platform-row">
+          <h3 className="platform-name crunchyroll">Crunchyroll</h3>
+          <div className="horizontal-scroll">
+            {HOME_DATA.platforms.crunchyroll.map(item => (
+              <motion.div key={item.id} whileHover={{ y: -5 }} className="card platform-card">
+                <img src={item.image} alt={item.title} />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Popular Collections */}
+      <section className="section">
+        <h2 className="section-title">Curated Collections</h2>
+        <div className="horizontal-scroll">
+          {HOME_DATA.collections[0].items.map((item) => (
+            <div key={item.id} className="collection-card">
+              <img src={item.image} alt={item.name} />
+              <div className="collection-overlay">
+                <h3>{item.name}</h3>
+                <p>{item.count}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Top Charts */}
+      <section className="section top-charts-section">
+        <div className="charts-container">
+          <div className="chart-column">
+            <h3 className="chart-title">Top Weekly</h3>
+            <div className="chart-list">
+              {HOME_DATA.topCharts.weekly.map((item, index) => (
+                <div key={item.id} className="chart-item">
+                  <span className="rank-number">{item.rank}</span>
+                  <img src={item.image} alt={item.title} />
+                  <div className="chart-info">
+                    <h4>{item.title}</h4>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
-        ))}
-      </div>
+          <div className="chart-column">
+            <h3 className="chart-title">All-Time Favorites</h3>
+            <div className="chart-list">
+              {HOME_DATA.topCharts.allTime.map((item, index) => (
+                <div key={item.id} className="chart-item">
+                  <span className="rank-number">{item.rank}</span>
+                  <img src={item.image} alt={item.title} />
+                  <div className="chart-info">
+                    <h4>{item.title}</h4>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Most Rated Rows */}
+      <section className="section">
+        <h2 className="section-title">Most Rated Movies</h2>
+        <div className="horizontal-scroll">
+          {HOME_DATA.mostRated.movies.map((img, i) => (
+            <div key={i} className="card standard-card">
+              <img src={img} alt="Movie" />
+              <div className="rating-badge"><Star size={12} fill="gold" stroke="none" /> 4.8</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="section">
+        <h2 className="section-title">Top Anime</h2>
+        <div className="horizontal-scroll">
+          {HOME_DATA.mostRated.anime.map((img, i) => (
+            <div key={i} className="card standard-card">
+              <img src={img} alt="Anime" />
+              <div className="rating-badge"><Star size={12} fill="gold" stroke="none" /> 4.9</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
     </div>
   );
 }

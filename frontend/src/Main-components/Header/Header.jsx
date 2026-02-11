@@ -1,13 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Bell, User, Menu, X } from "lucide-react";
+import { Bell, User, Menu, X, NotebookPen, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSelector } from "react-redux";
 import "./Header.css";
 
 export default function Header() {
+  const { user } = useSelector((state) => state.auth);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [userWork, setUserWork] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest(".profile-box")) {
+        setUserWork(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,10 +33,12 @@ export default function Header() {
 
   const navLinks = [
     { name: "Home", path: "/home" },
-    { name: "TV Shows", path: "/tv-shows" },
-    { name: "Movies", path: "/movies" },
-    { name: "New & Popular", path: "/new" },
-    { name: "My List", path: "/my-list" },
+    { name: "Schedule", path: "/schedule" },
+    { name: "Clubs", path: "/clubs" },
+    { name: "News", path: "/news" },
+    { name: "Collections", path: "/collections" },
+    { name: "WatchList", path: "/watchlist" },
+    { name: "Explore", path: "/category" },
   ];
 
   return (
@@ -32,6 +48,9 @@ export default function Header() {
           <Link to="/home" className="logo">
             Watch<span className="logo-accent">Hub</span>
           </Link>
+        </div>
+
+        <div className="header-right">
           <nav className="desktop-nav">
             <ul>
               {navLinks.map((link) => (
@@ -46,21 +65,45 @@ export default function Header() {
               ))}
             </ul>
           </nav>
-        </div>
-
-        <div className="header-right">
-          <div className="search-box">
-            <Search className="icon" size={20} />
-          </div>
           <div className="notification-box">
             <Bell className="icon" size={20} />
           </div>
-          <div className="profile-box">
-            <Link to="/profile">
+          <div className="profile-box" onClick={() => setUserWork(!userWork)}>
+            {user?.profilePicture ? (
+              <img
+                src={user.profilePicture}
+                alt={user.username || "Profile"}
+                className="profile-img"
+              />
+            ) : (
               <div className="profile-icon">
                 <User size={20} />
               </div>
-            </Link>
+            )}
+            <AnimatePresence initial={false}>
+              {userWork && (
+                <motion.div
+                  key="user-dropdown"
+                  className="userwork"
+                  initial={{ opacity: 0, scale: 0.9, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Link to="/profile" onClick={() => setUserWork(false)}>
+                    <User size={18} /> My Profile
+                  </Link>
+
+                  <Link to="/reviews" onClick={() => setUserWork(false)}>
+                    <NotebookPen size={18} /> Reviews
+                  </Link>
+
+                  <button onClick={() => console.log("Logout clicked")}>
+                    <LogOut size={18} /> Logout
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
           <button
             className="mobile-menu-toggle"
@@ -87,7 +130,9 @@ export default function Header() {
                     <Link
                       to={link.path}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className={location.pathname === link.path ? "active" : ""}
+                      className={
+                        location.pathname === link.path ? "active" : ""
+                      }
                     >
                       {link.name}
                     </Link>

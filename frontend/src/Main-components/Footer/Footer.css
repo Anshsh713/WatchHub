@@ -1,88 +1,88 @@
 /* Footer.css */
 .footer {
-    background-color: var(--color-bg);
-    padding: 60px 0 30px;
-    color: var(--color-text-secondary);
-    margin-top: auto;
-    /* Push to bottom if content is short */
-    border-top: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+  padding: 60px 0 30px;
+  color: var(--color-text-secondary);
+  margin-top: auto;
+  /* Push to bottom if content is short */
+  border-top: 1px solid var(--color-border);
 }
 
 .footer-container {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
 }
 
 .footer-socials {
-    display: flex;
-    gap: 24px;
-    margin-bottom: 10px;
+  display: flex;
+  gap: 24px;
+  margin-bottom: 10px;
 }
 
 .footer-socials a {
-    color: var(--color-text-main);
-    transition: color 0.3s ease;
+  color: var(--color-text-main);
+  transition: color 0.3s ease;
 }
 
 .footer-socials a:hover {
-    color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .footer-links {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    /* Mobile: 2 columns */
-    gap: 20px;
-    font-size: 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  /* Mobile: 2 columns */
+  gap: 20px;
+  font-size: 0.9rem;
 }
 
 @media (min-width: 768px) {
-    .footer-links {
-        grid-template-columns: repeat(4, 1fr);
-        /* Desktop: 4 columns */
-    }
+  .footer-links {
+    grid-template-columns: repeat(4, 1fr);
+    /* Desktop: 4 columns */
+  }
 }
 
 .footer-column {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .footer-column a {
-    color: var(--color-text-secondary);
-    text-decoration: none;
+  color: var(--color-text-secondary);
+  text-decoration: none;
 }
 
 .footer-column a:hover {
-    text-decoration: underline;
-    color: var(--color-text-main);
+  text-decoration: underline;
+  color: var(--color-text-main);
 }
 
 .footer-bottom {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: flex-start;
-    margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-start;
+  margin-top: 20px;
 }
 
 .service-code-btn {
-    border: 1px solid var(--color-text-secondary);
-    color: var(--color-text-secondary);
-    padding: 8px 16px;
-    font-size: 0.8rem;
-    background: transparent;
-    transition: all 0.3s ease;
+  border: 1px solid var(--color-text-secondary);
+  color: var(--color-text-secondary);
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  background: transparent;
+  transition: all 0.3s ease;
 }
 
 .service-code-btn:hover {
-    color: var(--color-text-main);
-    border-color: var(--color-text-main);
+  color: var(--color-text-main);
+  border-color: var(--color-text-main);
 }
 
 .copyright {
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
 }

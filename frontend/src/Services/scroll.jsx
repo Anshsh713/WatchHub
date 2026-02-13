@@ -20,7 +20,7 @@ export default function Scroll() {
         right: 0,
         borderRadius: 100,
         height: 6,
-        background: "linear-gradient(90deg, #0b090a, #e50914)",
+        background: "linear-gradient(90deg, black, var(--color-primary))",
         transformOrigin: "0%",
         zIndex: 9999,
       }}

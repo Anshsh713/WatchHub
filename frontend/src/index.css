@@ -36,6 +36,28 @@
   --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Theme Overrides */
+/* Movies - Blue Theme */
+.theme-movie {
+  --color-primary: #2980b9;
+  --color-primary-hover: #3498db;
+  --color-accent: #00d2ff;
+}
+
+/* TV Shows - Purple/Violet Theme */
+.theme-tv {
+  --color-primary: #8e44ad;
+  --color-primary-hover: #9b59b6;
+  --color-accent: #e056fd;
+}
+
+/* Anime - Orange/Pink Theme */
+.theme-anime {
+  --color-primary: #e67e22;
+  --color-primary-hover: #d35400;
+  --color-accent: #ff7675;
+}
+
 /* Reset & Base Styles */
 * {
   margin: 0;
@@ -105,11 +127,9 @@ h4 {
 }
 
 .text-gradient {
-  background: linear-gradient(
-    to right,
-    var(--color-primary),
-    var(--color-accent)
-  );
+  background: linear-gradient(to right,
+      var(--color-primary),
+      var(--color-accent));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;

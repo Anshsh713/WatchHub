@@ -3,6 +3,7 @@ const express = require("express");
 const WatchHub_Connect = require("./config/Database");
 const cors = require("cors");
 const UserRoutes = require("./routes/UserRoutes");
+const MediaRoutes = require("./routes/MediaRoutes");
 const WatchHub = express();
 
 // ==========================
@@ -23,6 +24,7 @@ WatchHub.use(express.urlencoded({ extended: true }));
    ROUTES
 ========================== */
 WatchHub.use("/api/user", UserRoutes);
+WatchHub.use("/api", MediaRoutes);
 
 WatchHub.get("/", (req, res) => {
   res.status(200).json({

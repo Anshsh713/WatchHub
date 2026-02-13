@@ -1,80 +1,122 @@
 /* Footer.css */
 .footer {
-  background-color: var(--color-bg);
-  padding: 60px 0 30px;
+  background-color: #000;
+  /* Deep black for footer */
+  padding: 80px 0 40px;
   color: var(--color-text-secondary);
   margin-top: auto;
-  /* Push to bottom if content is short */
   border-top: 1px solid var(--color-border);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glass/Gradient Effect at Top */
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      var(--color-primary) 50%,
+      transparent 100%);
+  opacity: 0.5;
 }
 
 .footer-container {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 40px;
+}
+
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.footer-brand {
+  font-size: 2rem;
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  letter-spacing: -1px;
 }
 
 .footer-socials {
   display: flex;
-  gap: 24px;
-  margin-bottom: 10px;
+  gap: 20px;
 }
 
 .footer-socials a {
   color: var(--color-text-main);
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  opacity: 0.7;
 }
 
 .footer-socials a:hover {
   color: var(--color-primary);
+  opacity: 1;
+  transform: translateY(-3px);
 }
 
 .footer-links {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  /* Mobile: 2 columns */
-  gap: 20px;
+  gap: 30px;
   font-size: 0.9rem;
 }
 
 @media (min-width: 768px) {
   .footer-links {
     grid-template-columns: repeat(4, 1fr);
-    /* Desktop: 4 columns */
   }
 }
 
 .footer-column {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+}
+
+.footer-column h4 {
+  color: var(--color-text-main);
+  font-size: 1rem;
+  margin-bottom: 8px;
+  opacity: 0.9;
 }
 
 .footer-column a {
   color: var(--color-text-secondary);
   text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .footer-column a:hover {
+  color: var(--color-accent);
+  /* Use accent color on hover */
   text-decoration: underline;
-  color: var(--color-text-main);
 }
 
 .footer-bottom {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
-  align-items: flex-start;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .service-code-btn {
   border: 1px solid var(--color-text-secondary);
   color: var(--color-text-secondary);
-  padding: 8px 16px;
+  padding: 6px 14px;
   font-size: 0.8rem;
   background: transparent;
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .service-code-btn:hover {
@@ -82,7 +124,31 @@
   border-color: var(--color-text-main);
 }
 
+.copyright-area {
+  text-align: right;
+}
+
 .copyright {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--color-text-muted);
+}
+
+.disclaimer {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+  margin-top: 4px;
+}
+
+/* Dynamic Theming Improvements for specific areas */
+.theme-movie .footer-brand {
+  text-shadow: 0 0 20px rgba(41, 128, 185, 0.5);
+}
+
+.theme-tv .footer-brand {
+  text-shadow: 0 0 20px rgba(142, 68, 173, 0.5);
+}
+
+.theme-anime .footer-brand {
+  text-shadow: 0 0 20px rgba(230, 126, 34, 0.5);
 }

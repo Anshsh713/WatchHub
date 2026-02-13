@@ -58,6 +58,18 @@
   --color-accent: #ff7675;
 }
 
+/* Global Transitions for Theme Changes */
+*,
+*::before,
+*::after {
+  transition: background-color var(--transition-smooth),
+    border-color var(--transition-smooth),
+    color var(--transition-smooth),
+    fill var(--transition-smooth),
+    stroke var(--transition-smooth),
+    box-shadow var(--transition-smooth);
+}
+
 /* Reset & Base Styles */
 * {
   margin: 0;
@@ -73,12 +85,13 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  transition: background-color var(--transition-smooth), color var(--transition-smooth);
 }
 
 a {
   text-decoration: none;
   color: inherit;
-  transition: var(--transition-fast);
+  transition: var(--transition-fast), color var(--transition-smooth);
 }
 
 button {
@@ -86,6 +99,7 @@ button {
   border: none;
   background: none;
   font-family: inherit;
+  transition: background-color var(--transition-smooth), color var(--transition-smooth), border-color var(--transition-smooth);
 }
 
 img {

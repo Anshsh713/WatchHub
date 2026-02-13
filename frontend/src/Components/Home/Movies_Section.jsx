@@ -1,9 +1,11 @@
 import React, { useEffect } from "react";
 import { useMedia } from "../../Context/MediaContext";
+import HorizontalMediaList from "./HorizontalMediaList";
+import { motion, AnimatePresence } from "framer-motion";
 import "./Home.css";
 
 export default function Movies_Section() {
-  const { media, loading, error, currentType, fetchMedia } = useMedia();
+  const { mediaMap, loading, error, setCurrentType, currentType } = useMedia();
 
   useEffect(() => {
     const savedType = localStorage.getItem("mediaType") || "all";
@@ -11,8 +13,7 @@ export default function Movies_Section() {
   }, []);
 
   const handleChange = (type) => {
-    fetchMedia(type);
-
+    setCurrentType(type);
     let themeClass = "";
 
     if (type === "movie") themeClass = "theme-movie";
@@ -24,36 +25,37 @@ export default function Movies_Section() {
     localStorage.setItem("mediaType", type);
   };
 
+  const selectedMedia = mediaMap[currentType] || [];
+
+  const tabs = [
+    { label: "All", value: "all" },
+    { label: "Movies", value: "movie" },
+    { label: "TV Shows", value: "tv" },
+    { label: "Anime", value: "anime" },
+  ];
   return (
     <div className="Movie-Section">
       <div className="Main-filter">
-        <button
-          className={currentType === "all" ? "active" : ""}
-          onClick={() => handleChange("all")}
-        >
-          All
-        </button>
-
-        <button
-          className={currentType === "movie" ? "active" : ""}
-          onClick={() => handleChange("movie")}
-        >
-          Movies
-        </button>
-
-        <button
-          className={currentType === "tv" ? "active" : ""}
-          onClick={() => handleChange("tv")}
-        >
-          TV Shows
-        </button>
-
-        <button
-          className={currentType === "anime" ? "active" : ""}
-          onClick={() => handleChange("anime")}
-        >
-          Anime
-        </button>
+        {tabs.map((tab) => (
+          <motion.button
+            key={tab.value}
+            onClick={() => handleChange(tab.value)}
+            className="filter-tab"
+            initial={false}
+            animate={{
+              color: currentType === tab.value ? "#fff" : "#aaa",
+            }}
+          >
+            {tab.label}
+            {currentType === tab.value && (
+              <motion.div
+                className="underline"
+                layoutId="underline"
+                transition={{ type: "spring", stiffness: 500, damping: 35 }}
+              />
+            )}
+          </motion.button>
+        ))}
       </div>
 
       <div className="Media">
@@ -61,20 +63,23 @@ export default function Movies_Section() {
           {loading && <p>Loading...</p>}
           {error && <p>{error}</p>}
 
-          {!loading && media?.length === 0 && <p>No media found</p>}
+          {!loading && selectedMedia?.length === 0 && <p>No media found</p>}
 
-          {media?.map((item) => (
-            <div key={item.id} className="media-card">
-              <img
-                src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
-                alt={item.title || item.name}
-              />
-              <div className="media-info">
-                <h4>{item.title || item.name}</h4>
-                <p>⭐ {item.vote_average}</p>
-              </div>
-            </div>
-          ))}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentType}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.3 }}
+            >
+              {!loading && selectedMedia?.length > 0 && (
+                <HorizontalMediaList media={selectedMedia} />
+              )}
+
+              {!loading && selectedMedia?.length === 0 && <p>No media found</p>}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </div>

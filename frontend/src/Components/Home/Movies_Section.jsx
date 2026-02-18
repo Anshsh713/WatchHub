@@ -74,7 +74,7 @@ export default function Movies_Section() {
               transition={{ duration: 0.3 }}
             >
               {!loading && selectedMedia?.length > 0 && (
-                <HorizontalMediaList media={selectedMedia} />
+                <HorizontalMediaList media={selectedMedia} type={currentType} />
               )}
 
               {!loading && selectedMedia?.length === 0 && <p>No media found</p>}

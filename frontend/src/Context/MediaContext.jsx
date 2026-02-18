@@ -15,6 +15,7 @@ export const MediaProvider = ({ children }) => {
   const [movies, setMovies] = useState([]);
   const [tvshow, setTVshow] = useState([]);
   const [anime, setAnime] = useState([]);
+  const [mediaDetails, setMediaDetails] = useState({});
 
   const mediaMap = { all, movie: movies, tv: tvshow, anime };
 
@@ -48,6 +49,25 @@ export const MediaProvider = ({ children }) => {
     setLoading(false);
   };
 
+  const fetchMediaDetails = async (media_id, media_type) => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log("Sending:", media_id, media_type);
+
+      const res = await API.get(`/media/${media_id}`, {
+        params: { type: media_type },
+      });
+      console.log("Sending got:", media_id, media_type);
+      console.log("data", res.data);
+      setMediaDetails(res.data);
+    } catch (error) {
+      setError("Failed to fetch Media Data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchMedia(currentType);
   }, []);
@@ -61,6 +81,8 @@ export const MediaProvider = ({ children }) => {
         setCurrentType,
         currentType,
         fetchMedia,
+        fetchMediaDetails,
+        mediaDetails,
       }}
     >
       {children}

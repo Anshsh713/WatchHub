@@ -130,6 +130,11 @@
   transition: all 0.3s ease;
 }
 
+.indicator-dot:hover {
+  background-color: var(--color-primary);
+  transform: scale(1.1);
+}
+
 .indicator-dot.active {
   background-color: var(--color-primary);
   transform: scale(1.3);

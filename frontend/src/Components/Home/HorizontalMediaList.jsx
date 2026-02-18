@@ -8,6 +8,7 @@ import {
   useScroll,
 } from "framer-motion";
 import { useRef } from "react";
+import { Link } from "react-router-dom";
 import { useMedia } from "../../Context/MediaContext";
 import "./Home.css";
 
@@ -48,14 +49,14 @@ function useScrollOverflowMask(scrollXProgress) {
   return maskImage;
 }
 
-export default function HorizontalMediaList({ media }) {
+export default function HorizontalMediaList({ media, type }) {
   const ref = useRef(null);
   const { scrollXProgress } = useScroll({ container: ref });
   const maskImage = useScrollOverflowMask(scrollXProgress);
+  const { fetchMediaDetails } = useMedia();
 
   return (
     <div className="scroll-linked-container">
-      {console.log("type", media)}
       <svg id="progress" width="50" height="50" viewBox="0 0 100 100">
         <circle cx="50" cy="50" r="30" pathLength="1" className="bg" />
         <motion.circle
@@ -69,7 +70,15 @@ export default function HorizontalMediaList({ media }) {
       <motion.ul ref={ref} style={{ maskImage }} className="media-list">
         {media?.map((item) => (
           <li key={item.id} className="media-card-wrapper">
-            <div className="media-card">
+            <div
+              className="media-card"
+              onClick={() =>
+                fetchMediaDetails(
+                  item.id,
+                  type === "all" ? item.media_type : type,
+                )
+              }
+            >
               <img
                 src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
                 alt={item.title || item.name}

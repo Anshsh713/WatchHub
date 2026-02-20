@@ -39,7 +39,8 @@ exports.getMediaDetails = async (req, res) => {
       return res.status(400).json({ message: "Missing id or type" });
     }
 
-    let mediaType = type === "anime" ? "tv" : type;
+    const originalType = type;
+    const mediaType = type === "anime" ? "tv" : type;
 
     const details = await fetchFromTMDB(`/${mediaType}/${id}`);
     const credits = await fetchFromTMDB(`/${mediaType}/${id}/credits`);
@@ -95,9 +96,23 @@ exports.getMediaDetails = async (req, res) => {
       releaseDate &&
       new Date(releaseDate) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
+    let duration = null;
+    let totalSeasons = null;
+    let totalEpisodes = null;
+    let episodeRuntime = null;
+    let status = details.status || null;
+
+    if (mediaType === "movie") {
+      duration = details.runtime;
+    } else {
+      totalSeasons = details.number_of_seasons;
+      totalEpisodes = details.number_of_episodes;
+      episodeRuntime = details.episode_run_time?.[0] || null;
+    }
+
     res.json({
       id: details.id,
-      type: mediaType,
+      type: originalType,
       name: details.title || details.name,
       overview: details.overview,
 
@@ -115,6 +130,15 @@ exports.getMediaDetails = async (req, res) => {
       country: details.production_countries,
       language: details.original_language,
       ageRating,
+
+      // 🎬 Movie specific
+      duration, // minutes
+
+      // 📺 TV / Anime specific
+      totalSeasons,
+      totalEpisodes,
+      episodeRuntime,
+      status,
 
       cast: credits.cast?.slice(0, 10) || [],
       crew: credits.crew || [],

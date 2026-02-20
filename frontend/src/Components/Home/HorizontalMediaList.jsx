@@ -69,25 +69,22 @@ export default function HorizontalMediaList({ media, type }) {
       </svg>
       <motion.ul ref={ref} style={{ maskImage }} className="media-list">
         {media?.map((item) => (
-          <li key={item.id} className="media-card-wrapper">
-            <div
-              className="media-card"
-              onClick={() =>
-                fetchMediaDetails(
-                  item.id,
-                  type === "all" ? item.media_type : type,
-                )
-              }
-            >
-              <img
-                src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
-                alt={item.title || item.name}
-              />
-              <div className="media-info">
-                <h4>{item.title || item.name}</h4>
+          <Link
+            key={item.id}
+            to={`/media/${type === "all" ? item.media_type : type}/${item.id}`}
+          >
+            <li key={item.id} className="media-card-wrapper">
+              <div className="media-card">
+                <img
+                  src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
+                  alt={item.title || item.name}
+                />
+                <div className="media-info">
+                  <h4>{item.title || item.name}</h4>
+                </div>
               </div>
-            </div>
-          </li>
+            </li>
+          </Link>
         ))}
       </motion.ul>
     </div>

@@ -15,7 +15,7 @@ export const MediaProvider = ({ children }) => {
   const [movies, setMovies] = useState([]);
   const [tvshow, setTVshow] = useState([]);
   const [anime, setAnime] = useState([]);
-  const [mediaDetails, setMediaDetails] = useState({});
+  const [mediaDetails, setMediaDetails] = useState(null);
 
   const mediaMap = { all, movie: movies, tv: tvshow, anime };
 

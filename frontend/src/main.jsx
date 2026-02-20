@@ -12,6 +12,7 @@ import { MediaProvider } from "./Context/MediaContext.jsx";
 import Home from "./Components/Home/Home.jsx";
 import Protected from "./Data_Management/Protected.jsx";
 import AuthPage from "./Login_Signup/AuthPage/AuthPage.jsx";
+import MediaDetials from "./Components/MovieDetails/MovieDetails.jsx";
 import App from "./App.jsx";
 import "./index.css";
 import ErrorBoundary from "./Components/ErrorBoundary/ErrorBoundary.jsx";
@@ -30,6 +31,14 @@ const router = createBrowserRouter([
         element: (
           <Protected>
             <Home />
+          </Protected>
+        ),
+      },
+      {
+        path: "/media/:type/:id",
+        element: (
+          <Protected>
+            <MediaDetials />
           </Protected>
         ),
       },

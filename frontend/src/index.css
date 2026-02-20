@@ -62,7 +62,8 @@
 *,
 *::before,
 *::after {
-  transition: background-color var(--transition-smooth),
+  transition:
+    background-color var(--transition-smooth),
     border-color var(--transition-smooth),
     color var(--transition-smooth),
     fill var(--transition-smooth),
@@ -77,6 +78,14 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: black;
+}
+
 body {
   font-family: var(--font-main);
   background-color: var(--color-bg);
@@ -85,13 +94,17 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-  transition: background-color var(--transition-smooth), color var(--transition-smooth);
+  transition:
+    background-color var(--transition-smooth),
+    color var(--transition-smooth);
 }
 
 a {
   text-decoration: none;
   color: inherit;
-  transition: var(--transition-fast), color var(--transition-smooth);
+  transition:
+    var(--transition-fast),
+    color var(--transition-smooth);
 }
 
 button {
@@ -99,7 +112,10 @@ button {
   border: none;
   background: none;
   font-family: inherit;
-  transition: background-color var(--transition-smooth), color var(--transition-smooth), border-color var(--transition-smooth);
+  transition:
+    background-color var(--transition-smooth),
+    color var(--transition-smooth),
+    border-color var(--transition-smooth);
 }
 
 img {
@@ -141,9 +157,11 @@ h4 {
 }
 
 .text-gradient {
-  background: linear-gradient(to right,
-      var(--color-primary),
-      var(--color-accent));
+  background: linear-gradient(
+    to right,
+    var(--color-primary),
+    var(--color-accent)
+  );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -216,7 +234,7 @@ h4 {
 /* Hide scrollbar but allow scrolling */
 html,
 body {
-  background-color: var(--background);
+  background-color: var(--color-bg);
   scrollbar-width: none;
   /* Firefox */
   -ms-overflow-style: none;

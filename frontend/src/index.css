@@ -157,11 +157,9 @@ h4 {
 }
 
 .text-gradient {
-  background: linear-gradient(
-    to right,
-    var(--color-primary),
-    var(--color-accent)
-  );
+  background: linear-gradient(to right,
+      var(--color-primary),
+      var(--color-accent));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -231,7 +229,12 @@ h4 {
   border-radius: 12px;
 }
 
-/* Hide scrollbar but allow scrolling */
+html {
+  background-color: black;
+  overflow-x: hidden;
+  width: 100%;
+}
+
 html,
 body {
   background-color: var(--color-bg);
@@ -239,8 +242,7 @@ body {
   /* Firefox */
   -ms-overflow-style: none;
   /* IE and Edge */
-  overflow: -moz-scrollbars-none;
-  /* older Firefox */
+  overflow-x: hidden;
 }
 
 html::-webkit-scrollbar,

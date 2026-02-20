@@ -3,6 +3,8 @@
   min-height: 100vh;
   color: white;
   position: relative;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 .banner {
@@ -27,13 +29,11 @@
   left: 0;
   width: 100%;
   height: 60%;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(0, 0, 0, 0.4) 40%,
-    rgba(0, 0, 0, 0.8) 70%,
-    black 100%
-  );
+  background: linear-gradient(to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.4) 40%,
+      rgba(0, 0, 0, 0.8) 70%,
+      black 100%);
 }
 
 .main-content {
@@ -46,11 +46,13 @@
   max-width: 1400px;
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
 }
 
 .media-image {
   flex-shrink: 0;
   width: 300px;
+  min-width: 0;
 }
 
 .image {
@@ -70,6 +72,7 @@
 .media-details {
   flex-grow: 1;
   padding-top: 100px;
+  min-width: 0;
 }
 
 .title-area h1 {
@@ -77,6 +80,8 @@
   margin-bottom: 20px;
   font-family: var(--font-heading);
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .idea {
@@ -86,6 +91,7 @@
   color: var(--color-text-secondary);
   font-size: 1.1rem;
   margin-bottom: 30px;
+  flex-wrap: wrap;
 }
 
 .overview {
@@ -94,6 +100,8 @@
   line-height: 1.8;
   color: var(--color-text-main);
   opacity: 0.9;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .trailer {
@@ -119,7 +127,7 @@
   background: black;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 0 50px rgba(0,0,0,1);
+  box-shadow: 0 0 50px rgba(0, 0, 0, 1);
 }
 
 .trailer-content iframe {
@@ -151,6 +159,7 @@
     align-items: center;
     margin-top: -150px;
     text-align: center;
+    gap: 20px;
   }
 
   .media-image {

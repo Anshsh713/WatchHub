@@ -4,13 +4,20 @@ import { Bell, User, Menu, X, NotebookPen, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector } from "react-redux";
 import "./Header.css";
+import { useMedia } from "../../Context/MediaContext";
 
 export default function Header() {
+  const { currentType } = useMedia();
   const { user } = useSelector((state) => state.auth);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [userWork, setUserWork] = useState(false);
   const location = useLocation();
+
+  let themeClass = "";
+  if (currentType === "movie") themeClass = "theme-movie";
+  else if (currentType === "tv") themeClass = "theme-tv";
+  else if (currentType === "anime") themeClass = "theme-anime";
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -42,7 +49,7 @@ export default function Header() {
   ];
 
   return (
-    <header className={`header ${isScrolled ? "scrolled" : ""}`}>
+    <header className={`header ${isScrolled ? "scrolled" : ""} ${themeClass}`}>
       <div className="container header-container">
         <div className="header-left">
           <Link to="/home" className="logo">

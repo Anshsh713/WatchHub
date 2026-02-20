@@ -8,12 +8,13 @@ import { X, Dot } from "lucide-react";
 
 export default function MediaDetail() {
   const { id, type } = useParams();
-  const { fetchMediaDetails, mediaDetails, loading } = useMedia();
+  const { fetchMediaDetails, mediaDetails, loading, setCurrentType } = useMedia();
   const [video, setVideo] = useState(false);
 
   useEffect(() => {
     if (id && type) {
       fetchMediaDetails(id, type);
+      setCurrentType(type);
     }
   }, [id, type]);
 
@@ -119,16 +120,6 @@ export default function MediaDetail() {
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <motion.button
-                onClick={() => setVideo(false)}
-                whileHover={{ rotate: 90, scale: 1.2 }}
-                whileTap={{ scale: 0.9 }}
-                transition={{ type: "spring", stiffness: 50 }}
-                className="close-btn"
-              >
-                <X size={30} />
-              </motion.button>
-
               <iframe
                 width="100%"
                 height="600"

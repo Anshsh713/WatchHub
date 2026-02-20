@@ -7,15 +7,14 @@ export const MediaProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const [currentType, setCurrentType] = useState(
-    localStorage.getItem("mediaType") || "all",
-  );
-
   const [all, setAll] = useState([]);
   const [movies, setMovies] = useState([]);
   const [tvshow, setTVshow] = useState([]);
   const [anime, setAnime] = useState([]);
   const [mediaDetails, setMediaDetails] = useState(null);
+  const [currentType, setCurrentType] = useState(
+    localStorage.getItem("mediaType") || "all"
+  );
 
   const mediaMap = { all, movie: movies, tv: tvshow, anime };
 
@@ -67,6 +66,17 @@ export const MediaProvider = ({ children }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    let themeClass = "";
+    if (currentType === "movie") themeClass = "theme-movie";
+    else if (currentType === "tv") themeClass = "theme-tv";
+    else if (currentType === "anime") themeClass = "theme-anime";
+    else themeClass = "";
+
+    document.body.className = themeClass;
+    localStorage.setItem("mediaType", currentType);
+  }, [currentType]);
 
   useEffect(() => {
     fetchMedia(currentType);

@@ -14,15 +14,6 @@ export default function Movies_Section() {
 
   const handleChange = (type) => {
     setCurrentType(type);
-    let themeClass = "";
-
-    if (type === "movie") themeClass = "theme-movie";
-    else if (type === "tv") themeClass = "theme-tv";
-    else if (type === "anime") themeClass = "theme-anime";
-    else themeClass = "";
-
-    document.body.className = themeClass;
-    localStorage.setItem("mediaType", type);
   };
 
   const selectedMedia = mediaMap[currentType] || [];

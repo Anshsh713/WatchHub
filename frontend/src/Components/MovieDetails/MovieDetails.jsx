@@ -11,7 +11,7 @@ import {
 } from "framer-motion";
 import "./MovieDetails.css";
 import VideoLoader from "../Common/VideoLoader";
-import { X, Dot, MoveUpRight, Watch } from "lucide-react";
+import { Dot, ChevronRight } from "lucide-react";
 import VibeChart from "../Common/VideChart";
 import { useRef } from "react";
 
@@ -20,28 +20,9 @@ const DEFAULT_PROFILE =
 
 const ScrollablePeople = ({ title, data }) => {
   const ref = useRef(null);
-  const { scrollXProgress } = useScroll({ container: ref });
-
   return (
     <div className="scroll-section">
       <h2>{title}</h2>
-
-      <svg
-        className="scroll-progress"
-        width="60"
-        height="60"
-        viewBox="0 0 100 100"
-      >
-        <circle cx="50" cy="50" r="40" pathLength="1" className="bg" />
-        <motion.circle
-          cx="50"
-          cy="50"
-          r="40"
-          pathLength="1"
-          className="indicator"
-          style={{ pathLength: scrollXProgress }}
-        />
-      </svg>
 
       <motion.div ref={ref} className="scroll-container">
         {data.map((person) => (
@@ -234,25 +215,27 @@ export default function MediaDetail() {
             <h1>Overview</h1>
             <p>{mediaDetails.overview}</p>
           </div>
-          {mediaDetails.cast?.length > 0 && (
-            <ScrollablePeople title="Cast" data={mediaDetails.cast} />
-          )}
+          <div className="cast-crew">
+            {mediaDetails.cast?.length > 0 && (
+              <ScrollablePeople title="Cast" data={mediaDetails.cast} />
+            )}
 
-          {mediaDetails.crew?.length > 0 && (
-            <ScrollablePeople title="Crew" data={mediaDetails.crew} />
-          )}
-          {mediaDetails.productionHouses?.length > 0 && (
-            <div className="section">
-              <h2>Production</h2>
-              <div className="production-list">
-                {mediaDetails.productionHouses.map((house) => (
-                  <div key={house.id} className="production-card">
-                    {house.name}
-                  </div>
-                ))}
+            {mediaDetails.crew?.length > 0 && (
+              <ScrollablePeople title="Crew" data={mediaDetails.crew} />
+            )}
+            {mediaDetails.productionHouses?.length > 0 && (
+              <div className="section">
+                <h2>Production</h2>
+                <div className="production-list">
+                  {mediaDetails.productionHouses.map((house) => (
+                    <div key={house.id} className="production-card">
+                      {house.name}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
         <div className="vide-watch">
           <div className="vide">
@@ -260,9 +243,8 @@ export default function MediaDetail() {
           </div>
           <div className="watch">
             {mediaDetails.theatreStatus.isInTheatre === true ? (
-              <div className="threatre">
+              <div className="theatre">
                 <h3>Tickets On</h3>
-
                 {bookingPlatforms.map((platform) => (
                   <a
                     key={platform.name}
@@ -275,16 +257,15 @@ export default function MediaDetail() {
                       <img src={platform.logo} alt={platform.name} />
                     </div>
 
-                    <span>Book on {platform.name}</span>
+                    <span>{platform.name}</span>
 
-                    <MoveUpRight />
+                    <ChevronRight />
                   </a>
                 ))}
               </div>
             ) : mediaDetails.platforms ? (
-              <div className="watch">
+              <div className="theatre">
                 <h3>Watch On</h3>
-
                 {streamingPlatforms.map((platform) => (
                   <a
                     key={platform.name}
@@ -299,7 +280,7 @@ export default function MediaDetail() {
 
                     <span>{platform.name}</span>
 
-                    <MoveUpRight />
+                    <ChevronRight />
                   </a>
                 ))}
               </div>

@@ -42,7 +42,7 @@
   position: relative;
   display: flex;
   gap: 40px;
-  padding: 0 5%;
+  padding: 0 3%;
   margin-top: -300px;
   z-index: 2;
   max-width: 1400px;
@@ -88,6 +88,7 @@
   font-size: 1.1rem;
   flex-wrap: wrap;
 }
+
 .Name h1 {
   font-size: 3rem;
 }
@@ -96,18 +97,20 @@
   display: flex;
   gap: 40px;
 }
+
 .title {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
+
 .title h5 {
   color: var(--color-text-secondary);
 }
 
 .Overview {
   width: 100%;
-  padding: 20px 0px 0px 50px;
+  padding: 20px 10px 0px 25px;
 }
 
 .Overview h1 {
@@ -121,66 +124,65 @@
   color: var(--color-text-secondary);
 }
 
-.vibe {
-  margin-top: 40px;
-  max-width: 600px;
-}
-
-.threatre {
-  width: 30%;
-}
-
-.whaton {
-  display: flex;
-  padding-left: 5%;
-}
-
-.logo-show {
-  width: 15%;
-}
-
 .section {
   margin-top: 40px;
+  margin-bottom: 100px;
 }
 
 .content {
   display: flex;
-  padding: 10px;
+  padding: 20px;
   gap: 20px;
 }
 
 .overview-cast-crew {
-  width: 90%;
+  flex: 3;
+  min-width: 0;
 }
 
 .vide-watch {
+  flex: 1;
+  min-width: 350px;
 }
 
-.people-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 20px;
+.cast-crew {
+  padding: 20px 10px 0px 25px;
+}
+
+.cast-crew h2 {
+  font-size: 1.7rem;
+  font-weight: 100;
+  margin-bottom: 2%;
 }
 
 .person-card {
-  text-align: center;
+  flex: 0 0 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .person-card img {
-  width: 100%;
-  border-radius: 12px;
-  aspect-ratio: 2/3;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
   object-fit: cover;
-  transition: 0.3s ease;
+  object-position: center;
+  display: block;
+  background-color: #1e1e1e;
+  transition: all 0.25s ease;
+  cursor: pointer;
 }
 
 .person-card img:hover {
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
 .person-card p {
-  margin-top: 8px;
+  margin-top: 10px;
   font-size: 0.9rem;
+  text-align: center;
+  width: 100%;
 }
 
 .production-list {
@@ -193,6 +195,49 @@
   background: #1e1e1e;
   padding: 8px 16px;
   border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.production-card:hover {
+  transform: scale(1.1);
+  border: 1px solid var(--color-text-secondary);
+}
+
+.theatre {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: #212529;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border-radius: 28px;
+}
+
+.theatre a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  color: white;
+}
+
+.theatre a:hover {
+  transform: translateX(4px);
+}
+
+.logo-show {
+  width: 40px;
+  height: 40px;
+}
+
+.logo-show img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
 }
 
 .scroll-section {
@@ -209,12 +254,11 @@
 }
 
 .scroll-container::-webkit-scrollbar {
-  height: 6px;
+  display: none;
 }
 
 .scroll-container::-webkit-scrollbar-thumb {
-  background: var(--color-primary);
-  border-radius: 10px;
+  display: none;
 }
 
 .scroll-progress {

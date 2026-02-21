@@ -13,7 +13,7 @@ export const MediaProvider = ({ children }) => {
   const [anime, setAnime] = useState([]);
   const [mediaDetails, setMediaDetails] = useState(null);
   const [currentType, setCurrentType] = useState(
-    localStorage.getItem("mediaType") || "all"
+    localStorage.getItem("mediaType") || "all",
   );
 
   const mediaMap = { all, movie: movies, tv: tvshow, anime };
@@ -22,6 +22,10 @@ export const MediaProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
+      setAnime(null);
+      setAll(null);
+      setMovies(null);
+      setTVshow(null);
 
       const res1 = await API.get("/media", {
         params: { type: "all" },
@@ -52,7 +56,7 @@ export const MediaProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      console.log("Sending:", media_id, media_type);
+      setMediaDetails(null);
 
       const res = await API.get(`/media/${media_id}`, {
         params: { type: media_type },

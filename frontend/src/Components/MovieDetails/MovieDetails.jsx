@@ -1,14 +1,71 @@
-import React, { useEffect, useState } from "react";
+import React, { act, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useMedia } from "../../Context/MediaContext";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  animate,
+  useMotionValue,
+  useMotionValueEvent,
+  useScroll,
+} from "framer-motion";
 import "./MovieDetails.css";
 import VideoLoader from "../Common/VideoLoader";
-import { X, Dot } from "lucide-react";
+import { X, Dot, MoveUpRight, Watch } from "lucide-react";
+import VibeChart from "../Common/VideChart";
+import { useRef } from "react";
+
+const DEFAULT_PROFILE =
+  "https://static.vecteezy.com/system/resources/previews/024/983/914/non_2x/simple-user-default-icon-free-png.png";
+
+const ScrollablePeople = ({ title, data }) => {
+  const ref = useRef(null);
+  const { scrollXProgress } = useScroll({ container: ref });
+
+  return (
+    <div className="scroll-section">
+      <h2>{title}</h2>
+
+      <svg
+        className="scroll-progress"
+        width="60"
+        height="60"
+        viewBox="0 0 100 100"
+      >
+        <circle cx="50" cy="50" r="40" pathLength="1" className="bg" />
+        <motion.circle
+          cx="50"
+          cy="50"
+          r="40"
+          pathLength="1"
+          className="indicator"
+          style={{ pathLength: scrollXProgress }}
+        />
+      </svg>
+
+      <motion.div ref={ref} className="scroll-container">
+        {data.map((person) => (
+          <div key={person.id || person.credit_id} className="person-card">
+            <img
+              src={
+                person.profile_path
+                  ? `https://image.tmdb.org/t/p/w200${person.profile_path}`
+                  : DEFAULT_PROFILE
+              }
+              alt={person.name}
+            />
+            <p>{person.name}</p>
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
+};
 
 export default function MediaDetail() {
   const { id, type } = useParams();
-  const { fetchMediaDetails, mediaDetails, loading, setCurrentType } = useMedia();
+  const { fetchMediaDetails, mediaDetails, loading, setCurrentType } =
+    useMedia();
   const [video, setVideo] = useState(false);
 
   useEffect(() => {
@@ -43,7 +100,7 @@ export default function MediaDetail() {
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
   }
 
-  if (loading) {
+  if (loading || !mediaDetails) {
     return (
       <div className="Main-box">
         <AnimatePresence>
@@ -53,9 +110,67 @@ export default function MediaDetail() {
     );
   }
 
-  const media_details = {};
+  const media_details = [
+    { title: "Directed By", content: mediaDetails?.director || "N/A" },
+    {
+      title: "Country",
+      content: mediaDetails?.country?.map((c) => c.name).join(", ") || "N/A",
+    },
+    {
+      title: "Language",
+      content: mediaDetails?.language
+        ? new Intl.DisplayNames(["en"], { type: "language" }).of(
+            mediaDetails.language,
+          )
+        : "N/A",
+    },
+    { title: "Age Rating", content: mediaDetails.ageRating || "N/A" },
+  ];
 
-  if (!mediaDetails?.images) return null;
+  const bookingPlatforms = [
+    {
+      name: "BookMyShow",
+      logo: "https://play-lh.googleusercontent.com/TB_8RMvDjxGmx06LBK-8opRFJ0msb6hSZalEtOMBmxgJ4jYE_i0BmdRuMWChCE76tLnxoytZ75Cew_r0_JDd",
+      link: `https://in.bookmyshow.com/search?q=${encodeURIComponent(
+        mediaDetails.name,
+      )}`,
+    },
+    {
+      name: "WatchHub Booking",
+      logo: "/Watchhub.png",
+      link: "#",
+    },
+  ];
+
+  const normalizePlatforms = (platforms) => {
+    if (!platforms) return [];
+
+    const allProviders = [
+      ...(platforms.flatrate || []),
+      ...(platforms.free || []),
+      ...(platforms.ads || []),
+    ];
+    const unique = [];
+
+    const seen = new Set();
+
+    for (const provider of allProviders) {
+      if (!seen.has(provider.provider_id)) {
+        seen.add(provider.provider_id);
+        unique.push({
+          name: provider.provider_name,
+          logo: `https://image.tmdb.org/t/p/w200${provider.logo_path}`,
+          link: platforms.link,
+        });
+      }
+    }
+
+    return unique;
+  };
+
+  const streamingPlatforms = normalizePlatforms(mediaDetails.platforms);
+
+  if (!mediaDetails) return null;
 
   return (
     <div className="Main-box">
@@ -87,16 +202,111 @@ export default function MediaDetail() {
             <Dot size={30} />
             {mediaDetails.theatreStatus.releaseDate?.slice(0, 4)}
             <Dot size={30} />
-            {formatDuration(mediaDetails.duration)}
+            {formatDuration(
+              mediaDetails.duration
+                ? mediaDetails.duration
+                : mediaDetails.episodeRuntime,
+            )}
+            {mediaDetails.totalSeasons ? (
+              <>
+                <Dot size={30} /> {mediaDetails.totalSeasons} Seasons
+              </>
+            ) : null}
+          </div>
+          <div className="Name">
+            <h1>{mediaDetails.name}</h1>
           </div>
           <div className="media-idea">
-            <div className="media-title"></div>
+            <div className="media-title">
+              {media_details.map((data) => (
+                <div key={data.title} className="title">
+                  <h5>{data.title}</h5>
+                  <p>{data.content}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-
       <div className="content">
-        <pre>{JSON.stringify(mediaDetails, null, 2)}</pre>
+        <div className="overview-cast-crew">
+          <div className="Overview">
+            <h1>Overview</h1>
+            <p>{mediaDetails.overview}</p>
+          </div>
+          {mediaDetails.cast?.length > 0 && (
+            <ScrollablePeople title="Cast" data={mediaDetails.cast} />
+          )}
+
+          {mediaDetails.crew?.length > 0 && (
+            <ScrollablePeople title="Crew" data={mediaDetails.crew} />
+          )}
+          {mediaDetails.productionHouses?.length > 0 && (
+            <div className="section">
+              <h2>Production</h2>
+              <div className="production-list">
+                {mediaDetails.productionHouses.map((house) => (
+                  <div key={house.id} className="production-card">
+                    {house.name}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="vide-watch">
+          <div className="vide">
+            <VibeChart data={mediaDetails.vibeChart} />
+          </div>
+          <div className="watch">
+            {mediaDetails.theatreStatus.isInTheatre === true ? (
+              <div className="threatre">
+                <h3>Tickets On</h3>
+
+                {bookingPlatforms.map((platform) => (
+                  <a
+                    key={platform.name}
+                    className="whaton"
+                    href={platform.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <div className="logo-show">
+                      <img src={platform.logo} alt={platform.name} />
+                    </div>
+
+                    <span>Book on {platform.name}</span>
+
+                    <MoveUpRight />
+                  </a>
+                ))}
+              </div>
+            ) : mediaDetails.platforms ? (
+              <div className="watch">
+                <h3>Watch On</h3>
+
+                {streamingPlatforms.map((platform) => (
+                  <a
+                    key={platform.name}
+                    href={platform.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="whaton"
+                  >
+                    <div className="logo-show">
+                      <img src={platform.logo} alt={platform.name} />
+                    </div>
+
+                    <span>{platform.name}</span>
+
+                    <MoveUpRight />
+                  </a>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </div>
+        {/*  <pre>{JSON.stringify(mediaDetails, null, 2)}</pre> */}
       </div>
       <AnimatePresence>
         {video && mediaDetails.trailer && (

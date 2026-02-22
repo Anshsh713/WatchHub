@@ -22,10 +22,6 @@ export const MediaProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      setAnime(null);
-      setAll(null);
-      setMovies(null);
-      setTVshow(null);
 
       const res1 = await API.get("/media", {
         params: { type: "all" },
@@ -47,16 +43,15 @@ export const MediaProvider = ({ children }) => {
       localStorage.setItem("mediaType", type);
     } catch (err) {
       setError("Failed to fetch media");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const fetchMediaDetails = async (media_id, media_type) => {
     try {
       setLoading(true);
       setError(null);
-      setMediaDetails(null);
 
       const res = await API.get(`/media/${media_id}`, {
         params: { type: media_type },

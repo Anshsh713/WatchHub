@@ -24,6 +24,7 @@ export default function Movies_Section() {
     { label: "TV Shows", value: "tv" },
     { label: "Anime", value: "anime" },
   ];
+  if (!mediaMap) return null;
   return (
     <div className="Movie-Section">
       <div className="Main-filter">

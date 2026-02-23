@@ -193,6 +193,11 @@ export default function MediaDetail() {
                 <Dot size={30} /> {mediaDetails.totalSeasons} Seasons
               </>
             ) : null}
+            {mediaDetails.totalEpisodes ? (
+              <>
+                <Dot size={30} /> {mediaDetails.totalEpisodes} Episodes
+              </>
+            ) : null}
           </div>
           <div className="Name">
             <h1>{mediaDetails.name}</h1>

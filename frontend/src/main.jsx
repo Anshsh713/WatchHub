@@ -9,6 +9,7 @@ import { Provider } from "react-redux";
 import { store } from "./Data_Management/Store.js";
 import { UserProvider } from "./Context/UserContext.jsx";
 import { MediaProvider } from "./Context/MediaContext.jsx";
+import { MediaReviewsProvider } from "./Context/MediaReviewsContext.jsx";
 import Home from "./Components/Home/Home.jsx";
 import Protected from "./Data_Management/Protected.jsx";
 import AuthPage from "./Login_Signup/AuthPage/AuthPage.jsx";
@@ -52,7 +53,9 @@ createRoot(document.getElementById("root")).render(
       <UserProvider>
         <ErrorBoundary>
           <MediaProvider>
-            <RouterProvider router={router} />
+            <MediaReviewsProvider>
+              <RouterProvider router={router} />
+            </MediaReviewsProvider>
           </MediaProvider>
         </ErrorBoundary>
       </UserProvider>

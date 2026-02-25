@@ -224,6 +224,7 @@ exports.getMediaDetails = async (req, res) => {
       type: originalType,
       name: details.title || details.name,
       overview: details.overview,
+      tmdb_rating: details.vote_average,
 
       images: {
         poster: details.poster_path,

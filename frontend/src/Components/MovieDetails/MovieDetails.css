@@ -188,7 +188,7 @@
 .production-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 20px;
 }
 
 .production-card {
@@ -201,7 +201,6 @@
 
 .production-card:hover {
   transform: scale(1.1);
-  border: 1px solid var(--color-text-secondary);
 }
 
 .theatre {
@@ -279,13 +278,9 @@
   stroke-width: 10;
   fill: none;
 }
+/* ===== Reviews Section ===== */
 .Reviews-media {
   padding: 20px 10px 0px 50px;
-}
-.Reviews-media h1 {
-  font-size: 1.7rem;
-  font-weight: 100;
-  margin-bottom: 2%;
 }
 
 .trailer {

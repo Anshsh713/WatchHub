@@ -15,6 +15,7 @@ import { Dot, ChevronRight } from "lucide-react";
 import VibeChart from "../Common/VideChart";
 import { useRef } from "react";
 import MediaReviews from "../MediaReviews/MediaReviews";
+import ReviewFilter from "../MediaReviews/Review";
 
 const DEFAULT_PROFILE =
   "https://static.vecteezy.com/system/resources/previews/024/983/914/non_2x/simple-user-default-icon-free-png.png";
@@ -296,27 +297,7 @@ export default function MediaDetail() {
         {/*  <pre>{JSON.stringify(mediaDetails, null, 2)}</pre> */}
       </div>
       <div className="Reviews-media">
-        <div className="reviews-header">
-          <h1>Reviews</h1>
-          <div className="review-filter">
-            <select>
-              <option>Most Liked</option>
-              <option>Most Recent</option>
-              <option>Oldest</option>
-            </select>
-            <select>
-              <option>All</option>
-              <option>Following</option>
-              <option>Friends</option>
-              <option>By Me</option>
-            </select>
-            <div className="check-box">
-              <input type="checkbox" />
-              <span>Show Spoiler Reviews</span>
-            </div>
-          </div>
-        </div>
-        <MediaReviews mediaID={mediaDetails.id} mediaType={mediaDetails.type} />
+        <ReviewFilter mediaID={mediaDetails.id} mediaType={mediaDetails.type} />
       </div>
       <AnimatePresence>
         {video && mediaDetails.trailer && (

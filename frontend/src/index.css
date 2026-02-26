@@ -157,9 +157,11 @@ h4 {
 }
 
 .text-gradient {
-  background: linear-gradient(to right,
-      var(--color-primary),
-      var(--color-accent));
+  background: linear-gradient(
+    to right,
+    var(--color-primary),
+    var(--color-accent)
+  );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;

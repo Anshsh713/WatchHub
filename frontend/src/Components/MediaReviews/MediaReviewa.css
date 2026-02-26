@@ -1,0 +1,151 @@
+/* ===== Review Container ===== */
+.Review-container {
+  width: 100%;
+  color: #f5f5f5;
+  position: relative;
+}
+
+.writing-reviews {
+  width: 100%;
+  max-width: 750px;
+  margin: 0 auto 30px auto;
+  padding: 20px;
+  background-color: #1c1c1f;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== User + Rating Section ===== */
+.user-rating {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 100;
+  font-size: 1.1rem;
+  color: #ffffff;
+}
+
+.rating {
+  display: flex;
+  background: #2a2a2f;
+  border-radius: 25px;
+  width: 50%;
+  padding: 4px;
+  gap: 6px;
+  position: relative;
+}
+
+.rating-highlight {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  z-index: 0;
+}
+
+.rating-btn span {
+  position: relative;
+  z-index: 2;
+}
+
+.rating-btn {
+  flex: 1;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  color: #aaa;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===== Text Area ===== */
+.write-area textarea {
+  width: 100%;
+  min-height: 100px;
+  resize: none;
+  border: none;
+  background-color: #1c1c1f;
+  border-bottom: 1px solid #2a2a2f;
+  color: #fff;
+  padding: 12px;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s ease;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.write-area textarea::-webkit-scrollbar {
+  display: none;
+}
+
+.write-area textarea:focus {
+  border-color: var(--color-accent);
+}
+
+.limit {
+  text-align: right;
+  width: 100%;
+  color: #aaa;
+}
+/* ===== Post Button ===== */
+.posting {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.posting button {
+  padding: 10px 20px;
+  border-radius: 10px;
+  text-align: center;
+  border: none;
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.posting button:hover {
+  background: var(--color-primary);
+}
+
+/* ===== Review Cards ===== */
+.review-card {
+  background: #1c1c1f;
+  border: 1px solid #2a2a2f;
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 15px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.review-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.review-card h4 {
+  margin: 0 0 8px 0;
+  font-size: 15px;
+  color: #00bfff;
+}
+
+.review-card p {
+  margin: 0;
+  font-size: 14px;
+  color: #ddd;
+  line-height: 1.5;
+}

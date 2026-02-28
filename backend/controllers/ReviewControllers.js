@@ -164,7 +164,7 @@ exports.getReviewsByMedia = async (req, res) => {
   try {
     const { MediaID } = req.params;
     const page = parseInt(req.query.page) || 1;
-    const limit = 10;
+    const limit = 2;
     const skip = (page - 1) * limit;
 
     const reviews = await MediaReview.find({ MediaID })

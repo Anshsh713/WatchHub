@@ -8,19 +8,25 @@ export const MediaReviewsProvider = ({ children }) => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchReviews = async (mediaId, page = 1) => {
     try {
       setLoading(true);
+      if (page === 1) {
+        setCurrentPage(1);
+      }
       const res = await API.get(`/reviews/${mediaId}?page=${page}`);
       if (page === 1) {
         setReviews(res.data.reviews);
       } else {
         setReviews((prev) => [...prev, ...res.data.reviews]);
       }
+      setTotalPages(res.data.totalPages);
+      setCurrentPage(res.data.currentPage);
     } catch (error) {
       setError(error);
-      setLoading(false);
     } finally {
       setLoading(false);
     }
@@ -80,6 +86,8 @@ export const MediaReviewsProvider = ({ children }) => {
   return (
     <MediaReviewsContext.Provider
       value={{
+        totalPages,
+        currentPage,
         reviews,
         stats,
         loading,

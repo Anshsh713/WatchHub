@@ -35,13 +35,11 @@ exports.createReview = async (req, res) => {
     });
 
     await newReview.save();
-    return res
-      .status(201)
-      .json({
-        message: "Review created successfully",
-        review: newReview,
-        isUpdate: false,
-      });
+    return res.status(201).json({
+      message: "Review created successfully",
+      review: newReview,
+      isUpdate: false,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });
@@ -168,23 +166,51 @@ exports.deleteReview = async (req, res) => {
 exports.getReviewsByMedia = async (req, res) => {
   try {
     const { MediaID } = req.params;
-    const page = parseInt(req.query.page) || 1;
+    const { page = 1, sort = "mostLiked", filter = "all" } = req.query;
+
     const limit = 2;
     const skip = (page - 1) * limit;
 
-    const reviews = await MediaReview.find({ MediaID })
-      .populate("User", "User_Name")
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
+    let query = { MediaID };
 
-    const total = await MediaReview.countDocuments({ MediaID });
+    if (filter === "byMe") {
+      if (!req.user) {
+        return res.status(401).json({ message: "Not authorized" });
+      }
+      query.User = req.user._id;
+    }
+
+    let sortOption = {};
+    if (sort === "latest") sortOption = { createdAt: -1 };
+    if (sort === "oldest") sortOption = { createdAt: 1 };
+
+    const reviews = await MediaReview.aggregate([
+      { $match: query },
+      { $addFields: { likesCount: { $size: "$likes" } } },
+      {
+        $sort:
+          sort === "mostLiked" ? { likesCount: -1, createdAt: -1 } : sortOption,
+      },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: "watchhub_users",
+          localField: "User",
+          foreignField: "_id",
+          as: "User",
+        },
+      },
+      { $unwind: "$User" },
+    ]);
+
+    const total = await MediaReview.countDocuments(query);
 
     res.json({
-      total,
-      currentPage: page,
-      totalPages: Math.ceil(total / limit),
       reviews,
+      total,
+      currentPage: Number(page),
+      totalPages: Math.ceil(total / limit),
     });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });

@@ -7,11 +7,23 @@ import { Pen, PenOff } from "lucide-react";
 export default function ReviewFilter({ mediaID, mediaType }) {
   const [sortOpen, setSortOpen] = useState(false);
   const [typeOpen, setTypeOpen] = useState(false);
-  const [sortValue, setSortValue] = useState("Most Recent");
+  const [sortValue, setSortValue] = useState("Most Liked");
   const [typeValue, setTypeValue] = useState("All");
 
   const optionsSort = ["Most Liked", "Most Recent", "Oldest"];
   const optionsType = ["All", "Following", "Friends", "By Me"];
+  const sortMap = {
+    "Most Liked": "mostLiked",
+    "Most Recent": "latest",
+    Oldest: "oldest",
+  };
+
+  const filterMap = {
+    All: "all",
+    "By Me": "byMe",
+    Following: "following",
+    Friends: "friends",
+  };
 
   const [isOn, setIsOn] = useState(false);
   const [writingReview, setWritingReview] = useState(false);
@@ -168,6 +180,8 @@ export default function ReviewFilter({ mediaID, mediaType }) {
         mediaType={mediaType}
         writingReview={writingReview}
         setWritingReview={setWritingReview}
+        sort={sortMap[sortValue]}
+        filter={filterMap[typeValue]}
       />
     </div>
   );

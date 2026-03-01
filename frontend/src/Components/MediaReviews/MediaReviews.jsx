@@ -11,6 +11,8 @@ export default function MediaReviews({
   mediaType,
   writingReview,
   setWritingReview,
+  sort,
+  filter,
 }) {
   const {
     reviews,
@@ -57,9 +59,9 @@ export default function MediaReviews({
 
   useEffect(() => {
     if (mediaID) {
-      fetchReviews(mediaID);
+      fetchReviews(mediaID, 1, sort, filter);
     }
-  }, [mediaID]);
+  }, [mediaID, sort, filter]);
 
   useEffect(() => {
     if (!reviewRef.current) return;
@@ -67,7 +69,7 @@ export default function MediaReviews({
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && currentPage < totalPages && !loading) {
-          fetchReviews(mediaID, currentPage + 1);
+          fetchReviews(mediaID, currentPage + 1, sort, filter);
         }
       },
       { threshold: 1 },
@@ -75,10 +77,8 @@ export default function MediaReviews({
 
     observer.observe(reviewRef.current);
 
-    return () => {
-      observer.disconnect();
-    };
-  }, [reviewRef, currentPage, totalPages, loading, mediaID]);
+    return () => observer.disconnect();
+  }, [reviewRef, currentPage, totalPages, loading, mediaID, sort, filter]);
 
   {
     loading && reviews.length === 0 && (

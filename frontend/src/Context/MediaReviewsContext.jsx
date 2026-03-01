@@ -12,13 +12,22 @@ export const MediaReviewsProvider = ({ children }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const fetchReviews = async (mediaId, page = 1) => {
+  const fetchReviews = async (
+    mediaId,
+    page = 1,
+    sort = "mostLiked",
+    filter = "all",
+  ) => {
     try {
       setLoading(true);
       if (page === 1) {
         setCurrentPage(1);
+        setReviews([]);
+        setTotalPages(1);
       }
-      const res = await API.get(`/reviews/${mediaId}?page=${page}`);
+      const res = await API.get(
+        `/reviews/${mediaId}?page=${page}&sort=${sort}&filter=${filter}`,
+      );
       if (page === 1) {
         setReviews(res.data.reviews);
       } else {

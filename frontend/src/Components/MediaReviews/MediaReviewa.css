@@ -195,5 +195,5 @@
 }
 
 .action-btn.liked {
-  color: #00bfff;
+  color: var(--color-primary);
 }

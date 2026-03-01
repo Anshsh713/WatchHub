@@ -103,6 +103,7 @@ exports.toggleLikeReview = async (req, res) => {
     res.json({
       success: true,
       likesCount: review.likes.length,
+      isLiked: review.likes.some((id) => id.toString() === userId.toString()),
     });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
@@ -167,7 +168,7 @@ exports.getReviewsByMedia = async (req, res) => {
   try {
     const { MediaID } = req.params;
     const { page = 1, sort = "mostLiked", filter = "all" } = req.query;
-
+    const userId = req.user?._id;
     const limit = 2;
     const skip = (page - 1) * limit;
 
@@ -186,7 +187,12 @@ exports.getReviewsByMedia = async (req, res) => {
 
     const reviews = await MediaReview.aggregate([
       { $match: query },
-      { $addFields: { likesCount: { $size: "$likes" } } },
+      {
+        $addFields: {
+          likesCount: { $size: "$likes" },
+          isLiked: userId ? { $in: [userId, "$likes"] } : false,
+        },
+      },
       {
         $sort:
           sort === "mostLiked" ? { likesCount: -1, createdAt: -1 } : sortOption,

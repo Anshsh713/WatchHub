@@ -92,10 +92,15 @@ export const MediaReviewsProvider = ({ children }) => {
           },
         },
       );
+
       setReviews((prev) =>
         prev.map((review) =>
           review._id === reviewId
-            ? { ...review, likes: Array(res.data.likesCount).fill("x") }
+            ? {
+                ...review,
+                likesCount: res.data.likesCount,
+                isLiked: res.data.isLiked,
+              }
             : review,
         ),
       );

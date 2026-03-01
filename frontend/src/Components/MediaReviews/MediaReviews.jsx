@@ -21,6 +21,7 @@ export default function MediaReviews({
     error,
     fetchReviews,
     CreateReview,
+    toggleLike,
     totalPages,
     currentPage,
   } = useMediaReviews();
@@ -180,7 +181,7 @@ export default function MediaReviews({
           </div>
         )}
         {reviews.map((review) => {
-          const isLiked = review.likes?.includes(user?._id);
+          const isLiked = review.isLiked;
 
           return (
             <motion.div
@@ -228,10 +229,10 @@ export default function MediaReviews({
               <div className="review-actions">
                 <button
                   className={`action-btn ${isLiked ? "liked" : ""}`}
-                  onClick={() => handleLike(review._id)}
+                  onClick={() => toggleLike(review._id)}
                 >
                   <ThumbsUp size={18} />
-                  <span>{review.likes?.length || null}</span>
+                  <span>{review.likesCount || null}</span>
                 </button>
 
                 <button className="action-btn">

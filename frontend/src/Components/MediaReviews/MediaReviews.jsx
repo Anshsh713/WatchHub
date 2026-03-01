@@ -6,9 +6,22 @@ import { CircleUser, User, ThumbsUp, MessageCircle } from "lucide-react";
 import { useRef } from "react";
 import "./MediaReviewa.css";
 
-export default function MediaReviews({ mediaID, mediaType, writingReview }) {
-  const { reviews, loading, error, fetchReviews, totalPages, currentPage } =
-    useMediaReviews();
+export default function MediaReviews({
+  mediaID,
+  mediaType,
+  writingReview,
+  setWritingReview,
+}) {
+  const {
+    reviews,
+    loading,
+    creating,
+    error,
+    fetchReviews,
+    CreateReview,
+    totalPages,
+    currentPage,
+  } = useMediaReviews();
   const { user } = useSelector((state) => state.auth);
   const [selectedRating, setSelectedRating] = React.useState(null);
   const [limit, setLimit] = React.useState("");
@@ -19,6 +32,28 @@ export default function MediaReviews({ mediaID, mediaType, writingReview }) {
     { label: "Go for it", value: "goforit" },
     { label: "Perfection", value: "perfection" },
   ];
+
+  const CreatingReview = async () => {
+    if (!selectedRating || !limit.trim()) return;
+
+    await CreateReview({
+      MediaID: mediaID,
+      MediaType: mediaType,
+      rating:
+        selectedRating === "skip"
+          ? "Skip it"
+          : selectedRating === "timepass"
+            ? "TimePass"
+            : selectedRating === "goforit"
+              ? "Go for it"
+              : "Perfection",
+      comment: limit,
+    });
+
+    setLimit("");
+    setSelectedRating(null);
+    setWritingReview(false);
+  };
 
   useEffect(() => {
     if (mediaID) {
@@ -120,7 +155,9 @@ export default function MediaReviews({ mediaID, mediaType, writingReview }) {
             </div>
             <div className="limit">{limit.length}/1000</div>
             <div className="posting">
-              <button>Post Review</button>
+              <button onClick={CreatingReview}>
+                {creating ? "Posting..." : "Post Review"}
+              </button>
             </div>
           </motion.div>
         )}
@@ -159,7 +196,7 @@ export default function MediaReviews({ mediaID, mediaType, writingReview }) {
                 <div className="user">
                   <CircleUser size={24} />
                   <div className="user-date">
-                    <h4>{review.User?.User_Name}</h4>
+                    <h4>{review.User?.User_Name || user?.User_Name}</h4>
                     <p>{new Date(review.createdAt).toLocaleDateString()}</p>
                   </div>
                 </div>

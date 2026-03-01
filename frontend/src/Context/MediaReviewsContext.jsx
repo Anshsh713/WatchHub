@@ -7,6 +7,7 @@ export const MediaReviewsProvider = ({ children }) => {
   const [reviews, setReviews] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [error, setError] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,13 +44,22 @@ export const MediaReviewsProvider = ({ children }) => {
 
   const CreateReview = async (data) => {
     try {
+      setCreating(true);
       const res = await API.post("/reviews/create", data, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
-      setReviews((prev) => [res.data.review, ...prev]);
+      if (res.data.isUpdate) {
+        setReviews((prev) =>
+          prev.map((review) =>
+            review._id === res.data.review._id ? res.data.review : review,
+          ),
+        );
+      } else {
+        setReviews((prev) => [res.data.review, ...prev]);
+      }
 
       return res.data;
     } catch (error) {
@@ -57,6 +67,8 @@ export const MediaReviewsProvider = ({ children }) => {
         "Create Review Error:",
         error.response?.data || error.message,
       );
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -91,6 +103,7 @@ export const MediaReviewsProvider = ({ children }) => {
         reviews,
         stats,
         loading,
+        creating,
         error,
         fetchReviews,
         fetchStats,

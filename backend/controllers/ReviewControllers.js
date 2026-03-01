@@ -12,7 +12,7 @@ exports.createReview = async (req, res) => {
 
     const existingReview = await MediaReview.findOne({
       MediaID,
-      user: userId,
+      User: userId,
     });
 
     if (existingReview) {
@@ -22,13 +22,14 @@ exports.createReview = async (req, res) => {
       return res.json({
         message: "Review updated successfully",
         review: existingReview,
+        isUpdate: true,
       });
     }
 
     const newReview = new MediaReview({
       MediaID,
       MediaType,
-      user: userId,
+      User: userId,
       rating,
       comment,
     });
@@ -36,7 +37,11 @@ exports.createReview = async (req, res) => {
     await newReview.save();
     return res
       .status(201)
-      .json({ message: "Review created successfully", review: newReview });
+      .json({
+        message: "Review created successfully",
+        review: newReview,
+        isUpdate: false,
+      });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });
@@ -119,7 +124,7 @@ exports.addReply = async (req, res) => {
     }
 
     review.replies.push({
-      user: userId,
+      User: userId,
       comment,
     });
 
@@ -145,7 +150,7 @@ exports.deleteReview = async (req, res) => {
       return res.status(404).json({ message: "Review not found" });
     }
 
-    if (review.user.toString() !== userId) {
+    if (review.User.toString() !== userId) {
       return res.status(403).json({ message: "Not allowed" });
     }
 

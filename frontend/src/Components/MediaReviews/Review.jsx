@@ -30,7 +30,9 @@ export default function ReviewFilter({ mediaID, mediaType }) {
   const [isOn, setIsOn] = useState(false);
   const [writingReview, setWritingReview] = useState(false);
 
-  const toggleSwitch = () => setIsOn(!isOn);
+  const toggleSwitch = () => {
+    setIsOn(!isOn);
+  };
 
   const container = {
     width: 50,

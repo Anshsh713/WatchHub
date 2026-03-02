@@ -157,8 +157,7 @@
 }
 
 .review-card {
-  background-color: #1c1c1f;
-  border-radius: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.413);
   padding: 16px;
   margin-bottom: 20px;
   width: 97%;

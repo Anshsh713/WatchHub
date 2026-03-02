@@ -252,3 +252,8 @@ body::-webkit-scrollbar {
   display: none;
   /* Chrome, Safari, Edge */
 }
+
+.recharts-pie-sector:focus,
+.recharts-wrapper svg {
+  outline: none !important;
+}

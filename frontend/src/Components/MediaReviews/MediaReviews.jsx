@@ -92,11 +92,6 @@ export default function MediaReviews({
     return () => observer.disconnect();
   }, [reviewRef, currentPage, totalPages, loading, mediaID, sort, filter]);
 
-  {
-    loading && reviews.length === 0 && (
-      <p style={{ textAlign: "center" }}>Loading reviews...</p>
-    );
-  }
   if (error) return <p>Error loading reviews</p>;
 
   return (
@@ -186,8 +181,13 @@ export default function MediaReviews({
           </motion.div>
         )}
       </AnimatePresence>
-      <div className="reviews-list">
-        {reviews.length === 0 && (
+      <div className="reviews-list" style={{ minHeight: "70vh" }}>
+        {loading && reviews.length === 0 && (
+          <div className="notfound">
+            <p style={{ textAlign: "center", color: "#aaa", fontSize: "1.1rem" }}>Loading reviews...</p>
+          </div>
+        )}
+        {!loading && reviews.length === 0 && (
           <div className="notfound">
             <video
               src="/notreviews.mp4"

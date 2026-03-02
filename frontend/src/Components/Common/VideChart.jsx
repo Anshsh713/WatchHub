@@ -1,4 +1,4 @@
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Sector } from "recharts";
 import { useState } from "react";
 
 const GENRE_COLORS = {
@@ -33,20 +33,39 @@ const DEFAULT_COLORS = [
   "#2ecc71",
 ];
 
+const renderActiveShape = (props) => {
+  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
+
+  return (
+    <g>
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius + 8}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+        style={{ filter: `drop-shadow(0px 4px 12px ${fill}60)`, transition: "all 0.3s ease" }}
+      />
+    </g>
+  );
+};
+
 export default function VibeChart({ data }) {
   if (!data || data.length === 0) return null;
 
   const [activeindex, setActiveIndex] = useState(null);
-  const onPieEnter = (_, index) => {
-    setActiveIndex(index);
-  };
-  const onPieLeave = () => {
-    setActiveIndex(null);
-  };
 
   const getGenreColor = (name, index) => {
     return GENRE_COLORS[name] || DEFAULT_COLORS[index % DEFAULT_COLORS.length];
   };
+
+  const highest = data.reduce((max, item) =>
+    item.percent > max.percent ? item : max
+  );
+
+  const displayed = activeindex !== null ? data[activeindex] : highest;
 
   return (
     <div
@@ -58,10 +77,14 @@ export default function VibeChart({ data }) {
         padding: "30px",
         borderRadius: "28px",
         boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center"
       }}
     >
       <h2
         style={{
+          width: "100%",
           fontSize: "1.5rem",
           fontWeight: "100",
           marginBottom: "20px",
@@ -71,7 +94,7 @@ export default function VibeChart({ data }) {
         Vibe Chart
       </h2>
 
-      <div style={{ width: "100%", height: 300 }}>
+      <div style={{ width: "100%", height: 300, position: "relative" }}>
         <ResponsiveContainer>
           <PieChart>
             <Pie
@@ -85,40 +108,61 @@ export default function VibeChart({ data }) {
               paddingAngle={2}
               stroke="none"
               activeIndex={activeindex}
-              activeOuterRadius={120}
-              onMouseEnter={onPieEnter}
-              onMouseLeave={onPieLeave}
+              activeShape={renderActiveShape}
+              onMouseEnter={(_, index) => setActiveIndex(index)}
+              onMouseLeave={() => setActiveIndex(null)}
+              animationBegin={0}
+              animationDuration={800}
             >
               {data.map((entry, index) => (
                 <Cell
                   style={{
-                    filter:
-                      activeindex === index
-                        ? "drop-shadow(0 0 12px rgba(255,255,255,0.4))"
-                        : "none",
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer',
+                    opacity: activeindex !== null && activeindex !== index ? 0.6 : 1
                   }}
                   key={`cell-${index}`}
                   fill={getGenreColor(entry.name, index)}
                 />
               ))}
             </Pie>
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "rgba(0, 0, 0, 0.3)",
-                border: "1px solid #333",
-                borderRadius: "12px",
-                padding: "8px 16px",
-                textAlign: "center",
-              }}
-              itemStyle={{
-                color: "#ffffff",
-                fontSize: "14px",
-                fontWeight: "600",
-              }}
-              cursor={{ fill: "transparent" }}
-            />
           </PieChart>
         </ResponsiveContainer>
+
+        {/* Center Info similar to RatingChart */}
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            textAlign: "center",
+            pointerEvents: "none",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: 32,
+              fontWeight: 500,
+              margin: 0,
+              color: getGenreColor(displayed.name, data.findIndex(d => d.name === displayed.name)),
+              transition: "color 0.3s ease",
+              lineHeight: 1,
+            }}
+          >
+            {displayed.percent}%
+          </h2>
+          <p
+            style={{
+              fontSize: 14,
+              color: "#e2e8f0",
+              margin: "4px 0 0 0",
+              fontWeight: 400
+            }}
+          >
+            {displayed.name}
+          </p>
+        </div>
       </div>
 
       {/* Legend section */}
@@ -130,45 +174,64 @@ export default function VibeChart({ data }) {
           gap: "18px",
           marginTop: "30px",
           padding: "0 10px",
+          width: "100%",
         }}
       >
-        {data.map((entry, index) => (
-          <div
-            key={`legend-${index}`}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "100%",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-              <div
-                style={{
-                  width: "12px",
-                  height: "12px",
-                  borderRadius: "50%",
-                  backgroundColor: getGenreColor(entry.name, index),
-                  boxShadow: `0 0 10px ${getGenreColor(entry.name, index)}66`,
-                }}
-              />
-              <span
-                style={{ fontSize: "1.1rem", fontWeight: "500", color: "#bbb" }}
-              >
-                {entry.name}
-              </span>
-            </div>
-            <span
+        {data.map((entry, index) => {
+          const isActive = activeindex === index;
+          const isFaded = activeindex !== null && !isActive;
+
+          return (
+            <div
+              key={`legend-${index}`}
+              onMouseEnter={() => setActiveIndex(index)}
+              onMouseLeave={() => setActiveIndex(null)}
               style={{
-                fontSize: "1.1rem",
-                fontWeight: "700",
-                color: "#fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "100%",
+                cursor: "pointer",
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                opacity: isFaded ? 0.4 : 1,
+                transform: isActive ? "translateX(6px)" : "translateX(0)",
               }}
             >
-              {entry.percent}%
-            </span>
-          </div>
-        ))}
+              <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+                <div
+                  style={{
+                    width: "12px",
+                    height: "12px",
+                    borderRadius: "50%",
+                    backgroundColor: getGenreColor(entry.name, index),
+                    boxShadow: isActive ? `0 0 12px ${getGenreColor(entry.name, index)}` : `0 0 10px ${getGenreColor(entry.name, index)}66`,
+                    transition: "all 0.3s ease",
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: "1.1rem",
+                    fontWeight: isActive ? "600" : "500",
+                    color: isActive ? "#ffffff" : "#bbb",
+                    transition: "all 0.3s ease"
+                  }}
+                >
+                  {entry.name}
+                </span>
+              </div>
+              <span
+                style={{
+                  fontSize: "1.1rem",
+                  fontWeight: "700",
+                  color: isActive ? "#fff" : "#ddd",
+                  transition: "all 0.3s ease"
+                }}
+              >
+                {entry.percent}%
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

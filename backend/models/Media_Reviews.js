@@ -25,6 +25,11 @@ const mediaReviewSchema = new mongoose.Schema(
       enum: ["Perfection", "Go for it", "TimePass", "Skip it"],
     },
 
+    isSpoiler: {
+      type: Boolean,
+      default: false,
+    },
+
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,

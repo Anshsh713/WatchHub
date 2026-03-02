@@ -294,7 +294,7 @@ export default function MediaDetail() {
             ) : null}
           </div>
         </div>
-        {/*  <pre>{JSON.stringify(mediaDetails, null, 2)}</pre> */}
+        {/*<pre>{JSON.stringify(mediaDetails, null, 2)}</pre>*/}
       </div>
       <div className="Reviews-media">
         <ReviewFilter mediaID={mediaDetails.id} mediaType={mediaDetails.type} />

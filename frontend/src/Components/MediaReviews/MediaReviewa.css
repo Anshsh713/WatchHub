@@ -101,6 +101,8 @@
 .posting {
   display: flex;
   justify-content: flex-end;
+  gap: 30rem;
+  align-items: center;
   margin-top: 12px;
 }
 
@@ -118,6 +120,29 @@
 
 .posting button:hover {
   background: var(--color-primary);
+}
+
+.spoiler-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #aaa;
+}
+
+.spoiler-button input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}
+
+.spoiler-button input[type="checkbox"]:checked + label {
+  color: var(--color-primary);
+}
+
+.spoiler-button label {
+  cursor: pointer;
 }
 
 .reviews-list {
@@ -171,6 +196,12 @@
   margin: 12px 0;
   color: #ddd;
   font-size: 14px;
+}
+
+.review-content.spoiler {
+  filter: blur(5px);
+  cursor: pointer;
+  transition: filter 0.3s ease;
 }
 
 .review-actions {

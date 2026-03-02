@@ -13,6 +13,7 @@ export default function MediaReviews({
   setWritingReview,
   sort,
   filter,
+  showSpoiler,
 }) {
   const {
     reviews,
@@ -28,6 +29,8 @@ export default function MediaReviews({
   const { user } = useSelector((state) => state.auth);
   const [selectedRating, setSelectedRating] = React.useState(null);
   const [limit, setLimit] = React.useState("");
+  const [isspoiler, setIsSpoiler] = React.useState(false);
+  const [revealedSpoilers, setRevealedSpoilers] = React.useState({});
   const reviewRef = useRef();
   const ratings = [
     { label: "Skip", value: "skip" },
@@ -35,6 +38,13 @@ export default function MediaReviews({
     { label: "Go for it", value: "goforit" },
     { label: "Perfection", value: "perfection" },
   ];
+
+  const toggleSpoiler = (id) => {
+    setRevealedSpoilers((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
   const CreatingReview = async () => {
     if (!selectedRating || !limit.trim()) return;
@@ -50,6 +60,7 @@ export default function MediaReviews({
             : selectedRating === "goforit"
               ? "Go for it"
               : "Perfection",
+      isSpoiler: isspoiler,
       comment: limit,
     });
 
@@ -156,6 +167,18 @@ export default function MediaReviews({
             </div>
             <div className="limit">{limit.length}/1000</div>
             <div className="posting">
+              {limit.trim() !== "" && selectedRating && (
+                <div className="spoiler-button">
+                  <input
+                    type="checkbox"
+                    id="spoiler-checkbox"
+                    checked={isspoiler}
+                    onChange={(e) => setIsSpoiler(e.target.checked)}
+                  />
+                  <label htmlFor="spoiler-checkbox">Mark as spoiler</label>
+                </div>
+              )}
+
               <button onClick={CreatingReview}>
                 {creating ? "Posting..." : "Post Review"}
               </button>
@@ -219,7 +242,13 @@ export default function MediaReviews({
                 </span>
               </div>
 
-              <div className="review-content">
+              <div
+                className={`review-content${review.isSpoiler && !revealedSpoilers[review._id] && !showSpoiler ? " spoiler" : ""}`}
+                onClick={() => {
+                  if (showSpoiler) return;
+                  if (review.isSpoiler) toggleSpoiler(review._id);
+                }}
+              >
                 <p>
                   {review.comment.slice(0, 400)}
                   {review.comment.length > 400 ? " ...more" : ""}

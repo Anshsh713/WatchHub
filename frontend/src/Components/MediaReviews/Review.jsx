@@ -2,6 +2,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import "./Review.css";
 import MediaReviews from "./MediaReviews";
+import RatingSemiPie from "../Common/RatingChart";
+import { useMediaReviews } from "../../Context/MediaReviewsContext";
 import { Pen, PenOff } from "lucide-react";
 
 export default function ReviewFilter({ mediaID, mediaType }) {
@@ -9,7 +11,7 @@ export default function ReviewFilter({ mediaID, mediaType }) {
   const [typeOpen, setTypeOpen] = useState(false);
   const [sortValue, setSortValue] = useState("Most Liked");
   const [typeValue, setTypeValue] = useState("All");
-
+  const { fetchStats, stats } = useMediaReviews();
   const optionsSort = ["Most Liked", "Most Recent", "Oldest"];
   const optionsType = ["All", "Following", "Friends", "By Me"];
   const sortMap = {
@@ -64,8 +66,13 @@ export default function ReviewFilter({ mediaID, mediaType }) {
     };
   }, []);
 
+  useEffect(() => {
+    fetchStats(mediaID);
+  }, [mediaID]);
+
   return (
     <div className="review">
+      <RatingSemiPie stats={stats?.stats} total={stats?.total} />
       <div className="review-filter">
         <h1>Reviews</h1>
         <div className="filter" ref={filterRef}>
@@ -182,6 +189,7 @@ export default function ReviewFilter({ mediaID, mediaType }) {
         setWritingReview={setWritingReview}
         sort={sortMap[sortValue]}
         filter={filterMap[typeValue]}
+        showSpoiler={isOn}
       />
     </div>
   );

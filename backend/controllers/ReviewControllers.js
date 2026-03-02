@@ -3,7 +3,7 @@ const User = require("../models/WatchHub_User_model");
 
 exports.createReview = async (req, res) => {
   try {
-    const { MediaID, MediaType, rating, comment } = req.body;
+    const { MediaID, MediaType, rating, comment, isSpoiler } = req.body;
     const userId = req.user._id;
 
     if (!MediaID || !MediaType || !rating || !comment) {
@@ -18,6 +18,7 @@ exports.createReview = async (req, res) => {
     if (existingReview) {
       existingReview.rating = rating;
       existingReview.comment = comment;
+      existingReview.isSpoiler = isSpoiler;
       await existingReview.save();
       return res.json({
         message: "Review updated successfully",
@@ -31,6 +32,7 @@ exports.createReview = async (req, res) => {
       MediaType,
       User: userId,
       rating,
+      isSpoiler,
       comment,
     });
 

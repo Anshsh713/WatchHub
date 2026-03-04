@@ -2,7 +2,13 @@ import React, { useEffect } from "react";
 import { useMediaReviews } from "../../Context/MediaReviewsContext";
 import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
-import { CircleUser, User, ThumbsUp, MessageCircle } from "lucide-react";
+import {
+  CircleUser,
+  User,
+  ThumbsUp,
+  MessageCircle,
+  Ellipsis,
+} from "lucide-react";
 import { useRef } from "react";
 import "./MediaReviewa.css";
 
@@ -25,6 +31,7 @@ export default function MediaReviews({
     toggleLike,
     totalPages,
     currentPage,
+    fetchStats,
   } = useMediaReviews();
   const { user } = useSelector((state) => state.auth);
   const [selectedRating, setSelectedRating] = React.useState(null);
@@ -63,7 +70,7 @@ export default function MediaReviews({
       isSpoiler: isspoiler,
       comment: limit,
     });
-
+    await fetchStats(mediaID);
     setLimit("");
     setSelectedRating(null);
     setWritingReview(false);
@@ -184,7 +191,11 @@ export default function MediaReviews({
       <div className="reviews-list" style={{ minHeight: "70vh" }}>
         {loading && reviews.length === 0 && (
           <div className="notfound">
-            <p style={{ textAlign: "center", color: "#aaa", fontSize: "1.1rem" }}>Loading reviews...</p>
+            <p
+              style={{ textAlign: "center", color: "#aaa", fontSize: "1.1rem" }}
+            >
+              Loading reviews...
+            </p>
           </div>
         )}
         {!loading && reviews.length === 0 && (
@@ -254,20 +265,24 @@ export default function MediaReviews({
                   {review.comment.length > 400 ? " ...more" : ""}
                 </p>
               </div>
+              <div className="rev-section">
+                <div className="review-actions">
+                  <button
+                    className={`action-btn ${isLiked ? "liked" : ""}`}
+                    onClick={() => toggleLike(review._id)}
+                  >
+                    <ThumbsUp size={18} />
+                    <span>{review.likesCount || null}</span>
+                  </button>
 
-              <div className="review-actions">
-                <button
-                  className={`action-btn ${isLiked ? "liked" : ""}`}
-                  onClick={() => toggleLike(review._id)}
-                >
-                  <ThumbsUp size={18} />
-                  <span>{review.likesCount || null}</span>
-                </button>
-
-                <button className="action-btn">
-                  <MessageCircle size={18} />
-                  <span>{review.replies?.length || null}</span>
-                </button>
+                  <button className="action-btn">
+                    <MessageCircle size={18} />
+                    <span>{review.replies?.length || null}</span>
+                  </button>
+                </div>
+                <div className="report">
+                  <Ellipsis size={18} />
+                </div>
               </div>
             </motion.div>
           );

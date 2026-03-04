@@ -227,3 +227,22 @@
 .action-btn.liked {
   color: var(--color-primary);
 }
+
+.rev-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.report {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+.report:hover {
+  color: white;
+}

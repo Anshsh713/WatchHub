@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useRef } from "react";
 import "./MediaReviewa.css";
+import Reply from "./MediaReview_Reply/Reply";
 
 export default function MediaReviews({
   mediaID,
@@ -38,6 +39,7 @@ export default function MediaReviews({
   const [limit, setLimit] = React.useState("");
   const [isspoiler, setIsSpoiler] = React.useState(false);
   const [revealedSpoilers, setRevealedSpoilers] = React.useState({});
+  const [revealReply, setRevealReply] = React.useState(null);
   const reviewRef = useRef();
   const ratings = [
     { label: "Skip", value: "skip" },
@@ -216,7 +218,6 @@ export default function MediaReviews({
         )}
         {reviews.map((review) => {
           const isLiked = review.isLiked;
-
           return (
             <motion.div
               key={review._id}
@@ -275,7 +276,14 @@ export default function MediaReviews({
                     <span>{review.likesCount || null}</span>
                   </button>
 
-                  <button className="action-btn">
+                  <button
+                    className="action-btn"
+                    onClick={() => {
+                      setRevealReply(
+                        revealReply === review._id ? null : review._id,
+                      );
+                    }}
+                  >
                     <MessageCircle size={18} />
                     <span>{review.replies?.length || null}</span>
                   </button>
@@ -284,6 +292,7 @@ export default function MediaReviews({
                   <Ellipsis size={18} />
                 </div>
               </div>
+              {revealReply === review._id && <Reply replies={review.replies} />}
             </motion.div>
           );
         })}

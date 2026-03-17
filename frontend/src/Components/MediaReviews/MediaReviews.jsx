@@ -191,6 +191,7 @@ export default function MediaReviews({
         )}
       </AnimatePresence>
       <div className="reviews-list" style={{ minHeight: "70vh" }}>
+        {console.log("review", reviews)}
         {loading && reviews.length === 0 && (
           <div className="notfound">
             <p
@@ -292,7 +293,8 @@ export default function MediaReviews({
                   <Ellipsis size={18} />
                 </div>
               </div>
-              {revealReply === review._id && <Reply replies={review.replies} />}
+
+              {revealReply === review._id && <Reply replies={review} />}
             </motion.div>
           );
         })}

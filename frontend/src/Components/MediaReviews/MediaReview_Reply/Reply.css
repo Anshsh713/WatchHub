@@ -1,0 +1,147 @@
+.reply-section {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  z-index: 2;
+}
+.reply-container {
+  display: flex;
+  width: 900px;
+  max-width: 95%;
+  height: 500px;
+
+  background: #0f0f0f;
+  color: white;
+
+  border-radius: 16px;
+  overflow: hidden;
+
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* LEFT SIDE */
+.left-review {
+  width: 50%;
+  padding: 20px;
+  border-right: 1px solid #2a2a2a;
+}
+
+.review-reply-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.review-reply-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.review-reply-header p {
+  margin: 0;
+  font-size: 12px;
+  color: gray;
+}
+
+.review-text {
+  margin-top: 20px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* RIGHT SIDE */
+.right-replies {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Replies list */
+.replies-list {
+  padding: 15px;
+  overflow-y: auto;
+}
+
+/* Single reply */
+.reply-card {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.reply-body {
+  flex: 1;
+}
+
+.reply-top {
+  display: flex;
+  justify-content: space-between;
+}
+
+.reply-top h4 {
+  font-size: 14px;
+  margin: 0;
+}
+
+.reply-top span {
+  font-size: 11px;
+  color: gray;
+}
+
+.reply-body p {
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+/* Actions */
+.reply-actions {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: gray;
+}
+
+.reply-actions button {
+  background: none;
+  border: none;
+  color: gray;
+  cursor: pointer;
+}
+
+/* Bottom input */
+.reply-input {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1px solid #2a2a2a;
+}
+
+.reply-input input {
+  flex: 1;
+  background: #1a1a1a;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 12px;
+  color: white;
+}
+
+.reply-input button {
+  background: var(--color-accent);
+  border: none;
+  padding: 6px 16px;
+  border-radius: 20px;
+  color: white;
+  cursor: pointer;
+}

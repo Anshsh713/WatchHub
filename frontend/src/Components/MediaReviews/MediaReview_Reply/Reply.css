@@ -72,6 +72,12 @@
 .replies-list {
   padding: 15px;
   overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.replies-list::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
 
 /* Single reply */

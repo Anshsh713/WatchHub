@@ -294,7 +294,9 @@ export default function MediaReviews({
                 </div>
               </div>
 
-              {revealReply === review._id && <Reply replies={review} />}
+              {revealReply === review._id && (
+                <Reply replies={review} closing={setRevealReply} />
+              )}
             </motion.div>
           );
         })}

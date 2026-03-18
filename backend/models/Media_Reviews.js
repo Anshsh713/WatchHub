@@ -45,15 +45,35 @@ const mediaReviewSchema = new mongoose.Schema(
 
     replies: [
       {
+        _id: {
+          type: mongoose.Schema.Types.ObjectId,
+          auto: true,
+        },
+
         user: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "WatchHub_User",
+          required: true,
         },
+
         comment: {
           type: String,
           required: true,
           maxlength: 1000,
         },
+
+        replyingTo: {
+          type: mongoose.Schema.Types.ObjectId,
+          default: null,
+        },
+
+        likes: [
+          {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "WatchHub_User",
+          },
+        ],
+
         createdAt: {
           type: Date,
           default: Date.now,

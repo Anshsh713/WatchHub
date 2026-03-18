@@ -109,6 +109,65 @@ export const MediaReviewsProvider = ({ children }) => {
     }
   };
 
+  const addReply = async (reviewId, comment, replyingTo = null) => {
+    try {
+      const res = await API.post(
+        `/reviews/reply/${reviewId}`,
+        { comment, replyingTo },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+
+      setReviews((prev) =>
+        prev.map((review) =>
+          review._id === reviewId
+            ? { ...review, replies: res.data.replies }
+            : review,
+        ),
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const toggleLikeReply = async (reviewId, replyId) => {
+    try {
+      const res = await API.put(
+        `/reviews/like-reply/${reviewId}/${replyId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+
+      setReviews((prev) =>
+        prev.map((review) =>
+          review._id === reviewId
+            ? {
+                ...review,
+                replies: review.replies.map((reply) =>
+                  reply._id === replyId
+                    ? {
+                        ...reply,
+                        likesCount: res.data.likesCount,
+                        isLiked: res.data.isLiked,
+                      }
+                    : reply,
+                ),
+              }
+            : review,
+        ),
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <MediaReviewsContext.Provider
       value={{
@@ -123,6 +182,8 @@ export const MediaReviewsProvider = ({ children }) => {
         fetchStats,
         CreateReview,
         toggleLike,
+        addReply,
+        toggleLikeReply,
       }}
     >
       {children}

@@ -41,10 +41,9 @@ export const MediaProvider = ({ children }) => {
       setAnime(res4.data.results);
       setCurrentType(type);
       localStorage.setItem("mediaType", type);
+      setLoading(false);
     } catch (err) {
       setError("Failed to fetch media");
-    } finally {
-      setLoading(false);
     }
   };
 

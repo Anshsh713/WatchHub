@@ -20,11 +20,6 @@ export const MediaReviewsProvider = ({ children }) => {
   ) => {
     try {
       setLoading(true);
-      if (page === 1) {
-        setCurrentPage(1);
-        setReviews([]);
-        setTotalPages(1);
-      }
       const res = await API.get(
         `/reviews/${mediaId}?page=${page}&sort=${sort}&filter=${filter}`,
       );

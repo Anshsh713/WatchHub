@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useMediaReviews } from "../../Context/MediaReviewsContext";
 import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -40,6 +40,7 @@ export default function MediaReviews({
   const [isspoiler, setIsSpoiler] = React.useState(false);
   const [revealedSpoilers, setRevealedSpoilers] = React.useState({});
   const [revealReply, setRevealReply] = React.useState(null);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
   const reviewRef = useRef();
   const ratings = [
     { label: "Skip", value: "skip" },
@@ -89,8 +90,17 @@ export default function MediaReviews({
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && currentPage < totalPages && !loading) {
-          fetchReviews(mediaID, currentPage + 1, sort, filter);
+        if (
+          entries[0].isIntersecting &&
+          currentPage < totalPages &&
+          !loading &&
+          !isFetchingMore
+        ) {
+          setIsFetchingMore(true);
+
+          fetchReviews(mediaID, currentPage + 1, sort, filter).finally(() =>
+            setIsFetchingMore(false),
+          );
         }
       },
       { threshold: 1 },

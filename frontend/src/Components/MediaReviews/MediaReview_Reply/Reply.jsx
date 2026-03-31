@@ -46,6 +46,8 @@ export default function Reply({ review, replies, closing }) {
       exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
       transition={{ duration: 0.3 }}
     >
+      {console.log("review of reply page", review)}
+      {console.log("replies of reply page", replies)}
       <motion.div
         className="reply-container"
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
@@ -64,6 +66,23 @@ export default function Reply({ review, replies, closing }) {
             <div>
               <h3>{review.User?.User_Name || review.user?.User_Name}</h3>
               <p>{formatRelativeTime(review.createdAt)}</p>
+            </div>
+            <div className="review-of">
+              <span
+                className="rating-badge"
+                style={{
+                  background:
+                    review.rating === "Skip it"
+                      ? "#ef4444"
+                      : review.rating === "TimePass"
+                        ? "#facc15"
+                        : review.rating === "Go for it"
+                          ? "#22c55e"
+                          : "#8b5cf6",
+                }}
+              >
+                {review.rating}
+              </span>
             </div>
           </div>
 

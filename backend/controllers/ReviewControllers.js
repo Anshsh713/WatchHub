@@ -253,14 +253,6 @@ exports.getReviewsByMedia = async (req, res) => {
         },
       },
       {
-        $lookup: {
-          from: "replies",
-          localField: "_id",
-          foreignField: "reviewId",
-          as: "replies",
-        },
-      },
-      {
         $addFields: {
           repliesCount: { $size: { $ifNull: ["$replies", []] } },
         },

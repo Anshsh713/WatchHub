@@ -30,30 +30,6 @@
     0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
-.close-reply-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: #ccc;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  z-index: 10;
-}
-
-.close-reply-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  transform: scale(1.05);
-}
-
 /* LEFT SIDE */
 .left-review {
   width: 45%;
@@ -72,6 +48,22 @@
   display: flex;
   gap: 16px;
   align-items: center;
+  padding-bottom: 2%;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.review-of {
+  margin-left: auto;
+}
+
+.review-of .rating-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: black;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display: inline-block;
 }
 
 .user-avatar {
@@ -95,6 +87,7 @@
 }
 
 .review-text {
+  padding-left: 3%;
   margin-top: 24px;
   font-size: 16px;
   line-height: 1.6;

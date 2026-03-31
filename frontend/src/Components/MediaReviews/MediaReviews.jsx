@@ -244,6 +244,7 @@ export default function MediaReviews({
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.25 }}
             >
+              {console.log(reviews)}
               <div className="review-header">
                 <div className="user">
                   <CircleUser size={24} />

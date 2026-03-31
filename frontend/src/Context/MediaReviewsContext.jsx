@@ -11,6 +11,7 @@ export const MediaReviewsProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
+  const [repliesMap, setRepliesMap] = useState({});
 
   const fetchReviews = async (
     mediaId,
@@ -116,10 +117,15 @@ export const MediaReviewsProvider = ({ children }) => {
         },
       );
 
+      setRepliesMap((prev) => ({
+        ...prev,
+        [reviewId]: res.data.replies,
+      }));
+
       setReviews((prev) =>
         prev.map((review) =>
           review._id === reviewId
-            ? { ...review, replies: res.data.replies }
+            ? { ...review, repliesCount: (review.repliesCount || 0) + 1 }
             : review,
         ),
       );
@@ -140,26 +146,36 @@ export const MediaReviewsProvider = ({ children }) => {
         },
       );
 
-      setReviews((prev) =>
-        prev.map((review) =>
-          review._id === reviewId
+      setRepliesMap((prev) => ({
+        ...prev,
+        [reviewId]: prev[reviewId]?.map((reply) =>
+          reply._id === replyId
             ? {
-                ...review,
-                replies: review.replies.map((reply) =>
-                  reply._id === replyId
-                    ? {
-                        ...reply,
-                        likesCount: res.data.likesCount,
-                        isLiked: res.data.isLiked,
-                      }
-                    : reply,
-                ),
+                ...reply,
+                likesCount: res.data.likesCount,
+                isLiked: res.data.isLiked,
               }
-            : review,
+            : reply,
         ),
-      );
+      }));
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const fetchReplies = async (reviewId) => {
+    try {
+      const res = await API.get(`/reviews/replies/${reviewId}`);
+
+      setRepliesMap((prev) => ({
+        ...prev,
+        [reviewId]: res.data.replies,
+      }));
+    } catch (error) {
+      console.error(
+        "Fetch replies error:",
+        error.response?.data || error.message,
+      );
     }
   };
 
@@ -179,6 +195,8 @@ export const MediaReviewsProvider = ({ children }) => {
         toggleLike,
         addReply,
         toggleLikeReply,
+        fetchReplies,
+        repliesMap,
       }}
     >
       {children}

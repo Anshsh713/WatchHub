@@ -33,6 +33,8 @@ export default function MediaReviews({
     totalPages,
     currentPage,
     fetchStats,
+    repliesMap,
+    fetchReplies,
   } = useMediaReviews();
   const { user } = useSelector((state) => state.auth);
   const [selectedRating, setSelectedRating] = React.useState(null);
@@ -201,7 +203,6 @@ export default function MediaReviews({
         )}
       </AnimatePresence>
       <div className="reviews-list" style={{ minHeight: "70vh" }}>
-        {console.log("review", reviews)}
         {loading && reviews.length === 0 && (
           <div className="notfound">
             <p
@@ -290,13 +291,16 @@ export default function MediaReviews({
                   <button
                     className="action-btn"
                     onClick={() => {
-                      setRevealReply(
-                        revealReply === review._id ? null : review._id,
-                      );
+                      if (revealReply === review._id) {
+                        setRevealReply(null);
+                      } else {
+                        setRevealReply(review._id);
+                        fetchReplies(review._id);
+                      }
                     }}
                   >
                     <MessageCircle size={18} />
-                    <span>{review.replies?.length || null}</span>
+                    <span>{review.repliesCount || null}</span>
                   </button>
                 </div>
                 <div className="report">
@@ -305,7 +309,11 @@ export default function MediaReviews({
               </div>
 
               {revealReply === review._id && (
-                <Reply replies={review} closing={setRevealReply} />
+                <Reply
+                  review={review}
+                  replies={repliesMap[review._id] || []}
+                  closing={setRevealReply}
+                />
               )}
             </motion.div>
           );

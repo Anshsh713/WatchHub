@@ -144,9 +144,20 @@ exports.addReply = async (req, res) => {
     await review.save();
     await review.populate("replies.user", "User_Name");
 
+    const repliesWithLikes = review.replies.map((r) => {
+      const replyObj = r.toObject ? r.toObject() : r;
+      return {
+        ...replyObj,
+        likesCount: replyObj.likes?.length || 0,
+        isLiked: replyObj.likes?.some(
+          (id) => id.toString() === userId.toString(),
+        ),
+      };
+    });
+
     res.json({
       success: true,
-      replies: review.replies,
+      replies: repliesWithLikes,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -241,6 +252,24 @@ exports.getReviewsByMedia = async (req, res) => {
           likesCount: { $size: { $ifNull: ["$likes", []] } },
         },
       },
+      {
+        $lookup: {
+          from: "replies",
+          localField: "_id",
+          foreignField: "reviewId",
+          as: "replies",
+        },
+      },
+      {
+        $addFields: {
+          repliesCount: { $size: { $ifNull: ["$replies", []] } },
+        },
+      },
+      {
+        $project: {
+          replies: 0,
+        },
+      },
     ];
 
     if (sort === "mostLiked") {
@@ -290,6 +319,33 @@ exports.getReviewsByMedia = async (req, res) => {
     });
   } catch (error) {
     console.error("getReviewsByMedia error:", error);
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+exports.getReplies = async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+
+    const review = await MediaReview.findById(reviewId)
+      .populate("replies.user", "User_Name")
+      .lean();
+
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    const replies = review.replies.map((r) => ({
+      ...r,
+      likesCount: r.likes?.length || 0,
+    }));
+
+    res.json({ replies });
+  } catch (error) {
+    console.error("getReviewById error:", error);
     res.status(500).json({
       message: "Internal server error",
       error: error.message,

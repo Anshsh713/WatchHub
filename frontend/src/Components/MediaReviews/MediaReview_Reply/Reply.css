@@ -4,150 +4,391 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-
   display: flex;
   justify-content: center;
   align-items: center;
-
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-
-  z-index: 2;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 100;
 }
+
 .reply-container {
+  position: relative;
   display: flex;
-  width: 900px;
+  width: 950px;
   max-width: 95%;
-  height: 500px;
-
-  background: #0f0f0f;
+  height: 550px;
+  max-height: 85vh;
+  background: rgba(20, 20, 22, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: white;
-
-  border-radius: 16px;
+  border-radius: 24px;
   overflow: hidden;
+  box-shadow:
+    0 24px 50px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
 
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+.close-reply-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #ccc;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.close-reply-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: scale(1.05);
 }
 
 /* LEFT SIDE */
 .left-review {
-  width: 50%;
-  padding: 20px;
-  border-right: 1px solid #2a2a2a;
+  width: 45%;
+  padding: 30px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
 }
 
 .review-reply-header {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   align-items: center;
+}
+
+.user-avatar {
+  color: #a0a0a0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  padding: 4px;
 }
 
 .review-reply-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
 }
 
 .review-reply-header p {
-  margin: 0;
-  font-size: 12px;
-  color: gray;
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: #888;
 }
 
 .review-text {
-  margin-top: 20px;
-  font-size: 15px;
-  line-height: 1.5;
+  margin-top: 24px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #e0e0e0;
+  font-weight: 300;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.review-text::-webkit-scrollbar {
+  display: none;
 }
 
 /* RIGHT SIDE */
 .right-replies {
-  width: 50%;
+  width: 55%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  background: rgba(10, 10, 12, 0.4);
+}
+
+.replies-header {
+  padding: 20px 25px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.replies-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #f0f0f0;
+}
+
+.replies-header h4 span {
+  color: #888;
+  font-weight: 400;
 }
 
 /* Replies list */
 .replies-list {
-  padding: 15px;
+  flex: 1;
+  padding: 20px 25px;
   overflow-y: auto;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
 }
 
 .replies-list::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
+  display: none;
+}
+
+.no-replies {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #666;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.no-replies p {
+  margin-top: 12px;
+  font-size: 14px;
 }
 
 /* Single reply */
 .reply-card {
   display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.reply-card.is-nested {
+  margin-bottom: 16px;
+}
+
+.reply-avatar {
+  color: #888;
+  flex-shrink: 0;
 }
 
 .reply-body {
   flex: 1;
+  min-width: 0;
 }
 
 .reply-top {
   display: flex;
-  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
 }
 
 .reply-top h4 {
   font-size: 14px;
+  font-weight: 600;
   margin: 0;
+  color: #eaeaea;
 }
 
 .reply-top span {
-  font-size: 11px;
-  color: gray;
+  font-size: 12px;
+  color: #777;
 }
 
-.reply-body p {
+.reply-comment {
   font-size: 14px;
-  margin: 5px 0;
+  line-height: 1.5;
+  margin: 6px 0 10px 0;
+  color: #cccccc;
+  word-wrap: break-word;
 }
 
 /* Actions */
 .reply-actions {
   display: flex;
-  gap: 12px;
-  font-size: 12px;
-  color: gray;
+  gap: 16px;
+  align-items: center;
 }
 
-.reply-actions button {
+.action-btn {
   background: none;
   border: none;
-  color: gray;
+  color: #888;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  margin-left: -8px;
 }
 
-/* Bottom input */
-.reply-input {
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.like-btn .liked {
+  color: var(--color-accent, #e50914);
+  fill: var(--color-accent, #e50914);
+}
+
+.reply-btn.active {
+  color: var(--color-accent, #3b82f6);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* Nested Input (inside reply) */
+.nested-input-container {
+  overflow: hidden;
+}
+
+.nested-input {
   display: flex;
   gap: 10px;
-  padding: 12px;
-  border-top: 1px solid #2a2a2a;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.nested-input input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 13px;
+  outline: none;
+  padding: 0 6px;
+}
+
+.nested-input input::placeholder {
+  color: #666;
+}
+
+.nested-input button {
+  background: rgba(255, 255, 255, 0.1);
+  color: #888;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.nested-input button.active {
+  background: var(--color-accent, #e50914);
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(229, 9, 20, 0.3);
+}
+
+/* Toggle Replies Button */
+.toggle-replies-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-accent, #3b82f6);
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.toggle-replies-btn:hover {
+  color: #60a5fa;
+}
+
+.toggle-replies-btn .line {
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+/* Nested Replies Container */
+.nested-replies {
+  margin-top: 16px;
+  overflow: hidden;
+  border-left: 2px solid rgba(255, 255, 255, 0.05);
+  padding-left: 16px;
+}
+
+/* Bottom input wrapper */
+.reply-input-wrapper {
+  padding: 15px 25px;
+  background: rgba(20, 20, 22, 0.6);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+.reply-input {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.current-user-avatar {
+  color: #888;
 }
 
 .reply-input input {
   flex: 1;
-  background: #1a1a1a;
-  border: none;
-  border-radius: 20px;
-  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  padding: 12px 18px;
   color: white;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.reply-input input:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+}
+
+.reply-input input::placeholder {
+  color: #777;
 }
 
 .reply-input button {
-  background: var(--color-accent);
+  background: rgba(255, 255, 255, 0.1);
+  color: #888;
   border: none;
-  padding: 6px 16px;
-  border-radius: 20px;
+  padding: 10px 20px;
+  border-radius: 24px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.reply-input button.active {
+  background: var(--color-accent, #e50914);
   color: white;
   cursor: pointer;
+  box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+}
+
+.reply-input button.active:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(229, 9, 20, 0.5);
 }

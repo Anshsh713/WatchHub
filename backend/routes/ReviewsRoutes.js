@@ -8,6 +8,7 @@ const {
   deleteReview,
   getReviewsByMedia,
   toggleLikeReply,
+  getReplies,
 } = require("../controllers/ReviewControllers");
 
 const { protect } = require("../middleware/Protect");
@@ -18,5 +19,6 @@ router.put("/like/:reviewId", protect, toggleLikeReview);
 router.put("/like-reply/:reviewId/:replyId", protect, toggleLikeReply);
 router.post("/reply/:reviewId", protect, addReply);
 router.delete("/:reviewId", protect, deleteReview);
+router.get("/replies/:reviewId", getReplies);
 
 module.exports = router;

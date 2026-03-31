@@ -77,7 +77,10 @@ exports.getReviewsStats = async (req, res) => {
 
     res.json({ total, stats });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    console.error("getReviewsStats error:", error);
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -222,47 +225,60 @@ exports.getReviewsByMedia = async (req, res) => {
     const { page = 1, sort = "mostLiked", filter = "all" } = req.query;
     const userId = req.user?._id;
 
-    const limit = 2;
+    const limit = 10;
     const skip = (page - 1) * limit;
 
     let query = { MediaID };
 
-    if (filter === "byMe") {
+    if (filter === "byMe" && userId) {
       query.User = userId;
     }
 
-    let sortOption = {};
-    if (sort === "latest") sortOption = { createdAt: -1 };
-    if (sort === "oldest") sortOption = { createdAt: 1 };
-
-    let reviews = await MediaReview.find(query)
-      .populate("User", "User_Name")
-      .populate("replies.user", "User_Name")
-      .sort(sort === "latest" ? { createdAt: -1 } : sortOption)
-      .skip(skip)
-      .limit(limit)
-      .lean();
+    let pipeline = [
+      { $match: query },
+      {
+        $addFields: {
+          likesCount: { $size: { $ifNull: ["$likes", []] } },
+        },
+      },
+    ];
 
     if (sort === "mostLiked") {
-      reviews.sort((a, b) => b.likes.length - a.likes.length);
+      pipeline.push({ $sort: { likesCount: -1 } });
+    } else if (sort === "latest") {
+      pipeline.push({ $sort: { createdAt: -1 } });
+    } else if (sort === "oldest") {
+      pipeline.push({ $sort: { createdAt: 1 } });
     }
 
-    reviews = reviews.map((review) => {
-      review.likesCount = review.likes.length;
-      review.isLiked = userId
-        ? review.likes.some((id) => id.toString() === userId.toString())
-        : false;
+    pipeline.push({ $skip: skip }, { $limit: limit });
 
-      review.replies = review.replies.map((reply) => ({
-        ...reply,
-        likesCount: reply.likes.length,
-        isLiked: userId
-          ? reply.likes.some((id) => id.toString() === userId.toString())
+    pipeline.push(
+      {
+        $lookup: {
+          from: "watchhub_users",
+          localField: "User",
+          foreignField: "_id",
+          as: "User",
+        },
+      },
+      {
+        $unwind: {
+          path: "$User",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    );
+
+    let reviews = await MediaReview.aggregate(pipeline);
+
+    reviews = reviews.map((review) => ({
+      ...review,
+      isLiked:
+        userId && review.likes
+          ? review.likes.some((id) => id.toString() === userId.toString())
           : false,
-      }));
-
-      return review;
-    });
+    }));
 
     const total = await MediaReview.countDocuments(query);
 
@@ -273,6 +289,10 @@ exports.getReviewsByMedia = async (req, res) => {
       totalPages: Math.ceil(total / limit),
     });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    console.error("getReviewsByMedia error:", error);
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 };

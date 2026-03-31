@@ -3,6 +3,10 @@ import "./Reply.css";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMediaReviews } from "../../../Context/MediaReviewsContext";
 import { CircleUser, ThumbsUp, MessageCircle, X } from "lucide-react";
+import {
+  formatRelativeTime,
+  formatCompactNumber,
+} from "../../../utils/formatters";
 
 export default function Reply({ review, replies, closing }) {
   const [newReply, setNewReply] = useState("");
@@ -59,12 +63,7 @@ export default function Reply({ review, replies, closing }) {
             <CircleUser size={46} className="user-avatar" />
             <div>
               <h3>{review.User?.User_Name || review.user?.User_Name}</h3>
-              <p>
-                {new Date(review.createdAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
+              <p>{formatRelativeTime(review.createdAt)}</p>
             </div>
           </div>
 
@@ -74,7 +73,7 @@ export default function Reply({ review, replies, closing }) {
         <div className="right-replies">
           <div className="replies-header">
             <h4>
-              Replies <span>({replies?.length || 0})</span>
+              Replies <span>({formatCompactNumber(replies?.length || 0)})</span>
             </h4>
           </div>
           <div className="replies-list">
@@ -160,12 +159,7 @@ const ReplyItem = ({
       <div className="reply-body">
         <div className="reply-top">
           <h4>{reply.user?.User_Name || reply.User?.User_Name || "User"}</h4>
-          <span>
-            {new Date(reply.createdAt).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </span>
+          <span>{formatRelativeTime(reply.createdAt)}</span>
         </div>
 
         <p className="reply-comment">{reply.comment}</p>
@@ -176,7 +170,7 @@ const ReplyItem = ({
             onClick={() => toggleLikeReply(reviewId, reply._id)}
           >
             <ThumbsUp size={14} className={reply.isLiked ? "liked" : ""} />
-            <span>{reply.likesCount || 0}</span>
+            <span>{formatCompactNumber(reply.likesCount || 0)}</span>
           </button>
 
           <button

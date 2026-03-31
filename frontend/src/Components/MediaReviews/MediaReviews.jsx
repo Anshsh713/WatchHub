@@ -12,6 +12,10 @@ import {
 import { useRef } from "react";
 import "./MediaReviewa.css";
 import Reply from "./MediaReview_Reply/Reply";
+import {
+  formatRelativeTime,
+  formatCompactNumber,
+} from "../../utils/formatters";
 
 export default function MediaReviews({
   mediaID,
@@ -245,7 +249,7 @@ export default function MediaReviews({
                   <CircleUser size={24} />
                   <div className="user-date">
                     <h4>{review.User?.User_Name || user?.User_Name}</h4>
-                    <p>{new Date(review.createdAt).toLocaleDateString()}</p>
+                    <p>{formatRelativeTime(review.createdAt)}</p>
                   </div>
                 </div>
 
@@ -285,7 +289,7 @@ export default function MediaReviews({
                     onClick={() => toggleLike(review._id)}
                   >
                     <ThumbsUp size={18} />
-                    <span>{review.likesCount || null}</span>
+                    <span>{formatCompactNumber(review.likesCount || 0)}</span>
                   </button>
 
                   <button
@@ -300,7 +304,7 @@ export default function MediaReviews({
                     }}
                   >
                     <MessageCircle size={18} />
-                    <span>{review.repliesCount || null}</span>
+                    <span>{formatCompactNumber(review.repliesCount || 0)}</span>
                   </button>
                 </div>
                 <div className="report">

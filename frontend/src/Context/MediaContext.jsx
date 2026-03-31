@@ -58,10 +58,9 @@ export const MediaProvider = ({ children }) => {
       console.log("Sending got:", media_id, media_type);
       console.log("data", res.data);
       setMediaDetails(res.data);
+      setLoading(false);
     } catch (error) {
       setError("Failed to fetch Media Data");
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -14,6 +14,7 @@ import Home from "./Components/Home/Home.jsx";
 import Protected from "./Data_Management/Protected.jsx";
 import AuthPage from "./Login_Signup/AuthPage/AuthPage.jsx";
 import MediaDetials from "./Components/MovieDetails/MovieDetails.jsx";
+import Explore_Interface from "./Components/Explore/Explore_Interface/Interface.jsx";
 import App from "./App.jsx";
 import "./index.css";
 import ErrorBoundary from "./Components/ErrorBoundary/ErrorBoundary.jsx";
@@ -40,6 +41,14 @@ const router = createBrowserRouter([
         element: (
           <Protected>
             <MediaDetials />
+          </Protected>
+        ),
+      },
+      {
+        path: "interface",
+        element: (
+          <Protected>
+            <Explore_Interface />
           </Protected>
         ),
       },

@@ -269,3 +269,51 @@ exports.getMediaDetails = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch media details" });
   }
 };
+
+exports.getAllGenres = async (req, res) => {
+  try {
+    const movieGenres = await fetchFromTMDB("/genre/movie/list");
+    const tvGenres = await fetchFromTMDB("/genre/tv/list");
+
+    const map = new Map();
+
+    movieGenres.genres.forEach((g) => map.set(g.id, g));
+    tvGenres.genres.forEach((g) => map.set(g.id, g));
+
+    const genres = Array.from(map.values());
+
+    res.json(genres);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch genres" });
+  }
+};
+
+exports.getAllCountries = async (req, res) => {
+  try {
+    const countries = await fetchFromTMDB("/configuration/countries");
+
+    res.json(
+      countries.map((c) => ({
+        code: c.iso_3166_1,
+        name: c.english_name,
+      })),
+    );
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch countries" });
+  }
+};
+
+exports.getAllLanguages = async (req, res) => {
+  try {
+    const data = await fetchFromTMDB("/configuration/languages");
+
+    res.json(
+      data.map((l) => ({
+        code: l.iso_639_1,
+        name: l.english_name,
+      })),
+    );
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch languages" });
+  }
+};

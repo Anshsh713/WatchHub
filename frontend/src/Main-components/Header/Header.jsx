@@ -45,7 +45,7 @@ export default function Header() {
     { name: "News", path: "/news" },
     { name: "Collections", path: "/collections" },
     { name: "WatchList", path: "/watchlist" },
-    { name: "Explore", path: "/category" },
+    { name: "Explore", path: "/interface" },
   ];
 
   return (

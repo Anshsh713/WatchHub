@@ -15,7 +15,7 @@ export const MediaProvider = ({ children }) => {
   const [currentType, setCurrentType] = useState(
     localStorage.getItem("mediaType") || "all",
   );
-
+  const [typesofmedia, setTypesofmedia] = useState([]);
   const mediaMap = { all, movie: movies, tv: tvshow, anime };
 
   const fetchMedia = async (type = currentType) => {
@@ -55,12 +55,49 @@ export const MediaProvider = ({ children }) => {
       const res = await API.get(`/media/${media_id}`, {
         params: { type: media_type },
       });
-      console.log("Sending got:", media_id, media_type);
-      console.log("data", res.data);
       setMediaDetails(res.data);
       setLoading(false);
     } catch (error) {
       setError("Failed to fetch Media Data");
+    }
+  };
+
+  const fetchGenres = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await API.get("media/genres");
+      setTypesofmedia(res.data);
+      setLoading(false);
+    } catch (error) {
+      setError("Failed to fetch genres");
+    }
+  };
+
+  const fetchCountries = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await API.get("media/countries");
+      setTypesofmedia(res.data);
+      setLoading(false);
+    } catch (error) {
+      setError("Failed to fetch countries");
+    }
+  };
+
+  const fetchLanguages = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await API.get("media/languages");
+      setTypesofmedia(res.data);
+      setLoading(false);
+    } catch (error) {
+      setError("Failed to fetch languages");
     }
   };
 
@@ -90,6 +127,10 @@ export const MediaProvider = ({ children }) => {
         fetchMedia,
         fetchMediaDetails,
         mediaDetails,
+        fetchGenres,
+        fetchCountries,
+        fetchLanguages,
+        typesofmedia,
       }}
     >
       {children}

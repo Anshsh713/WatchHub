@@ -317,3 +317,77 @@ exports.getAllLanguages = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch languages" });
   }
 };
+
+exports.getExploreMedia = async (req, res) => {
+  try {
+    const { type, value, page = 1, mediaType = "all" } = req.query;
+
+    let params = { page };
+    let endpoints = [`/discover/${mediaType}`];
+
+    switch (type) {
+      case "genres":
+        if (!value)
+          return res.status(400).json({ message: "Missing genre ids" });
+        params.with_genres = value;
+        break;
+      case "country":
+        if (!value)
+          return res.status(400).json({ message: "Country code required" });
+        params.with_origin_country = value;
+        break;
+
+      case "language":
+        if (!value)
+          return res.status(400).json({ message: "Language code required" });
+        params.with_original_language = value;
+        break;
+
+      case "family":
+        params.certification_country = "US";
+        params.certification = "G|PG";
+        break;
+
+      case "award":
+        params.sort_by = "vote_average.desc";
+        params["vote_count.gte"] = 1000;
+        break;
+
+      case "franchise":
+        if (!value)
+          return res.status(400).json({ message: "Keyword id required" });
+        params.with_keywords = value;
+        break;
+
+      case "anime":
+        endpoints = ["/discover/tv"];
+        params.with_genres = 16;
+        params.with_original_language = "ja";
+        break;
+
+      default:
+        return res.status(400).json({ message: "Invalid explore type" });
+    }
+
+    const results = await Promise.all(
+      endpoints.map((ep) => fetchFromTMDB(ep, params)),
+    );
+
+    const mergedResults = results.flatMap((r) => r.results || []);
+
+    mergedResults = mergedResults.map((item) => ({
+      ...item,
+      media_type: item.first_air_date ? "tv" : "movie",
+    }));
+
+    res.json({
+      results: mergedResults,
+    });
+  } catch (error) {
+    console.error(
+      "EXPLORE MEDIA ERROR:",
+      error.response?.data || error.message,
+    );
+    res.status(500).json({ message: "Failed to fetch explore media" });
+  }
+};

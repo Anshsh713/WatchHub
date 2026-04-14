@@ -18,6 +18,9 @@ export const MediaProvider = ({ children }) => {
   const [typesofmedia, setTypesofmedia] = useState([]);
   const mediaMap = { all, movie: movies, tv: tvshow, anime };
 
+  const [results, setResults] = useState([]);
+  const [page, setPage] = useState(1);
+
   const fetchMedia = async (type = currentType) => {
     try {
       setLoading(true);
@@ -77,6 +80,7 @@ export const MediaProvider = ({ children }) => {
 
   const fetchCountries = async () => {
     try {
+      if (typesofmedia.length > 0) return;
       setLoading(true);
       setError(null);
 
@@ -98,6 +102,32 @@ export const MediaProvider = ({ children }) => {
       setLoading(false);
     } catch (error) {
       setError("Failed to fetch languages");
+    }
+  };
+
+  const fetchMediaByGenre = async (genreId, newpage = 1, mediaType = "all") => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await API.get("/media/genre", {
+        params: {
+          genreId,
+          page: newpage,
+          mediaType,
+        },
+      });
+
+      if (newpage === 1) {
+        setResults(res.data.results);
+      } else {
+        setResults((prev) => [...prev, ...res.data.results]);
+      }
+
+      setPage(newpage);
+      setLoading(false);
+    } catch (error) {
+      setError("Failed to fetch media by genre");
     }
   };
 
@@ -131,6 +161,9 @@ export const MediaProvider = ({ children }) => {
         fetchCountries,
         fetchLanguages,
         typesofmedia,
+        fetchMediaByGenre,
+        results,
+        page,
       }}
     >
       {children}

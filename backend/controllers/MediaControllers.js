@@ -318,76 +318,51 @@ exports.getAllLanguages = async (req, res) => {
   }
 };
 
-exports.getExploreMedia = async (req, res) => {
+exports.getMediaByGenre = async (req, res) => {
   try {
-    const { type, value, page = 1, mediaType = "all" } = req.query;
+    const { genreId, page = 1, mediaType = "all" } = req.query;
+
+    if (!genreId && mediaType !== "anime") {
+      return res.status(400).json({ message: "Missing genreId" });
+    }
 
     let params = { page };
-    let endpoints = [`/discover/${mediaType}`];
+    let endpoints = [];
 
-    switch (type) {
-      case "genres":
-        if (!value)
-          return res.status(400).json({ message: "Missing genre ids" });
-        params.with_genres = value;
-        break;
-      case "country":
-        if (!value)
-          return res.status(400).json({ message: "Country code required" });
-        params.with_origin_country = value;
-        break;
-
-      case "language":
-        if (!value)
-          return res.status(400).json({ message: "Language code required" });
-        params.with_original_language = value;
-        break;
-
-      case "family":
-        params.certification_country = "US";
-        params.certification = "G|PG";
-        break;
-
-      case "award":
-        params.sort_by = "vote_average.desc";
-        params["vote_count.gte"] = 1000;
-        break;
-
-      case "franchise":
-        if (!value)
-          return res.status(400).json({ message: "Keyword id required" });
-        params.with_keywords = value;
-        break;
-
-      case "anime":
-        endpoints = ["/discover/tv"];
-        params.with_genres = 16;
-        params.with_original_language = "ja";
-        break;
-
-      default:
-        return res.status(400).json({ message: "Invalid explore type" });
+    if (mediaType === "movie") {
+      endpoints = ["/discover/movie"];
+      params.with_genres = genreId;
+    } else if (mediaType === "tv") {
+      endpoints = ["/discover/tv"];
+      params.with_genres = genreId;
+    } else if (mediaType === "anime") {
+      endpoints = ["/discover/tv"];
+      params.with_genres = genreId ? `${genreId},16` : "16";
+      params.with_original_language = "ja";
+    } else if (mediaType === "all") {
+      endpoints = ["/discover/movie", "/discover/tv"];
+      params.with_genres = genreId;
+    } else {
+      return res.status(400).json({ message: "Invalid mediaType" });
     }
 
     const results = await Promise.all(
       endpoints.map((ep) => fetchFromTMDB(ep, params)),
     );
 
-    const mergedResults = results.flatMap((r) => r.results || []);
+    let merged = results.flatMap((r) => r.results);
 
-    mergedResults = mergedResults.map((item) => ({
+    merged = merged.map((item) => ({
       ...item,
       media_type: item.first_air_date ? "tv" : "movie",
     }));
 
     res.json({
-      results: mergedResults,
+      results: merged,
+      page: Number(page),
     });
   } catch (error) {
-    console.error(
-      "EXPLORE MEDIA ERROR:",
-      error.response?.data || error.message,
-    );
-    res.status(500).json({ message: "Failed to fetch explore media" });
+    console.error("Genre API Error:", error.message);
+    res.status(500).json({ message: "Failed to fetch media by genre" });
   }
 };

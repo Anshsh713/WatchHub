@@ -6,8 +6,14 @@ import VideoLoader from "../../Common/VideoLoader";
 import "./Interface.css";
 
 export default function GCL({ typeofgcl, setMediaType }) {
-  const { fetchGenres, fetchCountries, fetchLanguages, typesofmedia, loading } =
-    useMedia();
+  const {
+    fetchGenres,
+    fetchCountries,
+    fetchLanguages,
+    typesofmedia,
+    loading,
+    fetchMediaByGenre,
+  } = useMedia();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,7 +67,7 @@ export default function GCL({ typeofgcl, setMediaType }) {
       Reality: "rgba(251, 146, 60, 0.15)",
       Soap: "rgba(244, 114, 182, 0.15)",
       Talk: "rgba(148, 163, 184, 0.15)",
-      "TV Movie": "rgba(71, 85, 105, 0.15)"
+      "TV Movie": "rgba(71, 85, 105, 0.15)",
     };
     return genreColors[name] || "rgba(255, 255, 255, 0.05)";
   };
@@ -76,7 +82,7 @@ export default function GCL({ typeofgcl, setMediaType }) {
           className="type_card genre_card"
           whileHover={{ scale: 1.05 }}
           style={{
-            background: `radial-gradient(circle at bottom right, ${color}, rgba(25, 25, 25, 0.9) 60%)`
+            background: `radial-gradient(circle at bottom right, ${color}, rgba(25, 25, 25, 0.9) 60%)`,
           }}
         >
           <span className="genre_name">{name}</span>
@@ -86,8 +92,13 @@ export default function GCL({ typeofgcl, setMediaType }) {
       const name = item.name;
       const code = item.code || "us";
       return (
-        <motion.div key={index} className="type_card country_card" whileHover={{ scale: 1.05 }}>
+        <motion.div
+          key={index}
+          className="type_card country_card"
+          whileHover={{ scale: 1.05 }}
+        >
           <img
+            loading="lazy"
             src={`https://flagcdn.com/w40/${code.toLowerCase()}.png`}
             alt={name}
             className="country_flag"
@@ -99,7 +110,11 @@ export default function GCL({ typeofgcl, setMediaType }) {
       const name = item.name;
       const displayInitials = getInitials(name);
       return (
-        <motion.div key={index} className="type_card language_card" whileHover={{ scale: 1.05 }}>
+        <motion.div
+          key={index}
+          className="type_card language_card"
+          whileHover={{ scale: 1.05 }}
+        >
           <div className="language_initials">{displayInitials}</div>
           <span className="language_name">{name}</span>
         </motion.div>
@@ -115,7 +130,8 @@ export default function GCL({ typeofgcl, setMediaType }) {
       </motion.div>
 
       <div className={`type_grid ${typeofgcl.toLowerCase()}_grid`}>
-        {typesofmedia && typesofmedia.map((item, index) => renderCard(item, index))}
+        {typesofmedia &&
+          typesofmedia.map((item, index) => renderCard(item, index))}
       </div>
     </div>
   );

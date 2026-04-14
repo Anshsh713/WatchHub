@@ -1,5 +1,7 @@
 const { fetchFromTMDB } = require("../ultils/tmdbService");
 
+const memCache = {};
+
 exports.getMedia = async (req, res) => {
   try {
     const { type, page = 1 } = req.query;
@@ -272,6 +274,10 @@ exports.getMediaDetails = async (req, res) => {
 
 exports.getAllGenres = async (req, res) => {
   try {
+    if (memCache["genres"]) {
+      return res.json(memCache["genres"]);
+    }
+    
     const movieGenres = await fetchFromTMDB("/genre/movie/list");
     const tvGenres = await fetchFromTMDB("/genre/tv/list");
 
@@ -281,6 +287,7 @@ exports.getAllGenres = async (req, res) => {
     tvGenres.genres.forEach((g) => map.set(g.id, g));
 
     const genres = Array.from(map.values());
+    memCache["genres"] = genres;
 
     res.json(genres);
   } catch (err) {
@@ -290,14 +297,19 @@ exports.getAllGenres = async (req, res) => {
 
 exports.getAllCountries = async (req, res) => {
   try {
+    if (memCache["countries"]) {
+      return res.json(memCache["countries"]);
+    }
+    
     const countries = await fetchFromTMDB("/configuration/countries");
 
-    res.json(
-      countries.map((c) => ({
-        code: c.iso_3166_1,
-        name: c.english_name,
-      })),
-    );
+    const result = countries.map((c) => ({
+      code: c.iso_3166_1,
+      name: c.english_name,
+    }));
+    memCache["countries"] = result;
+    
+    res.json(result);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch countries" });
   }
@@ -305,14 +317,19 @@ exports.getAllCountries = async (req, res) => {
 
 exports.getAllLanguages = async (req, res) => {
   try {
+    if (memCache["languages"]) {
+      return res.json(memCache["languages"]);
+    }
+    
     const data = await fetchFromTMDB("/configuration/languages");
 
-    res.json(
-      data.map((l) => ({
-        code: l.iso_639_1,
-        name: l.english_name,
-      })),
-    );
+    const result = data.map((l) => ({
+      code: l.iso_639_1,
+      name: l.english_name,
+    }));
+    memCache["languages"] = result;
+    
+    res.json(result);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch languages" });
   }

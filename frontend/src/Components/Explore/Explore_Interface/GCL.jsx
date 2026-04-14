@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { useMedia } from "../../../Context/MediaContext";
+import { useNavigate } from "react-router-dom";
 import VideoLoader from "../../Common/VideoLoader";
 import "./Interface.css";
 
@@ -14,6 +15,8 @@ export default function GCL({ typeofgcl, setMediaType }) {
     loading,
     fetchMediaByGenre,
   } = useMedia();
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -81,6 +84,7 @@ export default function GCL({ typeofgcl, setMediaType }) {
           key={index}
           className="type_card genre_card"
           whileHover={{ scale: 1.05 }}
+          onClick={() => navigate(`/genre/${item.id}`)}
           style={{
             background: `radial-gradient(circle at bottom right, ${color}, rgba(25, 25, 25, 0.9) 60%)`,
           }}

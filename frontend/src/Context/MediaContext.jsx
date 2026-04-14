@@ -16,6 +16,10 @@ export const MediaProvider = ({ children }) => {
     localStorage.getItem("mediaType") || "all",
   );
   const [typesofmedia, setTypesofmedia] = useState([]);
+  const [genresCache, setGenresCache] = useState([]);
+  const [countriesCache, setCountriesCache] = useState([]);
+  const [languagesCache, setLanguagesCache] = useState([]);
+
   const mediaMap = { all, movie: movies, tv: tvshow, anime };
 
   const [results, setResults] = useState([]);
@@ -67,41 +71,58 @@ export const MediaProvider = ({ children }) => {
 
   const fetchGenres = async () => {
     try {
+      if (genresCache.length > 0) {
+        setTypesofmedia(genresCache);
+        return;
+      }
       setLoading(true);
       setError(null);
 
       const res = await API.get("media/genres");
+      setGenresCache(res.data);
       setTypesofmedia(res.data);
       setLoading(false);
     } catch (error) {
       setError("Failed to fetch genres");
+      setLoading(false);
     }
   };
 
   const fetchCountries = async () => {
     try {
-      if (typesofmedia.length > 0) return;
+      if (countriesCache.length > 0) {
+        setTypesofmedia(countriesCache);
+        return;
+      }
       setLoading(true);
       setError(null);
 
       const res = await API.get("media/countries");
+      setCountriesCache(res.data);
       setTypesofmedia(res.data);
       setLoading(false);
     } catch (error) {
       setError("Failed to fetch countries");
+      setLoading(false);
     }
   };
 
   const fetchLanguages = async () => {
     try {
+      if (languagesCache.length > 0) {
+        setTypesofmedia(languagesCache);
+        return;
+      }
       setLoading(true);
       setError(null);
 
       const res = await API.get("media/languages");
+      setLanguagesCache(res.data);
       setTypesofmedia(res.data);
       setLoading(false);
     } catch (error) {
       setError("Failed to fetch languages");
+      setLoading(false);
     }
   };
 

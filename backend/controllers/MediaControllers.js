@@ -277,7 +277,7 @@ exports.getAllGenres = async (req, res) => {
     if (memCache["genres"]) {
       return res.json(memCache["genres"]);
     }
-    
+
     const movieGenres = await fetchFromTMDB("/genre/movie/list");
     const tvGenres = await fetchFromTMDB("/genre/tv/list");
 
@@ -300,7 +300,7 @@ exports.getAllCountries = async (req, res) => {
     if (memCache["countries"]) {
       return res.json(memCache["countries"]);
     }
-    
+
     const countries = await fetchFromTMDB("/configuration/countries");
 
     const result = countries.map((c) => ({
@@ -308,7 +308,7 @@ exports.getAllCountries = async (req, res) => {
       name: c.english_name,
     }));
     memCache["countries"] = result;
-    
+
     res.json(result);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch countries" });
@@ -320,7 +320,7 @@ exports.getAllLanguages = async (req, res) => {
     if (memCache["languages"]) {
       return res.json(memCache["languages"]);
     }
-    
+
     const data = await fetchFromTMDB("/configuration/languages");
 
     const result = data.map((l) => ({
@@ -328,7 +328,7 @@ exports.getAllLanguages = async (req, res) => {
       name: l.english_name,
     }));
     memCache["languages"] = result;
-    
+
     res.json(result);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch languages" });
@@ -363,11 +363,13 @@ exports.getMediaByGenre = async (req, res) => {
       return res.status(400).json({ message: "Invalid mediaType" });
     }
 
-    const results = await Promise.all(
+    const results = await Promise.allSettled(
       endpoints.map((ep) => fetchFromTMDB(ep, params)),
     );
 
-    let merged = results.flatMap((r) => r.results);
+    let merged = results
+      .filter((r) => r.status === "fulfilled")
+      .flatMap((r) => r.value.results);
 
     merged = merged.map((item) => ({
       ...item,

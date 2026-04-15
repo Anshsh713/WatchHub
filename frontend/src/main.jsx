@@ -15,7 +15,7 @@ import Protected from "./Data_Management/Protected.jsx";
 import AuthPage from "./Login_Signup/AuthPage/AuthPage.jsx";
 import MediaDetials from "./Components/MovieDetails/MovieDetails.jsx";
 import Explore_Interface from "./Components/Explore/Explore_Interface/Interface.jsx";
-import BYGenre from "./Components/Explore/Explore/BYGenre.jsx";
+import Explore from "./Components/Explore/Explore/Explore.jsx";
 import App from "./App.jsx";
 import "./index.css";
 import ErrorBoundary from "./Components/ErrorBoundary/ErrorBoundary.jsx";
@@ -54,10 +54,10 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "genre/:genre",
+        path: "/:type/:id",
         element: (
           <Protected>
-            <BYGenre />
+            <Explore />
           </Protected>
         ),
       },

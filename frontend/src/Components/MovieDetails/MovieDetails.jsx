@@ -30,6 +30,7 @@ const ScrollablePeople = ({ title, data }) => {
         {data.map((person) => (
           <div key={person.id || person.credit_id} className="person-card">
             <img
+              loading="lazy"
               src={
                 person.profile_path
                   ? `https://image.tmdb.org/t/p/w200${person.profile_path}`
@@ -153,12 +154,11 @@ export default function MediaDetail() {
 
   const streamingPlatforms = normalizePlatforms(mediaDetails.platforms);
 
-  if (!mediaDetails) return null;
-
   return (
     <div className="Main-box">
       <div className="banner">
         <img
+          loading="lazy"
           onClick={() => setVideo(!video)}
           src={`https://image.tmdb.org/t/p/original${mediaDetails.images.backdrop}`}
           alt="Backdrop"
@@ -169,6 +169,7 @@ export default function MediaDetail() {
         <div className="media-image">
           <div className="image">
             <img
+              loading="lazy"
               src={`https://image.tmdb.org/t/p/original${mediaDetails.images.poster}`}
             />
           </div>

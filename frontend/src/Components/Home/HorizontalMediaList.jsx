@@ -75,12 +75,22 @@ export default function HorizontalMediaList({ media, type }) {
           >
             <li key={item.id} className="media-card-wrapper">
               <div className="media-card">
-                <img
-                  src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
-                  alt={item.title || item.name}
-                />
+                {item.poster_path ? (
+                  <img
+                    src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
+                    alt={item.title || item.name}
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="media-placeholder">No Image</div>
+                )}
                 <div className="media-info">
                   <h4>{item.title || item.name}</h4>
+                  {(item.release_date || item.first_air_date) ? (
+                    <p>
+                      {(item.release_date || item.first_air_date).split("-")[0]}
+                    </p>
+                  ) : null}
                 </div>
               </div>
             </li>

@@ -84,7 +84,9 @@ export default function GCL({ typeofgcl, setMediaType }) {
           key={index}
           className="type_card genre_card"
           whileHover={{ scale: 1.05 }}
-          onClick={() => navigate(`/genre/${item.id}`)}
+          onClick={() => {
+            navigate(`/${typeofgcl.toLowerCase()}/${item.id}`);
+          }}
           style={{
             background: `radial-gradient(circle at bottom right, ${color}, rgba(25, 25, 25, 0.9) 60%)`,
           }}

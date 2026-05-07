@@ -295,11 +295,13 @@ export default function MediaReviews({
                   <button
                     className="action-btn"
                     onClick={() => {
-                      if (revealReply === review._id) {
-                        setRevealReply(null);
-                      } else {
-                        setRevealReply(review._id);
-                        fetchReplies(review._id);
+                      if (review.repliesCount > 0) {
+                        if (revealReply === review._id) {
+                          setRevealReply(null);
+                        } else {
+                          setRevealReply(review._id);
+                          fetchReplies(review._id);
+                        }
                       }
                     }}
                   >

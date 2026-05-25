@@ -152,6 +152,70 @@ export const MediaProvider = ({ children }) => {
     }
   };
 
+  const fetchMediaByCountry = async (
+    countryCode,
+    newpage = 1,
+    mediaType = "all",
+  ) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await API.get("/media/country", {
+        params: {
+          countryCode,
+          page: newpage,
+          mediaType,
+        },
+      });
+
+      if (newpage === 1) {
+        setResults(res.data.results);
+      } else {
+        setResults((prev) => [...prev, ...res.data.results]);
+      }
+
+      setPage(newpage);
+    } catch (error) {
+      console.error(error);
+
+      setError("Failed to fetch media by country");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchMediaByLanguage = async (
+    languageCode,
+    newpage = 1,
+    mediaType = "all",
+  ) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await API.get("/media/language", {
+        params: {
+          languageCode,
+          page: newpage,
+          mediaType,
+        },
+      });
+
+      if (newpage === 1) {
+        setResults(res.data.results);
+      } else {
+        setResults((prev) => [...prev, ...res.data.results]);
+      }
+    } catch (error) {
+      console.error(error);
+
+      setError("Failed to fetch media by language");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     let themeClass = "";
     if (currentType === "movie") themeClass = "theme-movie";
@@ -183,6 +247,8 @@ export const MediaProvider = ({ children }) => {
         fetchLanguages,
         typesofmedia,
         fetchMediaByGenre,
+        fetchMediaByCountry,
+        fetchMediaByLanguage,
         results,
         page,
       }}

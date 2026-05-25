@@ -102,6 +102,9 @@ export default function GCL({ typeofgcl, setMediaType }) {
           key={index}
           className="type_card country_card"
           whileHover={{ scale: 1.05 }}
+          onClick={() => {
+            navigate(`/countries/${item.code}`);
+          }}
         >
           <img
             loading="lazy"
@@ -120,6 +123,9 @@ export default function GCL({ typeofgcl, setMediaType }) {
           key={index}
           className="type_card language_card"
           whileHover={{ scale: 1.05 }}
+          onClick={() => {
+            navigate(`/languages/${item.code}`);
+          }}
         >
           <div className="language_initials">{displayInitials}</div>
           <span className="language_name">{name}</span>

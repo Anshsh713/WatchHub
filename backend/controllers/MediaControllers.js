@@ -385,3 +385,109 @@ exports.getMediaByGenre = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch media by genre" });
   }
 };
+
+exports.getMediaByCountry = async (req, res) => {
+  try {
+    const { countryCode, page = 1, mediaType = "all" } = req.query;
+
+    if (!countryCode) {
+      return res.status(400).json({ message: "Missing countryCode" });
+    }
+
+    let params = { page };
+    let endpoints = [];
+
+    if (mediaType === "movie") {
+      endpoints = ["/discover/movie"];
+      params.with_origin_country = countryCode;
+    } else if (mediaType === "tv") {
+      endpoints = ["/discover/tv"];
+      params.with_origin_country = countryCode;
+    } else if (mediaType === "anime") {
+      endpoints = ["/discover/tv"];
+      params.with_origin_country = countryCode;
+      params.with_genres = 16;
+      params.with_original_language = "ja";
+    } else if (mediaType === "all") {
+      endpoints = ["/discover/movie", "/discover/tv"];
+      params.with_origin_country = countryCode;
+    } else {
+      return res.status(400).json({ message: "Invalid mediaType" });
+    }
+
+    let results = await Promise.allSettled(
+      endpoints.map((ep) => fetchFromTMDB(ep, params)),
+    );
+
+    let merged = results
+      .filter((r) => r.status === "fulfilled")
+      .flatMap((r) => r.value.results);
+    res.json({
+      results: merged,
+      page: Number(page),
+    });
+  } catch (error) {
+    console.error("Country API Error:", error.message);
+    res.status(500).json({ message: "Failed to fetch media by country" });
+  }
+};
+
+exports.getMediaByLanguage = async (req, res) => {
+  try {
+    const { languageCode, page = 1, mediaType = "all" } = req.query;
+
+    if (!languageCode) {
+      return res.status(400).json({
+        message: "Missing languageCode",
+      });
+    }
+
+    let params = {
+      page,
+      with_original_language: languageCode,
+    };
+
+    let endpoints = [];
+
+    if (mediaType === "movie") {
+      endpoints = ["/discover/movie"];
+    } else if (mediaType === "tv") {
+      endpoints = ["/discover/tv"];
+    } else if (mediaType === "anime") {
+      endpoints = ["/discover/tv"];
+
+      params.with_genres = 16;
+      params.with_original_language = "ja";
+    } else if (mediaType === "all") {
+      endpoints = ["/discover/movie", "/discover/tv"];
+    } else {
+      return res.status(400).json({
+        message: "Invalid mediaType",
+      });
+    }
+
+    const results = await Promise.allSettled(
+      endpoints.map((ep) => fetchFromTMDB(ep, params)),
+    );
+
+    let merged = results
+      .filter((r) => r.status === "fulfilled")
+      .flatMap((r) => r.value.results);
+
+    merged = merged.map((item) => ({
+      ...item,
+      media_type: item.first_air_date ? "tv" : "movie",
+    }));
+
+    res.json({
+      results: merged,
+      page: Number(page),
+    });
+  } catch (error) {
+    console.error("Language API Error:", error.message);
+
+    res.status(500).json({
+      message: "Failed to fetch media by language",
+    });
+  }
+};

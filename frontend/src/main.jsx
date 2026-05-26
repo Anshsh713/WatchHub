@@ -54,6 +54,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "/explore/:category",
+        element: (
+          <Protected>
+            <Explore />
+          </Protected>
+        ),
+      },
+      {
         path: "/:type/:id",
         element: (
           <Protected>

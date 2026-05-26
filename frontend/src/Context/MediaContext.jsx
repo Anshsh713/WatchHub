@@ -216,6 +216,38 @@ export const MediaProvider = ({ children }) => {
     }
   };
 
+  const fetchExploreCategory = async (
+    category,
+    newpage = 1,
+    mediaType = "all",
+  ) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await API.get("/media/explore", {
+        params: {
+          category,
+          page: newpage,
+          mediaType,
+        },
+      });
+
+      if (newpage === 1) {
+        setResults(res.data.results);
+      } else {
+        setResults((prev) => [...prev, ...res.data.results]);
+      }
+
+      setPage(newpage);
+    } catch (error) {
+      console.error(error);
+
+      setError("Failed to fetch explore category");
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     let themeClass = "";
     if (currentType === "movie") themeClass = "theme-movie";
@@ -249,6 +281,7 @@ export const MediaProvider = ({ children }) => {
         fetchMediaByGenre,
         fetchMediaByCountry,
         fetchMediaByLanguage,
+        fetchExploreCategory,
         results,
         page,
       }}

@@ -10,6 +10,7 @@ const {
   getMediaByGenre,
   getMediaByCountry,
   getMediaByLanguage,
+  getExploreCategories,
 } = require("../controllers/MediaControllers");
 
 router.get("/media/genres", getAllGenres);
@@ -18,6 +19,7 @@ router.get("/media/languages", getAllLanguages);
 router.get("/media/genre", getMediaByGenre);
 router.get("/media/country", getMediaByCountry);
 router.get("/media/language", getMediaByLanguage);
+router.get("/media/explore", getExploreCategories);
 router.get("/media", getMedia);
 router.get("/media/:id", getMediaDetails);
 

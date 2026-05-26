@@ -8,12 +8,16 @@ import "./Explore.css";
 import "../../Home/Home.css";
 
 export default function Explore() {
-  const { type: mediaType, id: mediaId } = useParams();
+  const params = useParams();
+  const mediaType = params.type;
+  const mediaId = params.id;
+  const category = params.category || (mediaType === "explore" ? mediaId : undefined);
   const navigate = useNavigate();
   const {
     fetchMediaByGenre,
     fetchMediaByCountry,
     fetchMediaByLanguage,
+    fetchExploreCategory,
     results,
     loading,
     page,
@@ -49,6 +53,12 @@ export default function Explore() {
     }
   }, [mediaId, mediaType]);
 
+  useEffect(() => {
+    if (category) {
+      fetchExploreCategory(category, 1);
+    }
+  }, [category]);
+
   const currentDetails = typesofmedia?.find((item) => {
     if (mediaType === "genres") {
       return item.id?.toString() === mediaId?.toString();
@@ -65,9 +75,21 @@ export default function Explore() {
     return false;
   });
 
-  const displayName = currentDetails?.name || "Explore";
+  const categoryNames = {
+    family: "Family Friendly",
+    awards: "Award Winning",
+    anime: "Anime",
+    gems: "Hidden Gems",
+    franchise: "Franchise",
+  };
 
-  if (loading || results.length === 0) {
+  const displayName =
+    currentDetails?.name ||
+    (category
+      ? categoryNames[category.toLowerCase()] || (category.charAt(0).toUpperCase() + category.slice(1))
+      : "Explore");
+
+  if (loading) {
     return (
       <div className="Explore">
         <AnimatePresence>
@@ -99,40 +121,51 @@ export default function Explore() {
   return (
     <div className="Explore">
       <div className="explore-header" onClick={() => navigate(-1)}>
-        <ChevronLeft size={32} /> <h2>Explore {displayName}</h2>
+        <ChevronLeft size={32} />
+        <h2>Explore {displayName}</h2>
       </div>
+
       <motion.div
         className="explore-grid"
         variants={containerVariants}
         initial="hidden"
         animate="show"
       >
-        {results.map((item) => (
-          <Link
-            key={item.id}
-            to={`/media/${item.media_type || "movie"}/${item.id}`}
-          >
-            <motion.div className="media-card" variants={itemVariants}>
-              {item.poster_path ? (
-                <img
-                  src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
-                  alt={item.title || item.name}
-                  loading="lazy"
-                />
-              ) : (
-                <div className="media-placeholder">No Image</div>
-              )}
-              <div className="media-info">
-                <h4>{item.title || item.name}</h4>
-                {item.release_date || item.first_air_date ? (
-                  <p>
-                    {(item.release_date || item.first_air_date).split("-")[0]}
-                  </p>
-                ) : null}
-              </div>
-            </motion.div>
-          </Link>
-        ))}
+        {results.length === 0 ? (
+          <div className="no-results">
+            <h3>No Results Found</h3>
+            <p>Try exploring another category or check back later.</p>
+          </div>
+        ) : (
+          results.map((item) => (
+            <Link
+              key={item.id}
+              to={`/media/${item.media_type || "movie"}/${item.id}`}
+            >
+              <motion.div className="media-card" variants={itemVariants}>
+                {item.poster_path ? (
+                  <img
+                    src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
+                    alt={item.title || item.name}
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="media-placeholder">No Image</div>
+                )}
+
+                <div className="media-info">
+                  <h4>{item.title || item.name}</h4>
+
+                  {(item.release_date || item.first_air_date) && (
+                    <p>
+                      {(item.release_date || item.first_air_date).split("-")[0]}
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            </Link>
+          ))
+        )}
       </motion.div>
     </div>
   );

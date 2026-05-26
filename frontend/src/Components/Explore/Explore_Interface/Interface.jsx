@@ -11,12 +11,13 @@ import {
   Video,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import GCL from "./GCL";
 import "./Interface.css";
 
 export default function Explore_Interface() {
+  const navigate = useNavigate();
   const [mediaType, setMediaType] = React.useState(null);
-
   const exploreOptions = [
     { name: "Genres", icon: <Drama /> },
     { name: "Countries", icon: <Globe /> },
@@ -55,6 +56,16 @@ export default function Explore_Interface() {
       setMediaType("Countries");
     } else if (type === "Languages") {
       setMediaType("Languages");
+    } else if (type === "Family Friendly") {
+      navigate("/explore/family");
+    } else if (type === "Award Winning") {
+      navigate("/explore/awards");
+    } else if (type === "Anime") {
+      navigate("/explore/anime");
+    } else if (type === "Hidden Gems") {
+      navigate("/explore/gems");
+    } else if (type === "Franchise") {
+      navigate("/explore/franchise");
     }
   };
 
@@ -89,9 +100,15 @@ export default function Explore_Interface() {
           </motion.div>
         </>
       )}
-      {mediaType === "Genres" && <GCL typeofgcl="Genres" setMediaType={setMediaType} />}
-      {mediaType === "Countries" && <GCL typeofgcl="Countries" setMediaType={setMediaType} />}
-      {mediaType === "Languages" && <GCL typeofgcl="Languages" setMediaType={setMediaType} />}
+      {mediaType === "Genres" && (
+        <GCL typeofgcl="Genres" setMediaType={setMediaType} />
+      )}
+      {mediaType === "Countries" && (
+        <GCL typeofgcl="Countries" setMediaType={setMediaType} />
+      )}
+      {mediaType === "Languages" && (
+        <GCL typeofgcl="Languages" setMediaType={setMediaType} />
+      )}
     </div>
   );
 }

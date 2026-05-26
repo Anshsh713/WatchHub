@@ -491,3 +491,104 @@ exports.getMediaByLanguage = async (req, res) => {
     });
   }
 };
+
+exports.getExploreCategories = async (req, res) => {
+  try {
+    const { category, page = 1, mediaType = "all" } = req.query;
+
+    let params = {
+      page,
+      sort_by: "popularity.desc",
+      include_adult: false,
+    };
+
+    let endpoints = [];
+
+    if (mediaType === "movie") {
+      endpoints = ["/discover/movie"];
+    } else if (mediaType === "tv") {
+      endpoints = ["/discover/tv"];
+    } else {
+      endpoints = ["/discover/movie", "/discover/tv"];
+    }
+
+    switch (category) {
+      case "family":
+        params.with_genres = "10751";
+
+        params["vote_average.gte"] = 6.5;
+
+        params.sort_by = "popularity.desc";
+
+        break;
+
+      case "awards":
+        params["vote_average.gte"] = 7.5;
+
+        params["vote_count.gte"] = 500;
+
+        params.sort_by = "vote_average.desc";
+
+        break;
+
+      case "gems":
+        params["vote_average.gte"] = 7.2;
+
+        params["vote_count.gte"] = 20;
+        params["vote_count.lte"] = 1500;
+
+        params.primary_release_date.gte = "1980-01-01";
+        params.primary_release_date.lte = "2016-01-01";
+
+        params.first_air_date.gte = "1980-01-01";
+        params.first_air_date.lte = "2016-01-01";
+
+        params.sort_by = "vote_average.desc";
+
+        break;
+
+      case "anime":
+        endpoints = ["/discover/tv"];
+        params.with_genres = 16;
+        params.with_original_language = "ja";
+        break;
+
+      case "franchise":
+        params.sort_by = "popularity.desc";
+        params["vote_count.gte"] = 500;
+        break;
+
+      default:
+        return res.status(400).json({
+          message: "Invalid category",
+        });
+    }
+
+    const results = await Promise.allSettled(
+      endpoints.map((ep) => fetchFromTMDB(ep, params)),
+    );
+
+    let merged = results
+      .filter((r) => r.status === "fulfilled")
+      .flatMap((r) => r.value.results);
+
+    merged = merged.map((item) => ({
+      ...item,
+      media_type: item.first_air_date ? "tv" : "movie",
+    }));
+
+    res.json({
+      results: merged,
+      page: Number(page),
+    });
+  } catch (error) {
+    console.error(
+      "Explore Categories Error:",
+      error.response?.data || error.message,
+    );
+
+    res.status(500).json({
+      message: "Failed to fetch explore categories",
+    });
+  }
+};

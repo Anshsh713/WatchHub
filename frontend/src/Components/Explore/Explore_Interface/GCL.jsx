@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { useMedia } from "../../../Context/MediaContext";
@@ -17,6 +17,7 @@ export default function GCL({ typeofgcl, setMediaType }) {
   } = useMedia();
 
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -74,6 +75,10 @@ export default function GCL({ typeofgcl, setMediaType }) {
     };
     return genreColors[name] || "rgba(255, 255, 255, 0.05)";
   };
+
+  const filteredMedia = typesofmedia?.filter((item) =>
+    item?.name?.toLowerCase().includes(searchTerm.toLowerCase().trim()),
+  );
 
   const renderCard = (item, index) => {
     if (typeofgcl === "Genres") {
@@ -140,10 +145,23 @@ export default function GCL({ typeofgcl, setMediaType }) {
         <ChevronLeft className="back-icon" onClick={() => setMediaType(null)} />
         <h2>{typeofgcl}</h2>
       </motion.div>
-
+      <div className="search_container">
+        <input
+          type="text"
+          placeholder={`Search ${typeofgcl}...`}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search_input"
+        />
+      </div>
       <div className={`type_grid ${typeofgcl.toLowerCase()}_grid`}>
-        {typesofmedia &&
-          typesofmedia.map((item, index) => renderCard(item, index))}
+        {filteredMedia?.length > 0 ? (
+          filteredMedia.map((item, index) => renderCard(item, index))
+        ) : (
+          <div className="no_search_results">
+            No matching {typeofgcl.toLowerCase()} found
+          </div>
+        )}
       </div>
     </div>
   );

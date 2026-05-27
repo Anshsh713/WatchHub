@@ -1,5 +1,5 @@
 import React, { act, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useMedia } from "../../Context/MediaContext";
 import {
   motion,
@@ -37,6 +37,10 @@ const ScrollablePeople = ({ title, data }) => {
                   : DEFAULT_PROFILE
               }
               alt={person.name}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = DEFAULT_PROFILE;
+              }}
             />
             <p>{person.name}</p>
           </div>
@@ -48,9 +52,12 @@ const ScrollablePeople = ({ title, data }) => {
 
 export default function MediaDetail() {
   const { id, type } = useParams();
-  const { fetchMediaDetails, mediaDetails, loading, setCurrentType } =
+  const navigate = useNavigate();
+  const { fetchMediaDetails, mediaDetails, loading, error, setCurrentType } =
     useMedia();
   const [video, setVideo] = useState(false);
+  const [backdropError, setBackdropError] = useState(false);
+  const [posterError, setPosterError] = useState(false);
 
   useEffect(() => {
     if (id && type) {
@@ -84,12 +91,67 @@ export default function MediaDetail() {
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
   }
 
-  if (loading || !mediaDetails) {
+  if (error) {
+    return (
+      <div className="Main-box" style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minHeight: "100vh", gap: "20px", padding: "20px" }}>
+        <h2 style={{ fontWeight: 300, fontSize: "2rem" }}>Error Loading Media</h2>
+        <p style={{ color: "#a0aec0", fontSize: "1.1rem" }}>{error}</p>
+        <button 
+          onClick={() => navigate(-1)} 
+          style={{ 
+            padding: "12px 28px", 
+            backgroundColor: "#e50914", 
+            color: "white", 
+            border: "none", 
+            borderRadius: "30px", 
+            cursor: "pointer",
+            fontWeight: "600",
+            fontSize: "1rem",
+            boxShadow: "0 4px 15px rgba(229, 9, 20, 0.4)",
+            transition: "all 0.2s ease"
+          }}
+          onMouseOver={(e) => {
+            e.target.style.backgroundColor = "#b81d24";
+            e.target.style.transform = "scale(1.05)";
+          }}
+          onMouseOut={(e) => {
+            e.target.style.backgroundColor = "#e50914";
+            e.target.style.transform = "scale(1)";
+          }}
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
+
+  if (loading) {
     return (
       <div className="Main-box">
         <AnimatePresence>
           <VideoLoader />
         </AnimatePresence>
+      </div>
+    );
+  }
+
+  if (!mediaDetails) {
+    return (
+      <div className="Main-box" style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minHeight: "100vh", gap: "20px" }}>
+        <h2 style={{ fontWeight: 300 }}>No Details Found</h2>
+        <button 
+          onClick={() => navigate(-1)} 
+          style={{ 
+            padding: "10px 20px", 
+            backgroundColor: "#e50914", 
+            color: "white", 
+            border: "none", 
+            borderRadius: "6px", 
+            cursor: "pointer"
+          }}
+        >
+          Go Back
+        </button>
       </div>
     );
   }
@@ -157,21 +219,36 @@ export default function MediaDetail() {
   return (
     <div className="Main-box">
       <div className="banner">
-        <img
-          loading="lazy"
-          onClick={() => setVideo(!video)}
-          src={`https://image.tmdb.org/t/p/original${mediaDetails.images.backdrop}`}
-          alt="Backdrop"
-        />
+        {!backdropError && mediaDetails.images?.backdrop ? (
+          <img
+            loading="lazy"
+            onClick={() => setVideo(!video)}
+            src={`https://image.tmdb.org/t/p/original${mediaDetails.images.backdrop}`}
+            alt="Backdrop"
+            onError={() => setBackdropError(true)}
+          />
+        ) : (
+          <div className="banner-placeholder"></div>
+        )}
         <div className="banner-overlay"></div>
       </div>
       <div className="main-content">
         <div className="media-image">
           <div className="image">
-            <img
-              loading="lazy"
-              src={`https://image.tmdb.org/t/p/original${mediaDetails.images.poster}`}
-            />
+            {!posterError && mediaDetails.images?.poster ? (
+              <img
+                loading="lazy"
+                src={`https://image.tmdb.org/t/p/original${mediaDetails.images.poster}`}
+                alt={mediaDetails.name}
+                onError={() => setPosterError(true)}
+              />
+            ) : (
+              <div className="poster-placeholder">
+                <span className="placeholder-icon">🎬</span>
+                <span className="placeholder-text">{mediaDetails.name}</span>
+                <span className="placeholder-subtext">Poster unavailable</span>
+              </div>
+            )}
           </div>
         </div>
         <div className="media-details">
@@ -262,7 +339,14 @@ export default function MediaDetail() {
                     rel="noopener noreferrer"
                   >
                     <div className="logo-show">
-                      <img src={platform.logo} alt={platform.name} />
+                      <img 
+                        src={platform.logo} 
+                        alt={platform.name} 
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "https://via.placeholder.com/40?text=▶";
+                        }}
+                      />
                     </div>
 
                     <span>{platform.name}</span>
@@ -283,7 +367,14 @@ export default function MediaDetail() {
                     className="whaton"
                   >
                     <div className="logo-show">
-                      <img src={platform.logo} alt={platform.name} />
+                      <img 
+                        src={platform.logo} 
+                        alt={platform.name} 
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "https://via.placeholder.com/40?text=▶";
+                        }}
+                      />
                     </div>
 
                     <span>{platform.name}</span>

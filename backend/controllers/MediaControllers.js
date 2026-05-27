@@ -537,11 +537,11 @@ exports.getExploreCategories = async (req, res) => {
         params["vote_count.gte"] = 20;
         params["vote_count.lte"] = 1500;
 
-        params.primary_release_date.gte = "1980-01-01";
-        params.primary_release_date.lte = "2016-01-01";
+        params["primary_release_date.gte"] = "1980-01-01";
+        params["primary_release_date.lte"] = "2016-01-01";
 
-        params.first_air_date.gte = "1980-01-01";
-        params.first_air_date.lte = "2016-01-01";
+        params["first_air_date.gte"] = "1980-01-01";
+        params["first_air_date.lte"] = "2016-01-01";
 
         params.sort_by = "vote_average.desc";
 

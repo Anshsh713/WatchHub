@@ -51,6 +51,7 @@ export const MediaProvider = ({ children }) => {
       setLoading(false);
     } catch (err) {
       setError("Failed to fetch media");
+      setLoading(false);
     }
   };
 
@@ -66,6 +67,7 @@ export const MediaProvider = ({ children }) => {
       setLoading(false);
     } catch (error) {
       setError("Failed to fetch Media Data");
+      setLoading(false);
     }
   };
 
@@ -129,6 +131,7 @@ export const MediaProvider = ({ children }) => {
   const fetchMediaByGenre = async (genreId, newpage = 1, mediaType = "all") => {
     try {
       setLoading(true);
+      setResults([]);
       setError(null);
 
       const res = await API.get("/media/genre", {
@@ -149,6 +152,7 @@ export const MediaProvider = ({ children }) => {
       setLoading(false);
     } catch (error) {
       setError("Failed to fetch media by genre");
+      setLoading(false);
     }
   };
 
@@ -159,6 +163,7 @@ export const MediaProvider = ({ children }) => {
   ) => {
     try {
       setLoading(true);
+      setResults([]);
       setError(null);
 
       const res = await API.get("/media/country", {
@@ -192,6 +197,7 @@ export const MediaProvider = ({ children }) => {
   ) => {
     try {
       setLoading(true);
+      setResults([]);
       setError(null);
 
       const res = await API.get("/media/language", {
@@ -207,6 +213,8 @@ export const MediaProvider = ({ children }) => {
       } else {
         setResults((prev) => [...prev, ...res.data.results]);
       }
+
+      setPage(newpage);
     } catch (error) {
       console.error(error);
 
@@ -223,6 +231,7 @@ export const MediaProvider = ({ children }) => {
   ) => {
     try {
       setLoading(true);
+      setResults([]);
       setError(null);
 
       const res = await API.get("/media/explore", {

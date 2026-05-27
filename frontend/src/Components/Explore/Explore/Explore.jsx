@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useMedia } from "../../../Context/MediaContext";
 import { ChevronLeft } from "lucide-react";
@@ -11,8 +11,15 @@ export default function Explore() {
   const params = useParams();
   const mediaType = params.type;
   const mediaId = params.id;
-  const category = params.category || (mediaType === "explore" ? mediaId : undefined);
+  const category =
+    params.category || (mediaType === "explore" ? mediaId : undefined);
   const navigate = useNavigate();
+  const [hasFetched, setHasFetched] = useState(false);
+
+  useEffect(() => {
+    setHasFetched(false);
+  }, [mediaId, mediaType, category]);
+
   const {
     fetchMediaByGenre,
     fetchMediaByCountry,
@@ -26,6 +33,12 @@ export default function Explore() {
     fetchLanguages,
     typesofmedia,
   } = useMedia();
+
+  useEffect(() => {
+    if (loading) {
+      setHasFetched(true);
+    }
+  }, [loading]);
 
   useEffect(() => {
     if (mediaType === "genres") {
@@ -86,8 +99,23 @@ export default function Explore() {
   const displayName =
     currentDetails?.name ||
     (category
-      ? categoryNames[category.toLowerCase()] || (category.charAt(0).toUpperCase() + category.slice(1))
+      ? categoryNames[category.toLowerCase()] ||
+        category.charAt(0).toUpperCase() + category.slice(1)
       : "Explore");
+
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+
+    if (mediaType === "genres") {
+      fetchMediaByGenre(mediaId, nextPage);
+    } else if (mediaType === "countries") {
+      fetchMediaByCountry(mediaId, nextPage);
+    } else if (mediaType === "languages") {
+      fetchMediaByLanguage(mediaId, nextPage);
+    } else if (category) {
+      fetchExploreCategory(category, nextPage);
+    }
+  };
 
   if (loading) {
     return (
@@ -131,42 +159,60 @@ export default function Explore() {
         initial="hidden"
         animate="show"
       >
-        {results.length === 0 ? (
-          <div className="no-results">
-            <h3>No Results Found</h3>
-            <p>Try exploring another category or check back later.</p>
-          </div>
-        ) : (
-          results.map((item) => (
-            <Link
-              key={item.id}
-              to={`/media/${item.media_type || "movie"}/${item.id}`}
-            >
-              <motion.div className="media-card" variants={itemVariants}>
-                {item.poster_path ? (
-                  <img
-                    src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
-                    alt={item.title || item.name}
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="media-placeholder">No Image</div>
-                )}
-
-                <div className="media-info">
-                  <h4>{item.title || item.name}</h4>
-
-                  {(item.release_date || item.first_air_date) && (
-                    <p>
-                      {(item.release_date || item.first_air_date).split("-")[0]}
-                    </p>
-                  )}
-                </div>
-              </motion.div>
-            </Link>
-          ))
-        )}
+        {results.length === 0
+          ? hasFetched && (
+              <div className="no-results">
+                <h3>No Results Found</h3>
+                <p>Try exploring another category or check back later.</p>
+              </div>
+            )
+          : results.map((item) => (
+              <ExploreCard
+                key={item.id}
+                item={item}
+                itemVariants={itemVariants}
+              />
+            ))}
       </motion.div>
+      {results.length > 0 && (
+        <div className="load-more-container">
+          <button className="load-more-btn" onClick={handleLoadMore}>
+            Load More
+          </button>
+        </div>
+      )}
     </div>
   );
 }
+
+const ExploreCard = ({ item, itemVariants }) => {
+  const [imageError, setImageError] = useState(false);
+
+  return (
+    <Link to={`/media/${item.media_type || "movie"}/${item.id}`}>
+      <motion.div className="media-card" variants={itemVariants}>
+        {!imageError && item.poster_path ? (
+          <img
+            src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
+            alt={item.title || item.name}
+            loading="lazy"
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          <div className="explore-poster-placeholder">
+            <span className="placeholder-icon">🎬</span>
+            <span className="placeholder-text">{item.title || item.name}</span>
+          </div>
+        )}
+
+        <div className="media-info">
+          <h4>{item.title || item.name}</h4>
+
+          {(item.release_date || item.first_air_date) && (
+            <p>{(item.release_date || item.first_air_date).split("-")[0]}</p>
+          )}
+        </div>
+      </motion.div>
+    </Link>
+  );
+};

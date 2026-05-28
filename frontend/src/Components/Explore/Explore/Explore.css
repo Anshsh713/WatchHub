@@ -16,6 +16,10 @@
   transition: opacity 0.2s ease;
 }
 
+.explore-search {
+  margin-bottom: 30px;
+}
+
 .explore-header:hover {
   opacity: 0.8;
 }

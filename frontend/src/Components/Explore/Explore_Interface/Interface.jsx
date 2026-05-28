@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import Search from "../../Common/Search";
 import GCL from "./GCL";
 import "./Interface.css";
 
@@ -81,6 +82,9 @@ export default function Explore_Interface() {
           >
             Explore
           </motion.h2>
+          <div className="explore-search">
+            <Search placeholder="Search..." />
+          </div>
           <motion.div
             className="explore-options"
             variants={containerVariants}

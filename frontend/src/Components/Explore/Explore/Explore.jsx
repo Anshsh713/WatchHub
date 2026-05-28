@@ -4,6 +4,7 @@ import { useMedia } from "../../../Context/MediaContext";
 import { ChevronLeft } from "lucide-react";
 import VideoLoader from "../../Common/VideoLoader";
 import { AnimatePresence, motion } from "framer-motion";
+import Search from "../../Common/Search";
 import "./Explore.css";
 import "../../Home/Home.css";
 
@@ -151,6 +152,10 @@ export default function Explore() {
       <div className="explore-header" onClick={() => navigate(-1)}>
         <ChevronLeft size={32} />
         <h2>Explore {displayName}</h2>
+      </div>
+
+      <div className="explore-search">
+        <Search placeholder="Search..." />
       </div>
 
       <motion.div

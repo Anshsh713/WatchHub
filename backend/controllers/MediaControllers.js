@@ -592,3 +592,32 @@ exports.getExploreCategories = async (req, res) => {
     });
   }
 };
+
+exports.searchMedia = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query) {
+      return res.json([]);
+    }
+
+    const data = await fetchFromTMDB("/search/multi", {
+      query,
+      page: 1,
+    });
+
+    const results = data.results
+      .filter(
+        (item) =>
+          (item.media_type === "movie" || item.media_type === "tv") &&
+          (item.title || item.name),
+      )
+      .slice(0, 10);
+
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({
+      message: "Search failed",
+    });
+  }
+};

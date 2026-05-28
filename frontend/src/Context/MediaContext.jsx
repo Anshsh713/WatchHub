@@ -19,6 +19,7 @@ export const MediaProvider = ({ children }) => {
   const [genresCache, setGenresCache] = useState([]);
   const [countriesCache, setCountriesCache] = useState([]);
   const [languagesCache, setLanguagesCache] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
 
   const mediaMap = { all, movie: movies, tv: tvshow, anime };
 
@@ -257,6 +258,23 @@ export const MediaProvider = ({ children }) => {
       setLoading(false);
     }
   };
+
+  const searchMedia = async (query) => {
+    try {
+      if (!query.trim()) {
+        setSearchResults([]);
+        return;
+      }
+
+      const res = await API.get("/media/search", {
+        params: { query },
+      });
+      setSearchResults(res.data);
+    } catch (error) {
+      setSearchResults([]);
+    }
+  };
+
   useEffect(() => {
     let themeClass = "";
     if (currentType === "movie") themeClass = "theme-movie";
@@ -291,6 +309,8 @@ export const MediaProvider = ({ children }) => {
         fetchMediaByCountry,
         fetchMediaByLanguage,
         fetchExploreCategory,
+        searchMedia,
+        searchResults,
         results,
         page,
       }}

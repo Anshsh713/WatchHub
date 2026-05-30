@@ -40,9 +40,9 @@ export default function Header() {
 
   const navLinks = [
     { name: "Home", path: "/home" },
-    { name: "Schedule", path: "/schedule" },
-    { name: "Clubs", path: "/clubs" },
-    { name: "News", path: "/news" },
+    { name: "Discover", path: "/discover" },
+    { name: "Insider", path: "/insider" },
+    { name: "Community", path: "/community" },
     { name: "Collections", path: "/collections" },
     { name: "WatchList", path: "/watchlist" },
     { name: "Explore", path: "/interface" },

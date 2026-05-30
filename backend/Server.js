@@ -5,6 +5,7 @@ const cors = require("cors");
 const UserRoutes = require("./routes/UserRoutes");
 const MediaRoutes = require("./routes/MediaRoutes");
 const ReviewsRoutes = require("./routes/ReviewsRoutes");
+const NewsRoutes = require("./routes/NewsRoutes");
 const WatchHub = express();
 
 // ==========================
@@ -27,6 +28,7 @@ WatchHub.use(express.urlencoded({ extended: true }));
 WatchHub.use("/api/user", UserRoutes);
 WatchHub.use("/api", MediaRoutes);
 WatchHub.use("/api/reviews", ReviewsRoutes);
+WatchHub.use("/api/news", NewsRoutes);
 
 WatchHub.get("/", (req, res) => {
   res.status(200).json({

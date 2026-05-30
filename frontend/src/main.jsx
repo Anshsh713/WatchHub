@@ -16,6 +16,7 @@ import AuthPage from "./Login_Signup/AuthPage/AuthPage.jsx";
 import MediaDetials from "./Components/MovieDetails/MovieDetails.jsx";
 import Explore_Interface from "./Components/Explore/Explore_Interface/Interface.jsx";
 import Explore from "./Components/Explore/Explore/Explore.jsx";
+import Main_Page from "./Components/News/Main_Page.jsx";
 import App from "./App.jsx";
 import "./index.css";
 import ErrorBoundary from "./Components/ErrorBoundary/ErrorBoundary.jsx";
@@ -66,6 +67,14 @@ const router = createBrowserRouter([
         element: (
           <Protected>
             <Explore />
+          </Protected>
+        ),
+      },
+      {
+        path: "/insider",
+        element: (
+          <Protected>
+            <Main_Page />
           </Protected>
         ),
       },

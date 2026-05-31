@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 import News_Page from "./News_Page";
-import { 
-  Globe, 
-  Film, 
-  Tv, 
-  Sparkles, 
-  Gamepad, 
+import {
+  Globe,
+  Film,
+  Tv,
+  Sparkles,
+  Gamepad,
   Search,
   Calendar,
   Clock,
   MapPin,
-  Flame
+  Flame,
 } from "lucide-react";
 import "./Main_News.css";
 
@@ -21,9 +21,11 @@ const EVENTS_DATA = [
     date: "June 5 - June 8, 2026",
     location: "Los Angeles, CA & Online",
     category: "game",
-    description: "The global celebration of the future of video games. Expect world premieres, gameplay reveals, and developer showcases from the world's leading studios.",
-    image: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=600&auto=format&fit=crop",
-    link: "https://www.summergamefest.com"
+    description:
+      "The global celebration of the future of video games. Expect world premieres, gameplay reveals, and developer showcases from the world's leading studios.",
+    image:
+      "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=600&auto=format&fit=crop",
+    link: "https://www.summergamefest.com",
   },
   {
     id: 2,
@@ -31,9 +33,11 @@ const EVENTS_DATA = [
     date: "July 2 - July 5, 2026",
     location: "Los Angeles Convention Center",
     category: "anime",
-    description: "North America's largest anime convention, bringing together fans and industry leaders for panel discussions, exclusive merchandise, cosplay, and major studio announcements.",
-    image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=600&auto=format&fit=crop",
-    link: "https://www.anime-expo.org"
+    description:
+      "North America's largest anime convention, bringing together fans and industry leaders for panel discussions, exclusive merchandise, cosplay, and major studio announcements.",
+    image:
+      "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=600&auto=format&fit=crop",
+    link: "https://www.anime-expo.org",
   },
   {
     id: 3,
@@ -41,9 +45,11 @@ const EVENTS_DATA = [
     date: "July 23 - July 26, 2026",
     location: "San Diego Convention Center",
     category: "movie",
-    description: "The ultimate pop culture event. Comic-Con will feature massive movie studio panels, comic industry celebrations, television show exclusive previews, and artist showcases.",
-    image: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=600&auto=format&fit=crop",
-    link: "https://www.comic-con.org"
+    description:
+      "The ultimate pop culture event. Comic-Con will feature massive movie studio panels, comic industry celebrations, television show exclusive previews, and artist showcases.",
+    image:
+      "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=600&auto=format&fit=crop",
+    link: "https://www.comic-con.org",
   },
   {
     id: 4,
@@ -51,9 +57,11 @@ const EVENTS_DATA = [
     date: "September 20, 2026",
     location: "Peacock Theater, Los Angeles",
     category: "show",
-    description: "Honoring excellence in American prime-time television programming. Witness the highest achievements in television design, acting, writing, and production.",
-    image: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=600&auto=format&fit=crop",
-    link: "https://www.emmys.com"
+    description:
+      "Honoring excellence in American prime-time television programming. Witness the highest achievements in television design, acting, writing, and production.",
+    image:
+      "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=600&auto=format&fit=crop",
+    link: "https://www.emmys.com",
   },
   {
     id: 5,
@@ -61,10 +69,12 @@ const EVENTS_DATA = [
     date: "December 10, 2026",
     location: "Peacock Theater, Los Angeles",
     category: "game",
-    description: "The gaming industry's biggest night. Celebrate the best games of the year alongside world premieres of upcoming titles, musical performances, and special guests.",
-    image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=600&auto=format&fit=crop",
-    link: "https://thegameawards.com"
-  }
+    description:
+      "The gaming industry's biggest night. Celebrate the best games of the year alongside world premieres of upcoming titles, musical performances, and special guests.",
+    image:
+      "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=600&auto=format&fit=crop",
+    link: "https://thegameawards.com",
+  },
 ];
 
 export default function Main_Page() {
@@ -94,14 +104,6 @@ export default function Main_Page() {
 
   return (
     <div className="main-page">
-      <div className="hero-section">
-        <div className="hero-badge">WATCHHUB INSIDER</div>
-        <h1 className="text-gradient">Entertainment News</h1>
-        <p>
-          Your premium gateway to the latest scoops, blockbuster reveals, gaming updates, anime releases, and critical events in the entertainment industry.
-        </p>
-      </div>
-
       <div className="insider-controls">
         <div className="mode-toggle">
           <button
@@ -165,21 +167,31 @@ export default function Main_Page() {
           <div className="events-timeline">
             <div className="timeline-header">
               <h2>Upcoming Industry Showcases</h2>
-              <p>Mark your calendars for the biggest premieres, conferences, and award ceremonies of the year.</p>
+              <p>
+                Mark your calendars for the biggest premieres, conferences, and
+                award ceremonies of the year.
+              </p>
             </div>
-            
+
             <div className="timeline-grid">
               {EVENTS_DATA.map((event) => (
-                <div key={event.id} className={`event-card border-${event.category}`}>
+                <div
+                  key={event.id}
+                  className={`event-card border-${event.category}`}
+                >
                   <div className="event-image-container">
-                    <img src={event.image} alt={event.title} className="event-image" />
+                    <img
+                      src={event.image}
+                      alt={event.title}
+                      className="event-image"
+                    />
                     <span className={`event-badge badge-${event.category}`}>
                       {event.category.toUpperCase()}
                     </span>
                   </div>
                   <div className="event-details">
                     <h3 className="event-title">{event.title}</h3>
-                    
+
                     <div className="event-meta">
                       <div className="meta-item">
                         <Calendar size={14} />
@@ -190,10 +202,15 @@ export default function Main_Page() {
                         <span>{event.location}</span>
                       </div>
                     </div>
-                    
+
                     <p className="event-description">{event.description}</p>
-                    
-                    <a href={event.link} target="_blank" rel="noopener noreferrer" className="event-btn">
+
+                    <a
+                      href={event.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="event-btn"
+                    >
                       Visit Official Website
                     </a>
                   </div>

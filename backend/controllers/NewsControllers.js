@@ -11,6 +11,81 @@ const ENTERTAINMENT_KEYWORDS = [
   "spoiler", "review", "teaser", "cast", "box office", "blockbuster", "soundtrack", "entertainment", "mcu", "dceu", "comic-con", "oscars", "oscars2026", "emmy"
 ];
 
+const getArticleCategory = (title = "", description = "") => {
+  const text = `${title} ${description}`.toLowerCase();
+  
+  // 1. Anime (Highly specific terms first)
+  if (
+    text.includes("anime") ||
+    text.includes("manga") ||
+    text.includes("crunchyroll") ||
+    text.includes("funimation") ||
+    text.includes("otaku") ||
+    text.includes("cosplay") ||
+    text.includes("goku") ||
+    text.includes("naruto") ||
+    text.includes("one piece") ||
+    text.includes("demon slayer") ||
+    text.includes("miyazaki") ||
+    text.includes("ghibli") ||
+    text.includes("shonen")
+  ) {
+    return "anime";
+  }
+
+  // 2. Games
+  if (
+    text.includes("gaming") ||
+    text.includes("gameplay") ||
+    text.includes("gamer") ||
+    text.includes("playstation") ||
+    text.includes("xbox") ||
+    text.includes("nintendo") ||
+    text.includes("switch") ||
+    text.includes("steam") ||
+    text.includes("console") ||
+    text.includes("esports") ||
+    text.includes("videogame") ||
+    text.includes("video game") ||
+    text.includes("pc game") ||
+    text.includes("rpg") ||
+    text.includes("multiplayer") ||
+    text.includes("developer")
+  ) {
+    return "game";
+  }
+
+  // 3. TV Shows / Series
+  if (
+    text.includes("television") ||
+    text.includes("series") ||
+    text.includes("episode") ||
+    text.includes("season") ||
+    text.includes("tv show") ||
+    text.includes("tv series") ||
+    text.includes("sitcom") ||
+    text.includes("hbo show") ||
+    text.includes("netflix show") ||
+    text.includes("disney+ series") ||
+    text.includes("casting") ||
+    text.includes("hulu series")
+  ) {
+    return "show";
+  }
+
+  // 4. Movies
+  return "movie";
+};
+
+const getNormalizedCategory = (type = "") => {
+  const t = type.toLowerCase();
+  if (t === "movie" || t === "movies") return "movie";
+  if (t === "show" || t === "shows" || t === "tv") return "show";
+  if (t === "anime") return "anime";
+  if (t === "game" || t === "games") return "game";
+  return "all";
+};
+
 const isEntertainmentRelated = (article) => {
   const title = (article.title || "").toLowerCase();
   const description = (article.description || article.content || "").toLowerCase();
@@ -23,19 +98,20 @@ const isEntertainmentRelated = (article) => {
 exports.getNews = async (req, res) => {
   try {
     const { contentType = "all", search = "", page = 1 } = req.query;
+    const targetCat = getNormalizedCategory(contentType);
 
     let query;
 
     if (search) {
-      if (contentType && contentType !== "all") {
+      if (targetCat !== "all") {
         let categoryQuery = "";
-        if (contentType === "movie" || contentType === "movies") {
+        if (targetCat === "movie") {
           categoryQuery = "movie OR film OR cinema OR Marvel OR DC";
-        } else if (contentType === "show" || contentType === "tv" || contentType === "shows") {
+        } else if (targetCat === "show") {
           categoryQuery = "television OR series OR Netflix OR HBO OR show";
-        } else if (contentType === "anime") {
+        } else if (targetCat === "anime") {
           categoryQuery = "anime OR manga OR Crunchyroll";
-        } else if (contentType === "game" || contentType === "games") {
+        } else if (targetCat === "game") {
           categoryQuery = "gaming OR PlayStation OR Xbox OR Nintendo OR game OR videogame OR videogames OR video-game";
         }
         
@@ -48,24 +124,17 @@ exports.getNews = async (req, res) => {
         query = search;
       }
     } else {
-      const MOVIE_QUERY = "Marvel OR DC OR Disney OR movie OR film";
+      const MOVIE_QUERY = "movie OR film OR cinema OR hollywood OR blockbuster OR \"box office\"";
+      const SHOW_QUERY = "television OR series OR tv OR sitcom OR episode OR \"season premiere\"";
+      const ANIME_QUERY = "anime OR manga OR Crunchyroll OR Naruto OR Ghibli";
+      const GAME_QUERY = "gaming OR playstation OR xbox OR nintendo OR videogame OR video-game OR \"steam deck\"";
 
-      const SHOW_QUERY = "Netflix OR HBO OR television OR series";
-
-      const ANIME_QUERY =
-        "anime OR manga OR Crunchyroll OR Naruto OR One Piece";
-
-      const GAME_QUERY = "gaming OR PlayStation OR Xbox OR Nintendo OR videogame OR videogames OR video-game";
-
-      switch (contentType) {
+      switch (targetCat) {
         case "movie":
-        case "movies":
           query = MOVIE_QUERY;
           break;
 
         case "show":
-        case "shows":
-        case "tv":
           query = SHOW_QUERY;
           break;
 
@@ -74,7 +143,6 @@ exports.getNews = async (req, res) => {
           break;
 
         case "game":
-        case "games":
           query = GAME_QUERY;
           break;
 
@@ -84,39 +152,50 @@ exports.getNews = async (req, res) => {
       }
     }
 
-    // Append exclusion terms to enforce entertainment-only focus at the API query level
     const finalQuery = `(${query}) ${EXCLUSION_QUERY}`;
+
+    // If requesting a specific category, fetch a larger batch of articles to ensure we can fulfill standard page sizes after strict JS category filtering
+    const fetchSize = targetCat === "all" ? 40 : 60;
 
     const news = await NewsAPI.fetchNews({
       q: finalQuery,
-      pageSize: 30, // Fetch slightly more to account for JS keyword filtering
+      pageSize: fetchSize,
       page,
     });
 
     const articles = news.articles
-      .filter((article) => article.title && article.title !== "[Removed]" && isEntertainmentRelated(article))
+      .filter((article) => {
+        if (!article.title || article.title === "[Removed]") return false;
+        if (!isEntertainmentRelated(article)) return false;
+        
+        // Strict Category Validation
+        if (targetCat !== "all") {
+          const articleCat = getArticleCategory(article.title, article.description);
+          if (articleCat !== targetCat) return false;
+        }
+        return true;
+      })
       .slice(0, 20) // Cap at standard page size of 20
-      .map((article, index) => ({
-        id: `${page}-${index}`,
-        title: article.title,
-        description:
-          article.description || article.content || "No description available",
-
-        image: article.urlToImage || "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600&auto=format&fit=crop",
-
-        source: article.source?.name || "Unknown Source",
-
-        author: article.author || "Unknown Author",
-
-        url: article.url,
-
-        publishedAt: article.publishedAt,
-      }));
+      .map((article, index) => {
+        const cat = getArticleCategory(article.title, article.description);
+        return {
+          id: `${page}-${index}`,
+          title: article.title,
+          description:
+            article.description || article.content || "No description available",
+          image: article.urlToImage || "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600&auto=format&fit=crop",
+          source: article.source?.name || "Unknown Source",
+          author: article.author || "Unknown Author",
+          url: article.url,
+          publishedAt: article.publishedAt,
+          category: cat // Return verified classified category
+        };
+      });
 
     res.status(200).json({
       success: true,
       page: Number(page),
-      totalResults: articles.length, // Sync totalResults to our filtered article count
+      totalResults: articles.length,
       articles,
     });
   } catch (error) {

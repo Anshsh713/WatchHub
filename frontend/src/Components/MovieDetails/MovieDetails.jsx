@@ -11,11 +11,12 @@ import {
 } from "framer-motion";
 import "./MovieDetails.css";
 import VideoLoader from "../Common/VideoLoader";
-import { Dot, ChevronRight } from "lucide-react";
+import { Dot, ChevronRight, X, Calendar, User, ExternalLink } from "lucide-react";
 import VibeChart from "../Common/VideChart";
 import { useRef } from "react";
 import MediaReviews from "../MediaReviews/MediaReviews";
 import ReviewFilter from "../MediaReviews/Review";
+import API from "../../Services/Axios_api";
 
 const DEFAULT_PROFILE =
   "https://static.vecteezy.com/system/resources/previews/024/983/914/non_2x/simple-user-default-icon-free-png.png";
@@ -58,6 +59,29 @@ export default function MediaDetail() {
   const [video, setVideo] = useState(false);
   const [backdropError, setBackdropError] = useState(false);
   const [posterError, setPosterError] = useState(false);
+  const [relatedNews, setRelatedNews] = useState([]);
+  const [selectedArticle, setSelectedArticle] = useState(null);
+
+  useEffect(() => {
+    if (mediaDetails && mediaDetails.name) {
+      const fetchRelatedNews = async () => {
+        try {
+          const mappedType = mediaDetails.type === "tv" ? "show" : mediaDetails.type;
+          const { data } = await API.get("/news", {
+            params: {
+              search: mediaDetails.name,
+              contentType: mappedType,
+              page: 1
+            }
+          });
+          setRelatedNews(data.articles || []);
+        } catch (err) {
+          console.error("Error fetching related news:", err);
+        }
+      };
+      fetchRelatedNews();
+    }
+  }, [mediaDetails]);
 
   useEffect(() => {
     if (id && type) {
@@ -388,6 +412,108 @@ export default function MediaDetail() {
         </div>
         {/*<pre>{JSON.stringify(mediaDetails, null, 2)}</pre>*/}
       </div>
+      
+      {/* Related News Section */}
+      {relatedNews && relatedNews.length > 0 && (
+        <div className="related-news-section">
+          <div className="related-news-header">
+            <h2>Related News</h2>
+            <p>Catch the latest stories, developments, and reviews about {mediaDetails.name}</p>
+          </div>
+          <div className="related-news-grid">
+            {relatedNews.slice(0, 3).map((article) => (
+              <div 
+                className="related-news-card" 
+                key={article.id}
+                onClick={() => setSelectedArticle(article)}
+              >
+                <div className="related-news-img-wrapper">
+                  <img 
+                    src={article.image} 
+                    alt={article.title} 
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600&auto=format&fit=crop";
+                    }}
+                  />
+                  <span className="related-news-source">{article.source}</span>
+                </div>
+                <div className="related-news-info">
+                  <h3>{article.title}</h3>
+                  <p>{article.description}</p>
+                  <div className="related-news-card-footer">
+                    <span>{new Date(article.publishedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    <span className="read-more-accent">Read Article →</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Modern Article Details Modal */}
+      {selectedArticle && (
+        <div className="article-modal-overlay" onClick={() => setSelectedArticle(null)}>
+          <div className="article-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close-btn" onClick={() => setSelectedArticle(null)}>
+              <X size={20} />
+            </button>
+            
+            <div className="modal-image-container">
+              <img 
+                src={selectedArticle.image} 
+                alt={selectedArticle.title} 
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600&auto=format&fit=crop";
+                }}
+              />
+              <div className="modal-image-overlay"></div>
+              <span className="modal-badge badge-details-page">
+                RELATED NEWS
+              </span>
+            </div>
+
+            <div className="modal-body">
+              <div className="modal-meta">
+                <span className="modal-source">{selectedArticle.source}</span>
+                <span className="modal-divider">•</span>
+                <div className="modal-meta-item">
+                  <Calendar size={14} />
+                  <span>{new Date(selectedArticle.publishedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                </div>
+                <span className="modal-divider">•</span>
+                <div className="modal-meta-item">
+                  <User size={14} />
+                  <span>{selectedArticle.author}</span>
+                </div>
+              </div>
+
+              <h2 className="modal-title">{selectedArticle.title}</h2>
+              
+              <div className="modal-divider-line"></div>
+
+              <div className="modal-content-text">
+                <p>{selectedArticle.description}</p>
+                <p className="modal-content-disclaimer">
+                  This news segment is hosted by WatchHub. Click the button below to read the complete article, covering exclusive interviews, footage, and in-depth analytical reviews from the original publisher.
+                </p>
+              </div>
+
+              <a 
+                href={selectedArticle.url} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="modal-read-full-btn bg-details-page"
+              >
+                Read Full Coverage on {selectedArticle.source} <ExternalLink size={16} />
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="Reviews-media">
         <ReviewFilter mediaID={mediaDetails.id} mediaType={mediaDetails.type} />
       </div>

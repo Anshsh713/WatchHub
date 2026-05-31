@@ -1,5 +1,25 @@
 const NewsAPI = require("../ultils/NEWSAPI");
 
+const EXCLUSION_QUERY = "NOT (politics OR election OR court OR lawsuit OR crime OR finance OR stock OR weather OR medical OR war OR accident OR death OR vaccine OR covid OR strike OR arrest OR protest OR legislative OR senate OR parliament OR congress)";
+
+const ENTERTAINMENT_KEYWORDS = [
+  "movie", "film", "cinema", "theater", "theatre", "hollywood", "bollywood", "actor", "actress", "director", "producer", "screenplay",
+  "marvel", "dc", "disney", "netflix", "hbo", "paramount", "warner", "hulu", "peacock", "crunchyroll", "funimation", "sonypictures", "universalpictures",
+  "show", "tv", "television", "series", "episode", "season", "premiere", "trailer", "sitcom", "casting",
+  "anime", "manga", "otaku", "cosplay", "goku", "naruto", "one piece", "demon slayer", "attack on titan", "miyazaki", "ghibli", "shonen",
+  "game", "gaming", "gamer", "playstation", "xbox", "nintendo", "switch", "steam", "sega", "console", "esports", "developer", "studio", "fps", "rpg", "multiplayer", "videogame", "videogames", "video-game",
+  "spoiler", "review", "teaser", "cast", "box office", "blockbuster", "soundtrack", "entertainment", "mcu", "dceu", "comic-con", "oscars", "oscars2026", "emmy"
+];
+
+const isEntertainmentRelated = (article) => {
+  const title = (article.title || "").toLowerCase();
+  const description = (article.description || article.content || "").toLowerCase();
+  const source = (article.source?.name || "").toLowerCase();
+  const combinedText = `${title} ${description} ${source}`;
+
+  return ENTERTAINMENT_KEYWORDS.some(keyword => combinedText.includes(keyword));
+};
+
 exports.getNews = async (req, res) => {
   try {
     const { contentType = "all", search = "", page = 1 } = req.query;
@@ -16,7 +36,7 @@ exports.getNews = async (req, res) => {
         } else if (contentType === "anime") {
           categoryQuery = "anime OR manga OR Crunchyroll";
         } else if (contentType === "game" || contentType === "games") {
-          categoryQuery = "gaming OR PlayStation OR Xbox OR Nintendo OR game";
+          categoryQuery = "gaming OR PlayStation OR Xbox OR Nintendo OR game OR videogame OR videogames OR video-game";
         }
         
         if (categoryQuery) {
@@ -35,7 +55,7 @@ exports.getNews = async (req, res) => {
       const ANIME_QUERY =
         "anime OR manga OR Crunchyroll OR Naruto OR One Piece";
 
-      const GAME_QUERY = "gaming OR PlayStation OR Xbox OR Nintendo";
+      const GAME_QUERY = "gaming OR PlayStation OR Xbox OR Nintendo OR videogame OR videogames OR video-game";
 
       switch (contentType) {
         case "movie":
@@ -64,14 +84,18 @@ exports.getNews = async (req, res) => {
       }
     }
 
+    // Append exclusion terms to enforce entertainment-only focus at the API query level
+    const finalQuery = `(${query}) ${EXCLUSION_QUERY}`;
+
     const news = await NewsAPI.fetchNews({
-      q: query,
-      pageSize: 20,
+      q: finalQuery,
+      pageSize: 30, // Fetch slightly more to account for JS keyword filtering
       page,
     });
 
     const articles = news.articles
-      .filter((article) => article.title && article.title !== "[Removed]")
+      .filter((article) => article.title && article.title !== "[Removed]" && isEntertainmentRelated(article))
+      .slice(0, 20) // Cap at standard page size of 20
       .map((article, index) => ({
         id: `${page}-${index}`,
         title: article.title,
@@ -92,7 +116,7 @@ exports.getNews = async (req, res) => {
     res.status(200).json({
       success: true,
       page: Number(page),
-      totalResults: news.totalResults,
+      totalResults: articles.length, // Sync totalResults to our filtered article count
       articles,
     });
   } catch (error) {

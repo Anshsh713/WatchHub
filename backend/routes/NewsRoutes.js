@@ -1,6 +1,7 @@
 const router = require("express").Router();
-const { getNews } = require("../controllers/NewsControllers");
+const { getNews, getNewsDetails } = require("../controllers/NewsControllers");
 
 router.get("/", getNews);
+router.get("/:articleUrl", getNewsDetails);
 
 module.exports = router;

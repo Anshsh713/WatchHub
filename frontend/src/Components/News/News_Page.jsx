@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNews } from "../../Context/NewsContext";
+import { useNavigate } from "react-router-dom";
 import API from "../../Services/Axios_api";
 import { Calendar, User, ExternalLink, ArrowRight, X } from "lucide-react";
 import "./Main_News.css";
@@ -10,7 +11,7 @@ export default function News_Page({ category, searchQuery }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [fetchingMore, setFetchingMore] = useState(false);
-  const [selectedArticle, setSelectedArticle] = useState(null);
+  const navigate = useNavigate();
 
   // Fetch initial news when filters change
   useEffect(() => {
@@ -161,8 +162,12 @@ export default function News_Page({ category, searchQuery }) {
           return (
             <div
               className={`news-card border-${catClass}`}
-              key={article.id}
-              onClick={() => setSelectedArticle(article)}
+              key={article.url}
+              onClick={() =>
+                navigate(`/news/${encodeURIComponent(article.url)}`, {
+                  state: article,
+                })
+              }
             >
               <div className="news-image-wrapper">
                 <img
@@ -194,7 +199,14 @@ export default function News_Page({ category, searchQuery }) {
 
                 <div className="news-card-footer">
                   <span className="news-author">By {article.author}</span>
-                  <button className="read-more-link">
+                  <button
+                    className="read-more-link"
+                    onClick={() =>
+                      navigate(`/news/${encodeURIComponent(article.url)}`, {
+                        state: article,
+                      })
+                    }
+                  >
                     Read Article <ArrowRight size={14} />
                   </button>
                 </div>
@@ -219,87 +231,6 @@ export default function News_Page({ category, searchQuery }) {
               "Load More Scoop"
             )}
           </button>
-        </div>
-      )}
-
-      {/* Modern Article Details Modal */}
-      {selectedArticle && (
-        <div
-          className="article-modal-overlay"
-          onClick={() => setSelectedArticle(null)}
-        >
-          <div
-            className="article-modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="modal-close-btn"
-              onClick={() => setSelectedArticle(null)}
-            >
-              <X size={20} />
-            </button>
-
-            <div className="modal-image-container">
-              <img
-                src={selectedArticle.image}
-                alt={selectedArticle.title}
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src =
-                    "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600&auto=format&fit=crop";
-                }}
-              />
-              <div className="modal-image-overlay"></div>
-              <span
-                className={`modal-badge badge-${getCategoryClass(selectedArticle.title, selectedArticle.description)}`}
-              >
-                {getCategoryClass(
-                  selectedArticle.title,
-                  selectedArticle.description,
-                ).toUpperCase()}
-              </span>
-            </div>
-
-            <div className="modal-body">
-              <div className="modal-meta">
-                <span className="modal-source">{selectedArticle.source}</span>
-                <span className="modal-divider">•</span>
-                <div className="modal-meta-item">
-                  <Calendar size={14} />
-                  <span>{formatDate(selectedArticle.publishedAt)}</span>
-                </div>
-                <span className="modal-divider">•</span>
-                <div className="modal-meta-item">
-                  <User size={14} />
-                  <span>{selectedArticle.author}</span>
-                </div>
-              </div>
-
-              <h2 className="modal-title">{selectedArticle.title}</h2>
-
-              <div className="modal-divider-line"></div>
-
-              <div className="modal-content-text">
-                <p>{selectedArticle.description}</p>
-                <p className="modal-content-disclaimer">
-                  This news segment is hosted by WatchHub. Click the button
-                  below to read the complete article, covering exclusive
-                  interviews, footage, and in-depth analytical reviews from the
-                  original publisher.
-                </p>
-              </div>
-
-              <a
-                href={selectedArticle.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`modal-read-full-btn bg-${getCategoryClass(selectedArticle.title, selectedArticle.description)}`}
-              >
-                Read Full Coverage on {selectedArticle.source}{" "}
-                <ExternalLink size={16} />
-              </a>
-            </div>
-          </div>
         </div>
       )}
     </>

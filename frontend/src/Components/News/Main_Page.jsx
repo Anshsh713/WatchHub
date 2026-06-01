@@ -13,6 +13,8 @@ import {
   Flame,
 } from "lucide-react";
 import "./Main_News.css";
+import "../Home/Home.css";
+import { motion, AnimatePresence } from "framer-motion";
 
 const EVENTS_DATA = [
   {
@@ -141,15 +143,17 @@ export default function Main_Page() {
           </div>
         )}
       </div>
-
       {mode === "News" && (
         <div className="category-filter-bar">
           {categories.map((cat) => {
             const Icon = cat.icon;
+
             return (
               <button
                 key={cat.id}
-                className={`category-pill ${category === cat.id ? "active" : ""}`}
+                className={`category-pill ${
+                  category === cat.id ? "active" : ""
+                }`}
                 onClick={() => setCategory(cat.id)}
               >
                 <Icon size={16} />

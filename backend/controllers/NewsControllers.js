@@ -1,19 +1,94 @@
 const NewsAPI = require("../ultils/NEWSAPI");
 
-const EXCLUSION_QUERY = "NOT (politics OR election OR court OR lawsuit OR crime OR finance OR stock OR weather OR medical OR war OR accident OR death OR vaccine OR covid OR strike OR arrest OR protest OR legislative OR senate OR parliament OR congress)";
+const EXCLUSION_QUERY =
+  "NOT (politics OR election OR court OR lawsuit OR crime OR finance OR stock OR weather OR medical OR war OR accident OR death OR vaccine OR covid OR strike OR arrest OR protest OR legislative OR senate OR parliament OR congress)";
 
 const ENTERTAINMENT_KEYWORDS = [
-  "movie", "film", "cinema", "theater", "theatre", "hollywood", "bollywood", "actor", "actress", "director", "producer", "screenplay",
-  "marvel", "dc", "disney", "netflix", "hbo", "paramount", "warner", "hulu", "peacock", "crunchyroll", "funimation", "sonypictures", "universalpictures",
-  "show", "tv", "television", "series", "episode", "season", "premiere", "trailer", "sitcom", "casting",
-  "anime", "manga", "otaku", "cosplay", "goku", "naruto", "one piece", "demon slayer", "attack on titan", "miyazaki", "ghibli", "shonen",
-  "game", "gaming", "gamer", "playstation", "xbox", "nintendo", "switch", "steam", "sega", "console", "esports", "developer", "studio", "fps", "rpg", "multiplayer", "videogame", "videogames", "video-game",
-  "spoiler", "review", "teaser", "cast", "box office", "blockbuster", "soundtrack", "entertainment", "mcu", "dceu", "comic-con", "oscars", "oscars2026", "emmy"
+  "movie",
+  "film",
+  "cinema",
+  "theater",
+  "theatre",
+  "hollywood",
+  "bollywood",
+  "actor",
+  "actress",
+  "director",
+  "producer",
+  "screenplay",
+  "marvel",
+  "dc",
+  "disney",
+  "netflix",
+  "hbo",
+  "paramount",
+  "warner",
+  "hulu",
+  "peacock",
+  "crunchyroll",
+  "funimation",
+  "sonypictures",
+  "universalpictures",
+  "show",
+  "tv",
+  "television",
+  "series",
+  "episode",
+  "season",
+  "premiere",
+  "trailer",
+  "sitcom",
+  "casting",
+  "anime",
+  "manga",
+  "otaku",
+  "cosplay",
+  "goku",
+  "naruto",
+  "one piece",
+  "demon slayer",
+  "attack on titan",
+  "miyazaki",
+  "ghibli",
+  "shonen",
+  "game",
+  "gaming",
+  "gamer",
+  "playstation",
+  "xbox",
+  "nintendo",
+  "switch",
+  "steam",
+  "sega",
+  "console",
+  "esports",
+  "developer",
+  "studio",
+  "fps",
+  "rpg",
+  "multiplayer",
+  "videogame",
+  "videogames",
+  "video-game",
+  "spoiler",
+  "review",
+  "teaser",
+  "cast",
+  "box office",
+  "blockbuster",
+  "soundtrack",
+  "entertainment",
+  "mcu",
+  "dceu",
+  "comic-con",
+  "oscars",
+  "oscars2026",
+  "emmy",
 ];
 
 const getArticleCategory = (title = "", description = "") => {
   const text = `${title} ${description}`.toLowerCase();
-  
+
   // 1. Anime (Highly specific terms first)
   if (
     text.includes("anime") ||
@@ -88,11 +163,17 @@ const getNormalizedCategory = (type = "") => {
 
 const isEntertainmentRelated = (article) => {
   const title = (article.title || "").toLowerCase();
-  const description = (article.description || article.content || "").toLowerCase();
+  const description = (
+    article.description ||
+    article.content ||
+    ""
+  ).toLowerCase();
   const source = (article.source?.name || "").toLowerCase();
   const combinedText = `${title} ${description} ${source}`;
 
-  return ENTERTAINMENT_KEYWORDS.some(keyword => combinedText.includes(keyword));
+  return ENTERTAINMENT_KEYWORDS.some((keyword) =>
+    combinedText.includes(keyword),
+  );
 };
 
 exports.getNews = async (req, res) => {
@@ -112,9 +193,10 @@ exports.getNews = async (req, res) => {
         } else if (targetCat === "anime") {
           categoryQuery = "anime OR manga OR Crunchyroll";
         } else if (targetCat === "game") {
-          categoryQuery = "gaming OR PlayStation OR Xbox OR Nintendo OR game OR videogame OR videogames OR video-game";
+          categoryQuery =
+            "gaming OR PlayStation OR Xbox OR Nintendo OR game OR videogame OR videogames OR video-game";
         }
-        
+
         if (categoryQuery) {
           query = `(${search}) AND (${categoryQuery})`;
         } else {
@@ -124,10 +206,13 @@ exports.getNews = async (req, res) => {
         query = search;
       }
     } else {
-      const MOVIE_QUERY = "movie OR film OR cinema OR hollywood OR blockbuster OR \"box office\"";
-      const SHOW_QUERY = "television OR series OR tv OR sitcom OR episode OR \"season premiere\"";
+      const MOVIE_QUERY =
+        'movie OR film OR cinema OR hollywood OR blockbuster OR "box office"';
+      const SHOW_QUERY =
+        'television OR series OR tv OR sitcom OR episode OR "season premiere"';
       const ANIME_QUERY = "anime OR manga OR Crunchyroll OR Naruto OR Ghibli";
-      const GAME_QUERY = "gaming OR playstation OR xbox OR nintendo OR videogame OR video-game OR \"steam deck\"";
+      const GAME_QUERY =
+        'gaming OR playstation OR xbox OR nintendo OR videogame OR video-game OR "steam deck"';
 
       switch (targetCat) {
         case "movie":
@@ -167,10 +252,13 @@ exports.getNews = async (req, res) => {
       .filter((article) => {
         if (!article.title || article.title === "[Removed]") return false;
         if (!isEntertainmentRelated(article)) return false;
-        
+
         // Strict Category Validation
         if (targetCat !== "all") {
-          const articleCat = getArticleCategory(article.title, article.description);
+          const articleCat = getArticleCategory(
+            article.title,
+            article.description,
+          );
           if (articleCat !== targetCat) return false;
         }
         return true;
@@ -182,13 +270,18 @@ exports.getNews = async (req, res) => {
           id: `${page}-${index}`,
           title: article.title,
           description:
-            article.description || article.content || "No description available",
-          image: article.urlToImage || "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600&auto=format&fit=crop",
+            article.description ||
+            article.content ||
+            "No description available",
+          image:
+            article.urlToImage ||
+            "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600&auto=format&fit=crop",
           source: article.source?.name || "Unknown Source",
           author: article.author || "Unknown Author",
           url: article.url,
           publishedAt: article.publishedAt,
-          category: cat // Return verified classified category
+          category: cat, // Return verified classified category
+          impact: getImpact(article.title),
         };
       });
 
@@ -208,3 +301,95 @@ exports.getNews = async (req, res) => {
     });
   }
 };
+
+exports.getNewsDetails = async (req, res) => {
+  try {
+    const { articleUrl } = req.params;
+    if (!articleUrl) {
+      return res.status(400).json({
+        success: false,
+        message: "Article URL is required",
+      });
+    }
+    console.log("1");
+    console.log("PARAM:", req.params.articleUrl);
+    console.log("DECODED:", decodeURIComponent(req.params.articleUrl));
+
+    const decodedUrl = decodeURIComponent(articleUrl);
+
+    const news = await NewsAPI.fetchNews({
+      q: "movie OR film OR television OR anime OR gaming",
+      pageSize: 100,
+    });
+    console.log("2");
+    console.log("PARAM:", req.params.articleUrl);
+    console.log("DECODED:", decodeURIComponent(req.params.articleUrl));
+
+    const article = news.articles.find((item) => item.url === decodedUrl);
+
+    if (!article) {
+      return res.status(404).json({
+        success: false,
+        message: "Article not found",
+      });
+    }
+    console.log("3");
+    console.log("PARAM:", req.params.articleUrl);
+    console.log("DECODED:", decodeURIComponent(req.params.articleUrl));
+
+    const impact = getImpact(article.title);
+
+    res.status(200).json({
+      success: true,
+      article: {
+        title: article.title,
+        description: article.description,
+        content: article.content,
+        image: article.urlToImage || "https://via.placeholder.com/1200x600",
+
+        source: article.source?.name,
+        author: article.author,
+        url: article.url,
+        publishedAt: article.publishedAt,
+
+        impact,
+      },
+    });
+  } catch (error) {
+    console.error("NEWS ERROR:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching news details",
+    });
+  }
+};
+
+function getImpact(title = "") {
+  const lower = title.toLowerCase();
+
+  if (
+    lower.includes("cancelled") ||
+    lower.includes("shutdown") ||
+    lower.includes("acquired")
+  ) {
+    return "Breaking";
+  }
+
+  if (
+    lower.includes("announced") ||
+    lower.includes("confirmed") ||
+    lower.includes("official")
+  ) {
+    return "Major";
+  }
+
+  if (
+    lower.includes("trailer") ||
+    lower.includes("teaser") ||
+    lower.includes("first look")
+  ) {
+    return "Medium";
+  }
+
+  return "Minor";
+}

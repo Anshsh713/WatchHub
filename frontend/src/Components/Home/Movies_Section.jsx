@@ -49,7 +49,6 @@ export default function Movies_Section() {
           </motion.button>
         ))}
       </div>
-
       <div className="Media">
         <div className="Media">
           {loading && <p>Loading...</p>}

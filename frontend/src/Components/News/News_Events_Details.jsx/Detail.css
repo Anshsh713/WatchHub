@@ -178,28 +178,56 @@
   color: var(--color-primary);
 }
 
+/* ── Impact Badge ── */
 .impact-badge {
-  display: inline-block;
-  padding: 8px 16px;
-  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
   font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 30px;
 }
 
-.impact-badge.minor {
-  background: #3498db;
+.impact-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+
+.impact-badge.high {
+  background: rgba(229, 9, 20, 0.15);
+  color: #ff4d5a;
+  border: 1px solid rgba(229, 9, 20, 0.3);
 }
 
 .impact-badge.medium {
-  background: #f39c12;
+  background: rgba(230, 126, 34, 0.15);
+  color: #f39c12;
+  border: 1px solid rgba(230, 126, 34, 0.3);
 }
 
-.impact-badge.major {
-  background: #e74c3c;
+.impact-badge.low {
+  background: rgba(39, 174, 96, 0.15);
+  color: #2ecc71;
+  border: 1px solid rgba(39, 174, 96, 0.3);
 }
 
-.impact-badge.breaking {
-  background: #ff0000;
-  animation: pulse 1s infinite;
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.7);
+  }
 }
 
 /* ── Responsive ── */

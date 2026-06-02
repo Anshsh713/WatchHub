@@ -480,20 +480,18 @@
 }
 
 /* ==================== DETAILS MODAL ==================== */
+/* ==================== ARTICLE MODAL ==================== */
 .article-modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(15px);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(20px);
   z-index: 1000;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
-  animation: overlayFadeIn 0.3s ease;
+  animation: overlayFadeIn 0.25s ease;
 }
 
 @keyframes overlayFadeIn {
@@ -506,16 +504,17 @@
 }
 
 .article-modal-content {
-  background: #121212;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.07);
   width: 100%;
-  max-width: 800px;
+  max-width: 600px;
   max-height: 90vh;
   border-radius: 24px;
   overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-  animation: modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7);
+  animation: modalUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   scrollbar-width: none;
 }
 
@@ -523,10 +522,10 @@
   display: none;
 }
 
-@keyframes modalSlideUp {
+@keyframes modalUp {
   from {
     opacity: 0;
-    transform: translateY(50px) scale(0.95);
+    transform: translateY(40px) scale(0.96);
   }
   to {
     opacity: 1;
@@ -534,119 +533,125 @@
   }
 }
 
-.modal-close-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  cursor: pointer;
-  z-index: 10;
-  transition: all 0.2s ease;
-}
-
-.modal-close-btn:hover {
-  background: white;
-  color: black;
-  transform: rotate(90deg);
-}
-
+/* ── Hero image ── */
 .modal-image-container {
   position: relative;
   width: 100%;
-  height: 380px;
+  height: 320px;
+  overflow: hidden;
 }
-
 .modal-image-container img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
-
 .modal-image-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.3) 0%,
-    rgba(18, 18, 18, 1) 100%
+    rgba(0, 0, 0, 0.15) 0%,
+    rgba(17, 17, 17, 1) 100%
   );
 }
 
+/* "RELATED NEWS" badge on image */
+.modal-badge {
+  position: absolute;
+  top: 16px;
+  width: 133px;
+  left: 16px;
+  font-size: 0.65rem;
+  font-weight: 100;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 5px 13px;
+  border-radius: 30px;
+  color: white;
+  z-index: 5;
+}
+.badge-details-page {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+}
+
+/* ── Body ── */
 .modal-body {
-  padding: 2.2rem;
-  margin-top: -60px;
+  padding: 0 2rem 2rem;
+  margin-top: -48px;
   position: relative;
   z-index: 2;
 }
 
+/* source • date • author row */
 .modal-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 0.85rem;
-  color: var(--color-text-secondary);
-  font-weight: 500;
-  margin-bottom: 1rem;
+  gap: 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 14px;
   flex-wrap: wrap;
 }
-
 .modal-source {
   color: var(--color-primary);
   font-weight: 700;
+  font-size: 0.82rem;
 }
-
+.modal-divider {
+  color: rgba(255, 255, 255, 0.2);
+}
 .modal-meta-item {
   display: flex;
   align-items: center;
   gap: 5px;
 }
 
+/* title */
 .modal-title {
-  color: white;
-  font-size: 2rem;
+  font-size: clamp(1.3rem, 2.5vw, 1.75rem);
   font-weight: 800;
   line-height: 1.3;
-  margin-bottom: 1.5rem;
+  color: white;
+  margin-bottom: 18px;
   font-family: var(--font-heading);
+  letter-spacing: -0.3px;
 }
 
+/* red accent line */
 .modal-divider-line {
-  height: 1px;
-  background: linear-gradient(to right, var(--color-primary), transparent);
-  margin-bottom: 1.8rem;
+  height: 2px;
+  width: 50px;
+  background: var(--color-primary);
+  border-radius: 2px;
+  margin-bottom: 20px;
 }
 
+/* description + disclaimer */
 .modal-content-text {
-  font-size: 1.05rem;
-  line-height: 1.7;
-  color: rgba(255, 255, 255, 0.85);
-  margin-bottom: 2.5rem;
+  font-size: 0.97rem;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.72);
+  margin-bottom: 24px;
 }
-
 .modal-content-text p {
-  margin-bottom: 1.2rem;
+  margin-bottom: 14px;
 }
 
 .modal-content-disclaimer {
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.38);
   background: rgba(255, 255, 255, 0.03);
-  padding: 15px;
-  border-radius: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
   border-left: 3px solid var(--color-primary);
+  line-height: 1.6;
 }
 
+/* CTA button */
 .modal-read-full-btn {
   display: flex;
   justify-content: center;
@@ -654,30 +659,34 @@
   gap: 10px;
   width: 100%;
   color: white;
-  padding: 16px;
+  padding: 15px;
   border-radius: 14px;
   font-weight: 700;
-  font-size: 1.05rem;
-  transition: all 0.3s ease;
-  font-family: var(--font-heading);
+  font-size: 0.97rem;
+  text-decoration: none;
+  transition:
+    transform 0.25s,
+    box-shadow 0.25s;
+  letter-spacing: 0.2px;
 }
-
 .modal-read-full-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
 }
-
-.modal-read-full-btn.bg-movie {
-  background: var(--color-movie-accent);
+.bg-details-page {
+  background: #e50914;
 }
-.modal-read-full-btn.bg-show {
-  background: var(--color-show-accent);
+.bg-movie {
+  background: #2980b9;
 }
-.modal-read-full-btn.bg-anime {
-  background: var(--color-anime-accent);
+.bg-show {
+  background: #8e44ad;
 }
-.modal-read-full-btn.bg-game {
-  background: var(--color-game-accent);
+.bg-anime {
+  background: #e67e22;
+}
+.bg-game {
+  background: #e50914;
 }
 
 /* ==================== EVENT TIMELINE ==================== */

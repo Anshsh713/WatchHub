@@ -11,7 +11,14 @@ import {
 } from "framer-motion";
 import "./MovieDetails.css";
 import VideoLoader from "../Common/VideoLoader";
-import { Dot, ChevronRight, X, Calendar, User, ExternalLink } from "lucide-react";
+import {
+  Dot,
+  ChevronRight,
+  X,
+  Calendar,
+  User,
+  ExternalLink,
+} from "lucide-react";
 import VibeChart from "../Common/VideChart";
 import { useRef } from "react";
 import MediaReviews from "../MediaReviews/MediaReviews";
@@ -66,13 +73,14 @@ export default function MediaDetail() {
     if (mediaDetails && mediaDetails.name) {
       const fetchRelatedNews = async () => {
         try {
-          const mappedType = mediaDetails.type === "tv" ? "show" : mediaDetails.type;
+          const mappedType =
+            mediaDetails.type === "tv" ? "show" : mediaDetails.type;
           const { data } = await API.get("/news", {
             params: {
               search: mediaDetails.name,
               contentType: mappedType,
-              page: 1
-            }
+              page: 1,
+            },
           });
           setRelatedNews(data.articles || []);
         } catch (err) {
@@ -115,67 +123,12 @@ export default function MediaDetail() {
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
   }
 
-  if (error) {
-    return (
-      <div className="Main-box" style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minHeight: "100vh", gap: "20px", padding: "20px" }}>
-        <h2 style={{ fontWeight: 300, fontSize: "2rem" }}>Error Loading Media</h2>
-        <p style={{ color: "#a0aec0", fontSize: "1.1rem" }}>{error}</p>
-        <button 
-          onClick={() => navigate(-1)} 
-          style={{ 
-            padding: "12px 28px", 
-            backgroundColor: "#e50914", 
-            color: "white", 
-            border: "none", 
-            borderRadius: "30px", 
-            cursor: "pointer",
-            fontWeight: "600",
-            fontSize: "1rem",
-            boxShadow: "0 4px 15px rgba(229, 9, 20, 0.4)",
-            transition: "all 0.2s ease"
-          }}
-          onMouseOver={(e) => {
-            e.target.style.backgroundColor = "#b81d24";
-            e.target.style.transform = "scale(1.05)";
-          }}
-          onMouseOut={(e) => {
-            e.target.style.backgroundColor = "#e50914";
-            e.target.style.transform = "scale(1)";
-          }}
-        >
-          Go Back
-        </button>
-      </div>
-    );
-  }
-
-  if (loading) {
+  if (loading || !mediaDetails) {
     return (
       <div className="Main-box">
         <AnimatePresence>
           <VideoLoader />
         </AnimatePresence>
-      </div>
-    );
-  }
-
-  if (!mediaDetails) {
-    return (
-      <div className="Main-box" style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minHeight: "100vh", gap: "20px" }}>
-        <h2 style={{ fontWeight: 300 }}>No Details Found</h2>
-        <button 
-          onClick={() => navigate(-1)} 
-          style={{ 
-            padding: "10px 20px", 
-            backgroundColor: "#e50914", 
-            color: "white", 
-            border: "none", 
-            borderRadius: "6px", 
-            cursor: "pointer"
-          }}
-        >
-          Go Back
-        </button>
       </div>
     );
   }
@@ -363,12 +316,13 @@ export default function MediaDetail() {
                     rel="noopener noreferrer"
                   >
                     <div className="logo-show">
-                      <img 
-                        src={platform.logo} 
-                        alt={platform.name} 
+                      <img
+                        src={platform.logo}
+                        alt={platform.name}
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = "https://via.placeholder.com/40?text=▶";
+                          e.target.src =
+                            "https://via.placeholder.com/40?text=▶";
                         }}
                       />
                     </div>
@@ -391,12 +345,13 @@ export default function MediaDetail() {
                     className="whaton"
                   >
                     <div className="logo-show">
-                      <img 
-                        src={platform.logo} 
-                        alt={platform.name} 
+                      <img
+                        src={platform.logo}
+                        alt={platform.name}
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = "https://via.placeholder.com/40?text=▶";
+                          e.target.src =
+                            "https://via.placeholder.com/40?text=▶";
                         }}
                       />
                     </div>
@@ -412,28 +367,32 @@ export default function MediaDetail() {
         </div>
         {/*<pre>{JSON.stringify(mediaDetails, null, 2)}</pre>*/}
       </div>
-      
+
       {/* Related News Section */}
       {relatedNews && relatedNews.length > 0 && (
         <div className="related-news-section">
           <div className="related-news-header">
             <h2>Related News</h2>
-            <p>Catch the latest stories, developments, and reviews about {mediaDetails.name}</p>
+            <p>
+              Catch the latest stories, developments, and reviews about{" "}
+              {mediaDetails.name}
+            </p>
           </div>
           <div className="related-news-grid">
             {relatedNews.slice(0, 3).map((article) => (
-              <div 
-                className="related-news-card" 
+              <div
+                className="related-news-card"
                 key={article.id}
                 onClick={() => setSelectedArticle(article)}
               >
                 <div className="related-news-img-wrapper">
-                  <img 
-                    src={article.image} 
-                    alt={article.title} 
+                  <img
+                    src={article.image}
+                    alt={article.title}
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600&auto=format&fit=crop";
+                      e.target.src =
+                        "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600&auto=format&fit=crop";
                     }}
                   />
                   <span className="related-news-source">{article.source}</span>
@@ -442,7 +401,12 @@ export default function MediaDetail() {
                   <h3>{article.title}</h3>
                   <p>{article.description}</p>
                   <div className="related-news-card-footer">
-                    <span>{new Date(article.publishedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    <span>
+                      {new Date(article.publishedAt).toLocaleDateString(
+                        undefined,
+                        { month: "short", day: "numeric", year: "numeric" },
+                      )}
+                    </span>
                     <span className="read-more-accent">Read Article →</span>
                   </div>
                 </div>
@@ -454,19 +418,22 @@ export default function MediaDetail() {
 
       {/* Modern Article Details Modal */}
       {selectedArticle && (
-        <div className="article-modal-overlay" onClick={() => setSelectedArticle(null)}>
-          <div className="article-modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close-btn" onClick={() => setSelectedArticle(null)}>
-              <X size={20} />
-            </button>
-            
+        <div
+          className="article-modal-overlay"
+          onClick={() => setSelectedArticle(null)}
+        >
+          <div
+            className="article-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="modal-image-container">
-              <img 
-                src={selectedArticle.image} 
-                alt={selectedArticle.title} 
+              <img
+                src={selectedArticle.image}
+                alt={selectedArticle.title}
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600&auto=format&fit=crop";
+                  e.target.src =
+                    "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600&auto=format&fit=crop";
                 }}
               />
               <div className="modal-image-overlay"></div>
@@ -481,33 +448,36 @@ export default function MediaDetail() {
                 <span className="modal-divider">•</span>
                 <div className="modal-meta-item">
                   <Calendar size={14} />
-                  <span>{new Date(selectedArticle.publishedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  <span>
+                    {new Date(selectedArticle.publishedAt).toLocaleDateString(
+                      undefined,
+                      { month: "short", day: "numeric", year: "numeric" },
+                    )}
+                  </span>
                 </div>
                 <span className="modal-divider">•</span>
                 <div className="modal-meta-item">
                   <User size={14} />
                   <span>{selectedArticle.author}</span>
                 </div>
+                <span className="modal-divider">•</span>
+                <div className="modal-meta-item">
+                  <span> {selectedArticle.impact}</span>
+                </div>
               </div>
 
               <h2 className="modal-title">{selectedArticle.title}</h2>
-              
+
               <div className="modal-divider-line"></div>
 
-              <div className="modal-content-text">
-                <p>{selectedArticle.description}</p>
-                <p className="modal-content-disclaimer">
-                  This news segment is hosted by WatchHub. Click the button below to read the complete article, covering exclusive interviews, footage, and in-depth analytical reviews from the original publisher.
-                </p>
-              </div>
-
-              <a 
-                href={selectedArticle.url} 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href={selectedArticle.url}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="modal-read-full-btn bg-details-page"
               >
-                Read Full Coverage on {selectedArticle.source} <ExternalLink size={16} />
+                Read Full Coverage on {selectedArticle.source}{" "}
+                <ExternalLink size={16} />
               </a>
             </div>
           </div>

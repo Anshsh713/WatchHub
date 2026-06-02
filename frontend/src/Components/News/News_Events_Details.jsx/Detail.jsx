@@ -112,7 +112,6 @@ export default function Detail(type) {
             </p>
           </div>
         </div>
-        <pre>{JSON.stringify(newsDetails, null, 2)}</pre>
       </div>
     </div>
   );

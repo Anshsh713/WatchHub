@@ -6,12 +6,12 @@ import VideoLoader from "../Common/VideoLoader";
 import { AnimatePresence } from "framer-motion";
 
 export default function Home() {
-  const { loading } = useMedia();
+  const { loading, mediaMap } = useMedia();
 
   return (
     <div className="Main-contain">
       <AnimatePresence>
-        {loading && <VideoLoader />}
+        {(loading || !mediaMap) && <VideoLoader />}
       </AnimatePresence>
       <HeroCarousel />
       <div className="Movie-Section">

@@ -1,5 +1,6 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Sector } from "recharts";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const GENRE_COLORS = {
   "Sci-Fi": "#3498db",
@@ -33,8 +34,32 @@ const DEFAULT_COLORS = [
   "#2ecc71",
 ];
 
+const GENRE_IDS = {
+  Action: 28,
+  Adventure: 12,
+  Animation: 16,
+  Comedy: 35,
+  Crime: 80,
+  Documentary: 99,
+  Drama: 18,
+  Family: 10751,
+  Fantasy: 14,
+  History: 36,
+  Horror: 27,
+  Music: 10402,
+  Mystery: 9648,
+  Romance: 10749,
+  "Science Fiction": 878,
+  "Sci-Fi": 878,
+  Thriller: 53,
+  War: 10752,
+  Western: 37,
+  "TV Movie": 10770,
+};
+
 const renderActiveShape = (props) => {
-  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
+  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } =
+    props;
 
   return (
     <g>
@@ -42,17 +67,23 @@ const renderActiveShape = (props) => {
         cx={cx}
         cy={cy}
         innerRadius={innerRadius}
-        outerRadius={outerRadius + 8}
+        outerRadius={outerRadius + 4}
         startAngle={startAngle}
         endAngle={endAngle}
         fill={fill}
-        style={{ filter: `drop-shadow(0px 4px 12px ${fill}60)`, transition: "all 0.3s ease" }}
+        style={{
+          filter: `drop-shadow(0px 4px 12px ${fill}60)`,
+          transition: "transform 0.3s ease",
+          cursor: "pointer",
+        }}
       />
     </g>
   );
 };
 
 export default function VibeChart({ data }) {
+  const navigate = useNavigate();
+
   if (!data || data.length === 0) return null;
 
   const [activeindex, setActiveIndex] = useState(null);
@@ -62,10 +93,18 @@ export default function VibeChart({ data }) {
   };
 
   const highest = data.reduce((max, item) =>
-    item.percent > max.percent ? item : max
+    item.percent > max.percent ? item : max,
   );
 
   const displayed = activeindex !== null ? data[activeindex] : highest;
+
+  const handleGenreClick = (genreName) => {
+    const genreId = GENRE_IDS[genreName];
+
+    if (genreId) {
+      navigate(`/genres/${genreId}`);
+    }
+  };
 
   return (
     <div
@@ -79,7 +118,7 @@ export default function VibeChart({ data }) {
         boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center"
+        alignItems: "center",
       }}
     >
       <h2
@@ -98,6 +137,8 @@ export default function VibeChart({ data }) {
         <ResponsiveContainer>
           <PieChart>
             <Pie
+              cursor="pointer"
+              onClick={(data, index) => handleGenreClick(data.name)}
               data={data}
               dataKey="percent"
               nameKey="name"
@@ -112,14 +153,16 @@ export default function VibeChart({ data }) {
               onMouseEnter={(_, index) => setActiveIndex(index)}
               onMouseLeave={() => setActiveIndex(null)}
               animationBegin={0}
+              isAnimationActive={true}
               animationDuration={800}
             >
               {data.map((entry, index) => (
                 <Cell
                   style={{
-                    transition: 'all 0.3s ease',
-                    cursor: 'pointer',
-                    opacity: activeindex !== null && activeindex !== index ? 0.6 : 1
+                    transition: "all 0.3s ease",
+                    cursor: "pointer",
+                    opacity:
+                      activeindex !== null && activeindex !== index ? 0.6 : 1,
                   }}
                   key={`cell-${index}`}
                   fill={getGenreColor(entry.name, index)}
@@ -145,7 +188,10 @@ export default function VibeChart({ data }) {
               fontSize: 32,
               fontWeight: 500,
               margin: 0,
-              color: getGenreColor(displayed.name, data.findIndex(d => d.name === displayed.name)),
+              color: getGenreColor(
+                displayed.name,
+                data.findIndex((d) => d.name === displayed.name),
+              ),
               transition: "color 0.3s ease",
               lineHeight: 1,
             }}
@@ -157,7 +203,7 @@ export default function VibeChart({ data }) {
               fontSize: 14,
               color: "#e2e8f0",
               margin: "4px 0 0 0",
-              fontWeight: 400
+              fontWeight: 400,
             }}
           >
             {displayed.name}
@@ -184,6 +230,7 @@ export default function VibeChart({ data }) {
           return (
             <div
               key={`legend-${index}`}
+              onClick={() => handleGenreClick(entry.name)}
               onMouseEnter={() => setActiveIndex(index)}
               onMouseLeave={() => setActiveIndex(null)}
               style={{
@@ -197,14 +244,19 @@ export default function VibeChart({ data }) {
                 transform: isActive ? "translateX(6px)" : "translateX(0)",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "15px" }}
+              >
                 <div
+                  onClick={() => handleGenreClick(displayed.name)}
                   style={{
                     width: "12px",
                     height: "12px",
                     borderRadius: "50%",
                     backgroundColor: getGenreColor(entry.name, index),
-                    boxShadow: isActive ? `0 0 12px ${getGenreColor(entry.name, index)}` : `0 0 10px ${getGenreColor(entry.name, index)}66`,
+                    boxShadow: isActive
+                      ? `0 0 12px ${getGenreColor(entry.name, index)}`
+                      : `0 0 10px ${getGenreColor(entry.name, index)}66`,
                     transition: "all 0.3s ease",
                   }}
                 />
@@ -213,7 +265,7 @@ export default function VibeChart({ data }) {
                     fontSize: "1.1rem",
                     fontWeight: isActive ? "600" : "500",
                     color: isActive ? "#ffffff" : "#bbb",
-                    transition: "all 0.3s ease"
+                    transition: "all 0.3s ease",
                   }}
                 >
                   {entry.name}
@@ -224,7 +276,7 @@ export default function VibeChart({ data }) {
                   fontSize: "1.1rem",
                   fontWeight: "700",
                   color: isActive ? "#fff" : "#ddd",
-                  transition: "all 0.3s ease"
+                  transition: "all 0.3s ease",
                 }}
               >
                 {entry.percent}%

@@ -165,7 +165,10 @@ export default function News_Page({ category, searchQuery }) {
               key={article.url}
               onClick={() =>
                 navigate(`/news/${encodeURIComponent(article.url)}`, {
-                  state: article,
+                  state: {
+                    article,
+                    allNews: accumulatedNews,
+                  },
                 })
               }
             >
@@ -183,6 +186,11 @@ export default function News_Page({ category, searchQuery }) {
                 <span className={`news-card-badge badge-${catClass}`}>
                   {catClass === "show" ? "TV SHOW" : catClass.toUpperCase()}
                 </span>
+                {article.mostReactedEmoji && (
+                  <span className="news-card-reaction-badge">
+                    {article.mostReactedEmoji}
+                  </span>
+                )}
               </div>
 
               <div className="news-content">
@@ -203,7 +211,10 @@ export default function News_Page({ category, searchQuery }) {
                     className="read-more-link"
                     onClick={() =>
                       navigate(`/news/${encodeURIComponent(article.url)}`, {
-                        state: article,
+                        state: {
+                          article,
+                          allNews: accumulatedNews,
+                        },
                       })
                     }
                   >

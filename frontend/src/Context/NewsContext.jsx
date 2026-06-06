@@ -9,6 +9,7 @@ export const NewsProvider = ({ children }) => {
   const [news, setNews] = useState([]);
   const [newsDetails, setNewsDetails] = useState(null);
   const [page, setPage] = useState(1);
+  const [reactions, setReactions] = useState([]);
 
   const fetchNews = async ({
     contentType = "all",
@@ -49,6 +50,32 @@ export const NewsProvider = ({ children }) => {
     }
   };
 
+  const getNewsReactions = async (articleUrl) => {
+    try {
+      const res = await API.get(
+        `/news/${encodeURIComponent(articleUrl)}/reactions`,
+      );
+      setReactions(res.data);
+      return res.data;
+    } catch (error) {
+      console.error("Error fetching news reactions:", error);
+      throw error;
+    }
+  };
+
+  const toggleReaction = async (newsId, reactionType) => {
+    try {
+      const res = await API.post("/news/toggle-reaction", {
+        newsId,
+        reactionType,
+      });
+
+      return res.data;
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <NewsContext.Provider
       value={{
@@ -60,6 +87,8 @@ export const NewsProvider = ({ children }) => {
         fetchNews,
         newsDetails,
         fetchNewsDetails,
+        getNewsReactions,
+        toggleReaction,
       }}
     >
       {children}

@@ -1,4 +1,5 @@
 const NewsAPI = require("../ultils/NEWSAPI");
+const NewsReaction = require("../models/News_Reaction");
 
 const EXCLUSION_QUERY =
   "NOT (politics OR election OR court OR lawsuit OR crime OR finance OR stock OR weather OR medical OR war OR accident OR death OR vaccine OR covid OR strike OR arrest OR protest OR legislative OR senate OR parliament OR congress)";
@@ -285,6 +286,41 @@ exports.getNews = async (req, res) => {
         };
       });
 
+    const articleUrls = articles.map((a) => a.url);
+    const reactions = await NewsReaction.find({ NewsID: { $in: articleUrls } });
+
+    const reactionMap = {};
+    reactions.forEach((r) => {
+      if (!reactionMap[r.NewsID]) {
+        reactionMap[r.NewsID] = { like: 0, hype: 0, shocked: 0, sad: 0 };
+      }
+      reactionMap[r.NewsID][r.ReactionType]++;
+    });
+
+    const emojiMap = {
+      like: "👍",
+      hype: "🔥",
+      shocked: "😲",
+      sad: "😢",
+    };
+
+    articles.forEach((article) => {
+      const counts = reactionMap[article.url];
+      if (!counts) {
+        article.mostReactedEmoji = null;
+        return;
+      }
+      let maxCount = 0;
+      let maxType = null;
+      Object.keys(counts).forEach((type) => {
+        if (counts[type] > maxCount) {
+          maxCount = counts[type];
+          maxType = type;
+        }
+      });
+      article.mostReactedEmoji = maxType ? emojiMap[maxType] : null;
+    });
+
     res.status(200).json({
       success: true,
       page: Number(page),
@@ -393,3 +429,100 @@ function getImpact(title = "") {
 
   return "Minor";
 }
+
+exports.ToggleNewsReaction = async (req, res) => {
+  try {
+    const { newsId, reactionType } = req.body;
+    const userId = req.user?._id;
+
+    if (!newsId || !reactionType) {
+      return res
+        .status(400)
+        .json({ message: "newsId and reactionType are required" });
+    }
+
+    const existingReaction = await NewsReaction.findOne({
+      NewsID: newsId,
+      User: userId,
+    });
+
+    // Same reaction clicked again
+    if (existingReaction && existingReaction.ReactionType === reactionType) {
+      await existingReaction.deleteOne();
+
+      return res.status(200).json({
+        success: true,
+        message: "Reaction removed",
+      });
+    }
+
+    // User changes reaction
+    if (existingReaction) {
+      existingReaction.ReactionType = reactionType;
+
+      await existingReaction.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "Reaction updated",
+      });
+    }
+
+    // First reaction
+    await NewsReaction.create({
+      NewsID: newsId,
+      User: userId,
+      ReactionType: reactionType,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Reaction added",
+    });
+  } catch (error) {
+    console.error("ToggleNewsReaction error:", error);
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
+};
+
+exports.getNewsReactions = async (req, res) => {
+  try {
+    const { newsId } = req.params;
+
+    if (!newsId) {
+      return res.status(400).json({ message: "newsId is required" });
+    }
+
+    const reactions = await NewsReaction.find({ NewsID: newsId });
+
+    const result = {
+      like: 0,
+      hype: 0,
+      shocked: 0,
+      sad: 0,
+      userReaction: null,
+    };
+
+    reactions.forEach((reaction) => {
+      result[reaction.ReactionType]++;
+
+      const userId = req.user?._id;
+
+      if (userId && reaction.User.toString() === userId.toString()) {
+        result.userReaction = reaction.ReactionType;
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      reactions: result,
+    });
+  } catch (error) {
+    console.error("getNewsReactions error:", error);
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
+};

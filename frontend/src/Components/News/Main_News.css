@@ -17,6 +17,155 @@
   animation: fadeIn 0.6s ease;
 }
 
+/* ── Paste this block into Detail.css ── */
+
+/* Reaction section wrapper */
+.news-reactions-container {
+  margin: 28px 0 24px;
+}
+
+.reactions-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(240, 237, 232, 0.5);
+  margin-bottom: 14px;
+  letter-spacing: 0.02em;
+}
+
+/* Reaction pills row */
+.reactions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.reaction-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid rgba(255, 255, 255, 0.09);
+  border-radius: 40px;
+  padding: 9px 18px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.18s ease,
+    transform 0.1s ease;
+  user-select: none;
+  font-family: inherit;
+}
+
+.reaction-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.reaction-pill:active {
+  transform: scale(0.95);
+}
+
+/* Active / selected state */
+.reaction-pill.active {
+  background: rgba(232, 86, 42, 0.12);
+  border-color: rgba(232, 86, 42, 0.4);
+}
+
+.reaction-pill.active .reaction-label {
+  color: rgba(232, 86, 42, 0.85);
+}
+
+.reaction-pill.active .reaction-count {
+  color: #e8562a;
+}
+
+/* Pill internals */
+.reaction-emoji {
+  font-size: 20px;
+  line-height: 1;
+  display: block;
+}
+
+.reaction-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(240, 237, 232, 0.45);
+  text-transform: capitalize;
+  transition: color 0.15s ease;
+}
+
+.reaction-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(240, 237, 232, 0.9);
+  min-width: 16px;
+  text-align: right;
+  transition: color 0.15s ease;
+}
+
+/* Pulse animation when a reaction is toggled */
+@keyframes reaction-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.reaction-pill.active {
+  animation: reaction-pop 0.22s ease forwards;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .reactions-list {
+    gap: 8px;
+  }
+
+  .reaction-pill {
+    padding: 8px 14px;
+  }
+
+  .reaction-emoji {
+    font-size: 18px;
+  }
+
+  .reaction-label {
+    font-size: 12px;
+  }
+
+  .reaction-count {
+    font-size: 12px;
+  }
+}
+
+in news reactions addition · CSS
+/* ── Paste this block into Main_News.css ── */
+ 
+/* Floating most-reacted emoji badge on news cards */
+.news-card-reaction-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(13, 13, 15, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 4px 9px;
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+  z-index: 2;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -962,4 +1111,29 @@
   .timeline-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ==================== REACTION BADGE ==================== */
+.news-card-reaction-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 1.15rem;
+  z-index: 2;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  will-change: transform;
+}
+
+.news-card:hover .news-card-reaction-badge {
+  transform: scale(1.1) rotate(-5deg);
 }

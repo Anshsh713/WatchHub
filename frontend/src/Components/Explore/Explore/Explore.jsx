@@ -194,30 +194,32 @@ const ExploreCard = ({ item, itemVariants }) => {
   const [imageError, setImageError] = useState(false);
 
   return (
-    <Link to={`/media/${item.media_type || "movie"}/${item.id}`}>
-      <motion.div className="media-card" variants={itemVariants}>
-        {!imageError && item.poster_path ? (
-          <img
-            src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
-            alt={item.title || item.name}
-            loading="lazy"
-            onError={() => setImageError(true)}
-          />
-        ) : (
-          <div className="explore-poster-placeholder">
-            <span className="placeholder-icon">🎬</span>
-            <span className="placeholder-text">{item.title || item.name}</span>
-          </div>
-        )}
-
-        <div className="media-info">
-          <h4>{item.title || item.name}</h4>
-
-          {(item.release_date || item.first_air_date) && (
-            <p>{(item.release_date || item.first_air_date).split("-")[0]}</p>
+    <motion.div variants={itemVariants}>
+      <Link to={`/media/${item.media_type || "movie"}/${item.id}`}>
+        <div className="media-card">
+          {!imageError && item.poster_path ? (
+            <img
+              src={`https://image.tmdb.org/t/p/w500${item.poster_path}`}
+              alt={item.title || item.name}
+              loading="lazy"
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <div className="explore-poster-placeholder">
+              <span className="placeholder-icon">🎬</span>
+              <span className="placeholder-text">{item.title || item.name}</span>
+            </div>
           )}
+
+          <div className="media-info">
+            <h4>{item.title || item.name}</h4>
+
+            {(item.release_date || item.first_air_date) && (
+              <p>{(item.release_date || item.first_air_date).split("-")[0]}</p>
+            )}
+          </div>
         </div>
-      </motion.div>
-    </Link>
+      </Link>
+    </motion.div>
   );
 };

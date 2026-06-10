@@ -10,6 +10,8 @@ export const NewsProvider = ({ children }) => {
   const [newsDetails, setNewsDetails] = useState(null);
   const [page, setPage] = useState(1);
   const [reactions, setReactions] = useState([]);
+  const [savedNews, setSavedNews] = useState([]);
+  const [isSaved, setIsSaved] = useState(false);
 
   const fetchNews = async ({
     contentType = "all",
@@ -76,19 +78,77 @@ export const NewsProvider = ({ children }) => {
     }
   };
 
+  const toggleBookmark = async (article) => {
+    try {
+      const { data } = await API.post("/news/save", {
+        NewsID: article.url,
+        Title: article.title,
+        Description: article.description,
+        Image: article.image,
+        Source: article.source,
+        Url: article.url,
+        PublishedAt: article.publishedAt,
+        Category: article.category,
+      });
+
+      setIsSaved(data.saved);
+
+      if (data.saved) {
+        setSavedNews((prev) => [...prev, article]);
+      } else {
+        setSavedNews((prev) => prev.filter((item) => item.url !== article.url));
+      }
+
+      return data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const checkBookmark = async (newsId) => {
+    try {
+      const { data } = await API.get(
+        `/news/saved/${encodeURIComponent(newsId)}`,
+      );
+
+      setIsSaved(data.saved);
+
+      return data.saved;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchSavedNews = async () => {
+    try {
+      const { data } = await API.get("/news/saved");
+
+      setSavedNews(data);
+
+      return data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <NewsContext.Provider
       value={{
         loading,
         error,
         news,
+        newsDetails,
         page,
         setPage,
         fetchNews,
-        newsDetails,
         fetchNewsDetails,
         getNewsReactions,
         toggleReaction,
+        toggleBookmark,
+        checkBookmark,
+        fetchSavedNews,
+        savedNews,
+        isSaved,
       }}
     >
       {children}

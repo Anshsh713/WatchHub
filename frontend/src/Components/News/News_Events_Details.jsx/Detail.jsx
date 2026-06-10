@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNews } from "../../../Context/NewsContext";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import VideoLoader from "../../Common/VideoLoader.jsx";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Share2, Bookmark, BookmarkCheck } from "lucide-react";
 import "./Detail.css";
 
 export default function Detail(type) {
@@ -10,6 +10,7 @@ export default function Detail(type) {
   const navigate = useNavigate();
   const newsDetails = location.state?.article || location.state;
   const allNews = location.state?.allNews || [];
+  const [showCopiedFeedback, setShowCopiedFeedback] = useState(false);
   const relatedNews = allNews
     .filter(
       (item) =>
@@ -26,6 +27,8 @@ export default function Detail(type) {
     sad: 0,
     userReaction: null,
   });
+
+  const { isSaved, checkBookmark, toggleBookmark } = useNews();
 
   useEffect(() => {
     if (newsDetails?.url) {
@@ -100,6 +103,36 @@ export default function Detail(type) {
     });
   };
 
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: newsDetails.title,
+          text: newsDetails.description,
+          url: newsDetails.url,
+        });
+      } else {
+        await navigator.clipboard.writeText(newsDetails.url);
+
+        // Show green feedback
+        setShowCopiedFeedback(true);
+
+        // Revert after 2 seconds
+        setTimeout(() => setShowCopiedFeedback(false), 2000);
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error("Error sharing:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (newsDetails?.url) {
+      checkBookmark(newsDetails.url);
+    }
+  }, [newsDetails]);
+
   if (!newsDetails) {
     return (
       <div className="news-detail-container">
@@ -136,6 +169,23 @@ export default function Detail(type) {
           )}
           <div className={`impact-badge ${newsDetails.impact.toLowerCase()}`}>
             {newsDetails.impact}
+          </div>
+          <div className="share">
+            <button
+              className={`nd-share-btn ${showCopiedFeedback ? "copied" : ""}`}
+              onClick={handleShare}
+            >
+              <Share2 size={18} />
+              {showCopiedFeedback ? "Copied!" : "Share"}
+            </button>
+          </div>
+          <div className="bookmark">
+            <button
+              className={`bookmark-btn ${isSaved ? "saved" : ""}`}
+              onClick={() => toggleBookmark(newsDetails)}
+            >
+              {isSaved ? <BookmarkCheck size={20} /> : <Bookmark size={20} />}
+            </button>
           </div>
         </div>
 

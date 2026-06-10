@@ -1,5 +1,6 @@
 const NewsAPI = require("../ultils/NEWSAPI");
 const NewsReaction = require("../models/News_Reaction");
+const SavedNews = require("../models/News_Saved");
 
 const EXCLUSION_QUERY =
   "NOT (politics OR election OR court OR lawsuit OR crime OR finance OR stock OR weather OR medical OR war OR accident OR death OR vaccine OR covid OR strike OR arrest OR protest OR legislative OR senate OR parliament OR congress)";
@@ -524,5 +525,146 @@ exports.getNewsReactions = async (req, res) => {
     res
       .status(500)
       .json({ message: "Internal server error", error: error.message });
+  }
+};
+
+exports.getNewsById = async (req, res) => {
+  try {
+    const { articleId } = req.params;
+
+    if (!articleId) {
+      return res.status(400).json({
+        success: false,
+        message: "Article ID is required",
+      });
+    }
+
+    const news = await NewsAPI.fetchNews({
+      q: "movie OR film OR television OR anime OR gaming",
+      pageSize: 100,
+    });
+
+    const articles = news.articles.map((article, index) => ({
+      id: `1-${index}`,
+      title: article.title,
+      description: article.description,
+      image: article.urlToImage,
+      source: article.source?.name,
+      author: article.author,
+      url: article.url,
+      publishedAt: article.publishedAt,
+    }));
+
+    const foundArticle = articles.find((item) => item.id === articleId);
+
+    if (!foundArticle) {
+      return res.status(404).json({
+        success: false,
+        message: "Article not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      article: foundArticle,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching news details",
+    });
+  }
+};
+
+exports.ToggleSaveNews = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    console.log(req.body);
+    console.log(req.user);
+    const {
+      NewsID,
+      Title,
+      Description,
+      Image,
+      Source,
+      Url,
+      PublishedAt,
+      Category,
+    } = req.body;
+
+    const existing = await SavedNews.findOne({
+      User: userId,
+      NewsID,
+    });
+
+    if (existing) {
+      await existing.deleteOne();
+
+      return res.json({
+        saved: false,
+        message: "Removed from saved",
+      });
+    }
+
+    await SavedNews.create({
+      User: userId,
+      NewsID,
+      Title,
+      Description,
+      Image,
+      Source,
+      Url,
+      PublishedAt,
+      Category,
+    });
+
+    res.json({
+      saved: true,
+      message: "Saved successfully",
+    });
+  } catch (error) {
+    console.error("SAVE ERROR:", error);
+
+    res.status(500).json({
+      message: error.message,
+      error,
+    });
+  }
+};
+
+exports.GetSavedNews = async (req, res) => {
+  try {
+    console.log(req.params);
+    const savedNews = await SavedNews.find({
+      User: req.user._id,
+    }).sort({
+      createdAt: -1,
+    });
+
+    res.json(savedNews);
+  } catch (error) {
+    console.error("SAVE ERROR:", error);
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+exports.CheckSavedNews = async (req, res) => {
+  try {
+    const { NewsID } = req.params;
+
+    const saved = await SavedNews.exists({
+      User: req.user._id,
+      NewsID,
+    });
+
+    res.json({
+      saved: !!saved,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };

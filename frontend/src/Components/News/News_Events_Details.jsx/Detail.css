@@ -321,6 +321,144 @@
   animation: reaction-pop 0.22s ease forwards;
 }
 
+/* ── Share Button (Fixed UI with Green Feedback) ── */
+.share {
+  margin-left: auto;
+}
+
+.nd-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  padding: 5px 16px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.nd-share-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.nd-share-btn:active {
+  transform: translateY(1px);
+}
+
+/* Green feedback state */
+.nd-share-btn.copied {
+  background: #10b981;
+  border-color: #10b981;
+  color: white;
+  animation: sharePop 0.3s ease;
+}
+
+@keyframes sharePop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ── Bookmark Button ── */
+.bookmark {
+  display: flex;
+  align-items: center;
+}
+
+.bookmark-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.bookmark-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.bookmark-btn:active {
+  transform: translateY(1px);
+}
+
+/* Saved state */
+.bookmark-btn.saved {
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.3);
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.bookmark-btn.saved:hover {
+  background: rgba(251, 191, 36, 0.15);
+  border-color: rgba(251, 191, 36, 0.4);
+}
+
+/* Animation for bookmark */
+@keyframes bookmarkPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.bookmark-btn:active svg {
+  animation: bookmarkPop 0.2s ease;
+}
+
+/* Mobile adjustment */
+@media (max-width: 640px) {
+  .bookmark-btn {
+    padding: 5px 10px;
+  }
+
+  .bookmark-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Mobile adjustment */
+@media (max-width: 640px) {
+  .nd-share-btn {
+    padding: 5px 12px;
+    gap: 6px;
+    font-size: 0.65rem;
+  }
+
+  .nd-share-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
 /* Mobile */
 @media (max-width: 480px) {
   .reactions-list {

@@ -1,0 +1,251 @@
+/* ===== NewsComments — styled identical to MediaReviews ===== */
+
+/* Container */
+.nc-container {
+  width: 100%;
+  color: #f5f5f5;
+  position: relative;
+}
+
+/* ── Write-comment box ── */
+.nc-write-box {
+  width: 100%;
+  max-width: 750px;
+  margin: 0 auto 30px auto;
+  padding: 20px;
+  background-color: #1c1c1f;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.nc-write-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 100;
+  font-size: 1.1rem;
+  color: #ffffff;
+  margin-bottom: 14px;
+}
+
+.nc-write-area textarea {
+  width: 100%;
+  min-height: 100px;
+  resize: none;
+  border: none;
+  background-color: #1c1c1f;
+  border-bottom: 1px solid #2a2a2f;
+  color: #fff;
+  padding: 12px;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s ease;
+  overflow-x: auto;
+  scrollbar-width: none;
+  box-sizing: border-box;
+}
+
+.nc-write-area textarea::-webkit-scrollbar {
+  display: none;
+}
+
+.nc-write-area textarea:focus {
+  border-color: var(--color-accent);
+}
+
+.nc-write-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.nc-char-limit {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.nc-post-btn {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nc-post-btn:hover:not(:disabled) {
+  background: var(--color-primary);
+}
+
+.nc-post-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Comments list ── */
+.nc-list {
+  margin: 0 auto;
+}
+
+.nc-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  height: 260px;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+/* ── Comment card ── */
+.nc-card {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 18px 16px;
+  margin-bottom: 4px;
+  width: 97%;
+  position: relative;
+}
+
+.nc-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nc-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nc-user-meta h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+}
+
+.nc-user-meta p {
+  margin: 0;
+  font-size: 12px;
+  color: #888;
+}
+
+.nc-card-body {
+  margin: 12px 0;
+  color: #ddd;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── Actions ── */
+.nc-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nc-action-row {
+  display: flex;
+  gap: 20px;
+  margin-top: 6px;
+}
+
+.nc-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.2s ease;
+  padding: 4px 6px;
+  border-radius: 8px;
+}
+
+.nc-action-btn:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nc-action-btn.liked {
+  color: var(--color-primary);
+}
+
+/* ── Ellipsis / report ── */
+.nc-report {
+  display: flex;
+  align-items: center;
+  color: #aaa;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.nc-report:hover {
+  color: white;
+}
+
+/* ── 3-dot menu ── */
+.nc-menu-wrapper {
+  position: relative;
+}
+
+.nc-menu-btn {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.nc-menu-btn:hover {
+  color: white;
+}
+
+.nc-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #1e1e22;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  min-width: 130px;
+  overflow: hidden;
+  z-index: 50;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.nc-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 13px;
+  background: transparent;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.nc-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nc-dropdown-item.danger {
+  color: #ff5c5c;
+}
+
+.nc-dropdown-item.danger:hover {
+  background: rgba(255, 92, 92, 0.08);
+}

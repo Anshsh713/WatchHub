@@ -220,105 +220,313 @@
 
 /* ── Paste this block into Detail.css ── */
 
-/* Reaction section wrapper */
+/* ── Reactions (editorial style, matches info-strip / badges) ── */
 .news-reactions-container {
-  margin: 28px 0 24px;
+  margin: 36px 0 32px;
+  padding: 28px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.news-reactions-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 56px;
+  height: 2px;
+  background: var(--color-primary);
+  border-radius: 2px;
+}
+
+.reactions-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.reactions-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .reactions-title {
-  font-size: 14px;
-  font-weight: 500;
-  color: rgba(240, 237, 232, 0.5);
-  margin-bottom: 14px;
-  letter-spacing: 0.02em;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: white;
+  font-family: var(--font-heading);
+  letter-spacing: -0.2px;
+}
+
+.reactions-subtitle {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.reactions-your-pick {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: rgba(229, 9, 20, 0.1);
+  border: 1px solid rgba(229, 9, 20, 0.25);
+  padding: 6px 14px;
+  border-radius: 30px;
+  white-space: nowrap;
 }
 
 /* Reaction pills row */
 .reactions-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
 }
 
 .reaction-pill {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 0.5px solid rgba(255, 255, 255, 0.09);
-  border-radius: 40px;
-  padding: 9px 18px;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 12px 18px;
   cursor: pointer;
+  flex: 1 1 200px;
+  min-width: 0;
+  max-width: 280px;
   transition:
-    background 0.15s ease,
-    border-color 0.18s ease,
-    transform 0.1s ease;
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease,
+    flex-basis 0.3s ease,
+    max-width 0.3s ease;
   user-select: none;
   font-family: inherit;
 }
 
 .reaction-pill:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.16);
+  transform: translateY(-2px);
 }
 
 .reaction-pill:active {
-  transform: scale(0.95);
+  transform: scale(0.97);
+}
+
+/* Collapse non-selected pills once one is active */
+.reactions-list:has(.reaction-pill.active) .reaction-pill:not(.active) {
+  flex: 0 1 130px;
+  max-width: 130px;
+  opacity: 0.55;
+}
+
+.reactions-list:has(.reaction-pill.active) .reaction-pill.active {
+  flex: 1 1 260px;
+  max-width: 100%;
 }
 
 /* Active / selected state */
 .reaction-pill.active {
-  background: rgba(232, 86, 42, 0.12);
-  border-color: rgba(232, 86, 42, 0.4);
+  background: rgba(229, 9, 20, 0.08);
+  border-color: rgba(229, 9, 20, 0.35);
+}
+
+.reaction-pill.active.just-activated {
+  animation: reaction-pop 0.25s ease;
 }
 
 .reaction-pill.active .reaction-label {
-  color: rgba(232, 86, 42, 0.85);
+  color: white;
 }
 
 .reaction-pill.active .reaction-count {
-  color: #e8562a;
+  background: var(--color-primary);
+  color: white;
 }
 
-/* Pill internals */
+.reaction-pill.active .reaction-bar-fill {
+  background: var(--color-primary);
+}
+
+.reaction-pill.active .reaction-pct {
+  color: var(--color-primary);
+}
+
+/* Emoji */
 .reaction-emoji {
-  font-size: 20px;
+  font-size: 24px;
   line-height: 1;
   display: block;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.reaction-pill[data-type="sad"].active .reaction-emoji {
+  animation: emoji-sad-bob 1.4s ease-in-out infinite;
+}
+.reaction-pill[data-type="hype"].active .reaction-emoji {
+  animation: emoji-fire-flicker 0.9s ease-in-out infinite;
+}
+.reaction-pill[data-type="shocked"].active .reaction-emoji {
+  animation: emoji-shock-shake 0.5s ease-in-out infinite;
+}
+.reaction-pill[data-type="like"].active .reaction-emoji {
+  animation: emoji-thumb-bounce 0.8s ease-in-out infinite;
+}
+
+/* Info column: label/pct row + bar */
+.reaction-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reaction-info-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .reaction-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: rgba(240, 237, 232, 0.45);
-  text-transform: capitalize;
-  transition: color 0.15s ease;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  transition: color 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reaction-pct {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.reaction-bar-wrap {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.reaction-bar-fill {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  transition:
+    width 0.4s ease,
+    background 0.2s ease;
 }
 
 .reaction-count {
-  font-size: 13px;
-  font-weight: 600;
-  color: rgba(240, 237, 232, 0.9);
-  min-width: 16px;
-  text-align: right;
-  transition: color 0.15s ease;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  min-width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
-/* Pulse animation when a reaction is toggled */
+/* Pulse on toggle */
 @keyframes reaction-pop {
   0% {
     transform: scale(1);
   }
   40% {
-    transform: scale(1.12);
+    transform: scale(1.04);
   }
   100% {
     transform: scale(1);
   }
 }
 
-.reaction-pill.active {
-  animation: reaction-pop 0.22s ease forwards;
+@keyframes emoji-sad-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+@keyframes emoji-fire-flicker {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.08) rotate(-3deg);
+  }
+  75% {
+    transform: scale(1.05) rotate(3deg);
+  }
+}
+
+@keyframes emoji-shock-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes emoji-thumb-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@media (max-width: 640px) {
+  .news-reactions-container {
+    padding: 20px;
+  }
+  .reaction-pill {
+    flex-basis: 100%;
+    max-width: 100%;
+  }
+  .reactions-list:has(.reaction-pill.active) .reaction-pill:not(.active) {
+    flex-basis: 100%;
+    max-width: 100%;
+    opacity: 0.5;
+  }
 }
 
 /* ── Share Button (Fixed UI with Green Feedback) ── */
@@ -651,5 +859,164 @@
   .related-news-card {
     height: auto;
     min-height: 280px;
+  }
+}
+
+/* ── Comments Section ── */
+.nd-comments-section {
+  margin-top: 48px;
+  margin-bottom: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding-top: 32px;
+}
+
+.nd-comments-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.nd-comments-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+}
+
+.nd-comments-title h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  letter-spacing: -0.3px;
+}
+
+.nd-comments-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ── Sort dropdown ── */
+.nd-sort-wrapper {
+  position: relative;
+}
+
+.nd-sort-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  padding: 7px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nd-sort-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: white;
+}
+
+.nd-sort-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: #1e1e22;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  min-width: 140px;
+  overflow: hidden;
+  z-index: 50;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.nd-sort-item {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 13px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.nd-sort-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+}
+
+.nd-sort-item.active {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* ── Filter pills ── */
+.nd-filter-pills {
+  display: flex;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 30px;
+  padding: 4px;
+}
+
+.nd-filter-pill {
+  padding: 5px 14px;
+  border-radius: 25px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nd-filter-pill.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* ── Write comment button ── */
+.nd-write-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  border-radius: 30px;
+  border: none;
+  background: var(--color-primary);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nd-write-btn:hover {
+  background: #ff1f2f;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(229, 9, 20, 0.3);
+}
+
+@media (max-width: 640px) {
+  .nd-comments-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nd-comments-controls {
+    width: 100%;
   }
 }

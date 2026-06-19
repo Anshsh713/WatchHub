@@ -11,6 +11,7 @@ import { UserProvider } from "./Context/UserContext.jsx";
 import { MediaProvider } from "./Context/MediaContext.jsx";
 import { MediaReviewsProvider } from "./Context/MediaReviewsContext.jsx";
 import { NewsProvider } from "./Context/NewsContext.jsx";
+import { NewsCommentsProvider } from "./Context/News_CommentsConstext.jsx";
 import Home from "./Components/Home/Home.jsx";
 import Protected from "./Data_Management/Protected.jsx";
 import AuthPage from "./Login_Signup/AuthPage/AuthPage.jsx";
@@ -98,12 +99,14 @@ createRoot(document.getElementById("root")).render(
       <UserProvider>
         <ErrorBoundary>
           <NewsProvider>
-            <MediaProvider>
-              <MediaReviewsProvider>
-                <RouterProvider router={router} />
-              </MediaReviewsProvider>
-            </MediaProvider>
-          </NewsProvider>
+              <NewsCommentsProvider>
+                <MediaProvider>
+                  <MediaReviewsProvider>
+                    <RouterProvider router={router} />
+                  </MediaReviewsProvider>
+                </MediaProvider>
+              </NewsCommentsProvider>
+            </NewsProvider>
         </ErrorBoundary>
       </UserProvider>
     </Provider>

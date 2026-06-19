@@ -1,16 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { useNews } from "../../../Context/NewsContext";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import VideoLoader from "../../Common/VideoLoader.jsx";
-import { ArrowRight, Share2, Bookmark, BookmarkCheck } from "lucide-react";
+import {
+  ArrowRight,
+  Share2,
+  Bookmark,
+  BookmarkCheck,
+  MessageSquare,
+  SlidersHorizontal,
+  ChevronDown,
+  Pencil,
+} from "lucide-react";
 import "./Detail.css";
+import NewsComments from "../NewsComments/NewsComments.jsx";
 
-export default function Detail(type) {
+export default function Detail() {
   const location = useLocation();
   const navigate = useNavigate();
   const newsDetails = location.state?.article || location.state;
   const allNews = location.state?.allNews || [];
+
   const [showCopiedFeedback, setShowCopiedFeedback] = useState(false);
+  const [writingComment, setWritingComment] = useState(false);
+  const [sort, setSort] = useState("latest");
+  const [filter, setFilter] = useState("all");
+  const [showSortMenu, setShowSortMenu] = useState(false);
+
   const relatedNews = allNews
     .filter(
       (item) =>
@@ -19,7 +35,8 @@ export default function Detail(type) {
     )
     .slice(0, 5);
 
-  const { getNewsReactions, toggleReaction } = useNews();
+  const { getNewsReactions, toggleReaction, isSaved, checkBookmark, toggleBookmark } = useNews();
+
   const [reactionStats, setReactionStats] = useState({
     like: 0,
     hype: 0,
@@ -28,39 +45,36 @@ export default function Detail(type) {
     userReaction: null,
   });
 
-  const { isSaved, checkBookmark, toggleBookmark } = useNews();
-
   useEffect(() => {
     if (newsDetails?.url) {
       getNewsReactions(newsDetails.url)
         .then((data) => {
-          if (data && data.reactions) {
-            setReactionStats(data.reactions);
-          }
+          if (data && data.reactions) setReactionStats(data.reactions);
         })
         .catch((err) => console.error("Error loading reactions:", err));
     }
+  }, [newsDetails]);
+
+  useEffect(() => {
+    if (newsDetails?.url) checkBookmark(newsDetails.url);
   }, [newsDetails]);
 
   const handleReactionClick = async (type) => {
     if (!newsDetails?.url) return;
 
     setReactionStats((prev) => {
-      const nextStats = { ...prev };
+      const next = { ...prev };
       if (prev.userReaction === type) {
-        nextStats[type] = Math.max(0, nextStats[type] - 1);
-        nextStats.userReaction = null;
+        next[type] = Math.max(0, next[type] - 1);
+        next.userReaction = null;
       } else {
         if (prev.userReaction) {
-          nextStats[prev.userReaction] = Math.max(
-            0,
-            nextStats[prev.userReaction] - 1,
-          );
+          next[prev.userReaction] = Math.max(0, next[prev.userReaction] - 1);
         }
-        nextStats[type] = (nextStats[type] || 0) + 1;
-        nextStats.userReaction = type;
+        next[type] = (next[type] || 0) + 1;
+        next.userReaction = type;
       }
-      return nextStats;
+      return next;
     });
 
     try {
@@ -68,18 +82,13 @@ export default function Detail(type) {
     } catch (err) {
       console.error("Failed to toggle reaction:", err);
       const data = await getNewsReactions(newsDetails.url);
-      if (data && data.reactions) {
-        setReactionStats(data.reactions);
-      }
+      if (data && data.reactions) setReactionStats(data.reactions);
     }
   };
 
-  const emojiMap = {
-    like: "👍",
-    hype: "🔥",
-    shocked: "😲",
-    sad: "😢",
-  };
+  const emojiMap = { like: "👍", hype: "🔥", shocked: "😲", sad: "😢" };
+  const reactionLabels = { like: "Like it", hype: "Hyped", shocked: "Shocked", sad: "Sad" };
+
   const getCategoryClass = (title = "", desc = "") => {
     const text = (title + " " + desc).toLowerCase();
     if (text.includes("anime") || text.includes("manga")) return "anime";
@@ -113,25 +122,13 @@ export default function Detail(type) {
         });
       } else {
         await navigator.clipboard.writeText(newsDetails.url);
-
-        // Show green feedback
         setShowCopiedFeedback(true);
-
-        // Revert after 2 seconds
         setTimeout(() => setShowCopiedFeedback(false), 2000);
       }
     } catch (error) {
-      if (error.name !== "AbortError") {
-        console.error("Error sharing:", error);
-      }
+      if (error.name !== "AbortError") console.error("Error sharing:", error);
     }
   };
-
-  useEffect(() => {
-    if (newsDetails?.url) {
-      checkBookmark(newsDetails.url);
-    }
-  }, [newsDetails]);
 
   if (!newsDetails) {
     return (
@@ -141,25 +138,30 @@ export default function Detail(type) {
     );
   }
 
+  /* total reactions for % bar */
+  const totalReactions = Object.keys(emojiMap).reduce(
+    (s, k) => s + (reactionStats[k] || 0),
+    0,
+  );
+
   return (
     <div className="news-detail-container">
+      {/* Banner */}
       <div className="banner">
         {newsDetails?.image ? (
           <img loading="lazy" src={newsDetails.image} alt={newsDetails.title} />
         ) : (
-          <div className="banner-placeholder"></div>
+          <div className="banner-placeholder" />
         )}
-        <div className="banner-overlay"></div>
+        <div className="banner-overlay" />
       </div>
 
       <div className="news-main-content">
+        {/* Badge row */}
         <div className="nd-badge-row">
           {newsDetails.category && (
-            <span
-              className={`nd-badge badge-${getCategoryClass(newsDetails.title, newsDetails.description)}`}
-            >
-              {getCategoryClass(newsDetails.title, newsDetails.description) ===
-              "show"
+            <span className={`nd-badge badge-${getCategoryClass(newsDetails.title, newsDetails.description)}`}>
+              {getCategoryClass(newsDetails.title, newsDetails.description) === "show"
                 ? "TV Show"
                 : getCategoryClass(newsDetails.title, newsDetails.description)}
             </span>
@@ -167,7 +169,7 @@ export default function Detail(type) {
           {newsDetails.source && (
             <span className="nd-badge badge-source">{newsDetails.source}</span>
           )}
-          <div className={`impact-badge ${newsDetails.impact.toLowerCase()}`}>
+          <div className={`impact-badge ${newsDetails.impact?.toLowerCase()}`}>
             {newsDetails.impact}
           </div>
           <div className="share">
@@ -193,12 +195,8 @@ export default function Detail(type) {
 
         <div className="nd-meta-row">
           {newsDetails.author && <span>By {newsDetails.author}</span>}
-          {newsDetails.author && newsDetails.publishedAt && (
-            <span className="nd-dot" />
-          )}
-          {newsDetails.publishedAt && (
-            <span>{formatDate(newsDetails.publishedAt)}</span>
-          )}
+          {newsDetails.author && newsDetails.publishedAt && <span className="nd-dot" />}
+          {newsDetails.publishedAt && <span>{formatDate(newsDetails.publishedAt)}</span>}
         </div>
 
         <div className="nd-divider" />
@@ -215,20 +213,48 @@ export default function Detail(type) {
           <ArrowRight size={15} />
         </a>
 
+        {/* ── Reactions ── */}
         <div className="news-reactions-container">
-          <h3 className="reactions-title">How do you feel about this scoop?</h3>
+          <div className="reactions-header-row">
+            <div className="reactions-title-group">
+              <h3 className="reactions-title">How do you feel about this?</h3>
+              <p className="reactions-subtitle">
+                {totalReactions > 0
+                  ? `${totalReactions} reaction${totalReactions !== 1 ? "s" : ""}`
+                  : "Be the first to react"}
+              </p>
+            </div>
+            {reactionStats.userReaction && (
+              <span className="reactions-your-pick">
+                You reacted {emojiMap[reactionStats.userReaction]}
+              </span>
+            )}
+          </div>
+
           <div className="reactions-list">
-            {Object.entries(emojiMap).map(([type, emoji]) => {
-              const count = reactionStats[type] || 0;
-              const isUserReaction = reactionStats.userReaction === type;
+            {Object.entries(emojiMap).map(([key, emoji]) => {
+              const count = reactionStats[key] || 0;
+              const isActive = reactionStats.userReaction === key;
+              const pct = totalReactions > 0 ? Math.round((count / totalReactions) * 100) : 0;
               return (
                 <button
-                  key={type}
-                  className={`reaction-pill ${isUserReaction ? "active" : ""}`}
-                  onClick={() => handleReactionClick(type)}
+                  key={key}
+                  className={`reaction-pill ${isActive ? "active" : ""}`}
+                  onClick={() => handleReactionClick(key)}
                 >
                   <span className="reaction-emoji">{emoji}</span>
-                  <span className="reaction-label">{type}</span>
+                  <div className="reaction-info">
+                    <div className="reaction-info-top">
+                      <span className="reaction-label">{reactionLabels[key]}</span>
+                      <span className="reaction-pct">{pct}%</span>
+                    </div>
+                    <div className="reaction-bar-wrap">
+                      <div
+                        className="reaction-bar-fill"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
                   <span className="reaction-count">{count}</span>
                 </button>
               );
@@ -236,6 +262,7 @@ export default function Detail(type) {
           </div>
         </div>
 
+        {/* Info strip */}
         <div className="nd-info-strip">
           <div className="nd-info-cell">
             <p className="nd-info-label">Source</p>
@@ -247,12 +274,11 @@ export default function Detail(type) {
           </div>
           <div className="nd-info-cell">
             <p className="nd-info-label">Published</p>
-            <p className="nd-info-value">
-              {formatDate(newsDetails.publishedAt) || "—"}
-            </p>
+            <p className="nd-info-value">{formatDate(newsDetails.publishedAt) || "—"}</p>
           </div>
         </div>
 
+        {/* Related News */}
         {relatedNews.length > 0 && (
           <div className="related-news-section">
             <h2 className="related-news-heading">Related News</h2>
@@ -265,10 +291,7 @@ export default function Detail(type) {
                     className={`related-news-card border-${catClass}`}
                     onClick={() => {
                       navigate(`/news/${encodeURIComponent(item.url)}`, {
-                        state: {
-                          article: item,
-                          allNews: allNews,
-                        },
+                        state: { article: item, allNews },
                       });
                       window.scrollTo(0, 0);
                     }}
@@ -282,20 +305,16 @@ export default function Detail(type) {
                           className="related-image"
                         />
                       ) : (
-                        <div className="related-image-placeholder"></div>
+                        <div className="related-image-placeholder" />
                       )}
                       <span className={`related-badge badge-${catClass}`}>
-                        {catClass === "show"
-                          ? "TV SHOW"
-                          : catClass.toUpperCase()}
+                        {catClass === "show" ? "TV SHOW" : catClass.toUpperCase()}
                       </span>
                     </div>
                     <div className="related-content">
                       <div className="related-meta">
                         <span className="related-source">{item.source}</span>
-                        <span className="related-date">
-                          {formatDate(item.publishedAt)}
-                        </span>
+                        <span className="related-date">{formatDate(item.publishedAt)}</span>
                       </div>
                       <h3 className="related-title">{item.title}</h3>
                     </div>
@@ -305,6 +324,78 @@ export default function Detail(type) {
             </div>
           </div>
         )}
+
+        {/* ── Community Discussion — BELOW related news ── */}
+        <div className="nd-comments-section">
+          <div className="nd-comments-header">
+            <div className="nd-comments-title">
+              <MessageSquare size={20} />
+              <h3>Community Discussion</h3>
+            </div>
+            <div className="nd-comments-controls">
+              {/* Sort */}
+              <div className="nd-sort-wrapper">
+                <button
+                  className="nd-sort-btn"
+                  onClick={() => setShowSortMenu((p) => !p)}
+                >
+                  <SlidersHorizontal size={15} />
+                  <span>
+                    {sort === "mostLiked" ? "Most Liked" : sort === "latest" ? "Latest" : "Oldest"}
+                  </span>
+                  <ChevronDown size={13} />
+                </button>
+                {showSortMenu && (
+                  <div className="nd-sort-menu">
+                    {[
+                      { key: "mostLiked", label: "Most Liked" },
+                      { key: "latest", label: "Latest" },
+                      { key: "oldest", label: "Oldest" },
+                    ].map((s) => (
+                      <button
+                        key={s.key}
+                        className={`nd-sort-item ${sort === s.key ? "active" : ""}`}
+                        onClick={() => { setSort(s.key); setShowSortMenu(false); }}
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Filter */}
+              <div className="nd-filter-pills">
+                {["all", "byMe"].map((f) => (
+                  <button
+                    key={f}
+                    className={`nd-filter-pill ${filter === f ? "active" : ""}`}
+                    onClick={() => setFilter(f)}
+                  >
+                    {f === "all" ? "All" : "My Comments"}
+                  </button>
+                ))}
+              </div>
+
+              {/* Write */}
+              <button
+                className="nd-write-btn"
+                onClick={() => setWritingComment((p) => !p)}
+              >
+                <Pencil size={14} />
+                {writingComment ? "Cancel" : "Write"}
+              </button>
+            </div>
+          </div>
+
+          <NewsComments
+            newsId={newsDetails?.url}
+            writingComment={writingComment}
+            setWritingComment={setWritingComment}
+            sort={sort}
+            filter={filter}
+          />
+        </div>
       </div>
     </div>
   );

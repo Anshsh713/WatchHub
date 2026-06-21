@@ -1,4 +1,4 @@
-const NewsComment = require("../models/News_Comments");
+const NewsComment = require("../models/News/News_Comments");
 const User = require("../models/WatchHub_User_model");
 
 exports.createComments = async (req, res) => {

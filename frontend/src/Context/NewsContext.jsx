@@ -131,6 +131,31 @@ export const NewsProvider = ({ children }) => {
     }
   };
 
+  const addView = async (NewsID) => {
+    try {
+      await API.post(
+        "/news/view",
+        { NewsID },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
+      );
+    } catch (error) {
+      console.error("Error adding view:", error);
+    }
+  };
+
+  const getViews = async (NewsID) => {
+    try {
+      const res = await API.get(`/news/view/${encodeURIComponent(NewsID)}`);
+
+      return res.data.views;
+    } catch (error) {
+      console.error(error);
+      return 0;
+    }
+  };
+
   return (
     <NewsContext.Provider
       value={{
@@ -149,6 +174,8 @@ export const NewsProvider = ({ children }) => {
         fetchSavedNews,
         savedNews,
         isSaved,
+        addView,
+        getViews,
       }}
     >
       {children}

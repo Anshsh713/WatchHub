@@ -1,6 +1,6 @@
 const NewsAPI = require("../ultils/NEWSAPI");
-const NewsReaction = require("../models/News_Reaction");
-const SavedNews = require("../models/News_Saved");
+const NewsReaction = require("../models/News/News_Reaction");
+const SavedNews = require("../models/News/News_Saved");
 
 const EXCLUSION_QUERY =
   "NOT (politics OR election OR court OR lawsuit OR crime OR finance OR stock OR weather OR medical OR war OR accident OR death OR vaccine OR covid OR strike OR arrest OR protest OR legislative OR senate OR parliament OR congress)";
@@ -665,6 +665,68 @@ exports.CheckSavedNews = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: error.message,
+    });
+  }
+};
+
+const NewsView = require("../models/News/News_View");
+
+exports.addView = async (req, res) => {
+  try {
+    const { NewsID } = req.body;
+    const userId = req.user._id;
+
+    if (!NewsID) {
+      return res.status(400).json({
+        message: "NewsID required",
+      });
+    }
+
+    await NewsView.findOneAndUpdate(
+      {
+        NewsID,
+        User: userId,
+      },
+      {},
+      {
+        upsert: true,
+        new: true,
+      },
+    );
+
+    const totalViews = await NewsView.countDocuments({
+      NewsID,
+    });
+
+    res.json({
+      success: true,
+      views: totalViews,
+    });
+  } catch (error) {
+    console.error("ADD VIEW ERROR:", error);
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+exports.getViews = async (req, res) => {
+  try {
+    const { NewsID } = req.params;
+
+    const views = await NewsView.countDocuments({
+      NewsID,
+    });
+
+    res.json({
+      views,
+    });
+  } catch (error) {
+    console.error("getViews error:", error);
+
+    res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
     });
   }
 };

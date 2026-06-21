@@ -2,16 +2,26 @@ import React, { useEffect, useState } from "react";
 import { useNews } from "../../Context/NewsContext";
 import { useNavigate } from "react-router-dom";
 import API from "../../Services/Axios_api";
-import { Calendar, User, ExternalLink, ArrowRight, X } from "lucide-react";
+import {
+  Calendar,
+  User,
+  Eye,
+  ExternalLink,
+  ArrowRight,
+  X,
+  EyeOff,
+} from "lucide-react";
 import "./Main_News.css";
 
 export default function News_Page({ category, searchQuery }) {
-  const { loading, error, news, fetchNews } = useNews();
+  const { loading, error, news, fetchNews, getViews } = useNews();
   const [accumulatedNews, setAccumulatedNews] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [fetchingMore, setFetchingMore] = useState(false);
   const navigate = useNavigate();
+
+  const [viewsMap, setViewsMap] = useState({});
 
   // Fetch initial news when filters change
   useEffect(() => {
@@ -36,6 +46,26 @@ export default function News_Page({ category, searchQuery }) {
       }
     }
   }, [news]);
+
+  const loadViews = async () => {
+    const temp = {};
+
+    for (const article of accumulatedNews) {
+      try {
+        temp[article.url] = await getViews(article.url);
+      } catch {
+        temp[article.url] = 0;
+      }
+    }
+
+    setViewsMap(temp);
+  };
+
+  useEffect(() => {
+    if (accumulatedNews.length > 0) {
+      loadViews();
+    }
+  }, [accumulatedNews]);
 
   // Load more pages
   const handleLoadMore = async () => {
@@ -72,6 +102,19 @@ export default function News_Page({ category, searchQuery }) {
     if (!dateStr) return "";
     const options = { year: "numeric", month: "short", day: "numeric" };
     return new Date(dateStr).toLocaleDateString(undefined, options);
+  };
+
+  // Format views with K/M suffixes
+  const formatViews = (count) => {
+    if (!count && count !== 0) return "0";
+
+    if (count >= 1000000) {
+      return `${(count / 1000000).toFixed(1)}M`;
+    }
+    if (count >= 1000) {
+      return `${(count / 1000).toFixed(1)}K`;
+    }
+    return count.toString();
   };
 
   // Determine border and badge class by article content or category
@@ -159,6 +202,9 @@ export default function News_Page({ category, searchQuery }) {
       <div className="news-grid">
         {accumulatedNews.map((article) => {
           const catClass = getCategoryClass(article.title, article.description);
+          const viewCount = viewsMap[article.url];
+          const hasViews = viewCount && viewCount > 0;
+
           return (
             <div
               className={`news-card border-${catClass}`}
@@ -183,9 +229,30 @@ export default function News_Page({ category, searchQuery }) {
                       "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600&auto=format&fit=crop";
                   }}
                 />
-                <span className={`news-card-badge badge-${catClass}`}>
-                  {catClass === "show" ? "TV SHOW" : catClass.toUpperCase()}
-                </span>
+                <div className="detail">
+                  <span className={`news-card-badge badge-${catClass}`}>
+                    {catClass === "show" ? "TV SHOW" : catClass.toUpperCase()}
+                  </span>
+
+                  {/* Enhanced Views Counter - Only shows when views > 0 */}
+                  {hasViews ? (
+                    <div
+                      className="news-card-views"
+                      title={`${viewCount.toLocaleString()} views`}
+                    >
+                      <Eye size={13} className="views-icon" />
+                      <span className="views-count">
+                        {formatViews(viewCount)}
+                      </span>
+                      <span className="views-label">views</span>
+                    </div>
+                  ) : (
+                    <div className="news-card-views-empty">
+                      <EyeOff size={12} className="views-empty-icon" />
+                      <span>New</span>
+                    </div>
+                  )}
+                </div>
                 {article.mostReactedEmoji && (
                   <span className="news-card-reaction-badge">
                     {article.mostReactedEmoji}
@@ -209,14 +276,15 @@ export default function News_Page({ category, searchQuery }) {
                   <span className="news-author">By {article.author}</span>
                   <button
                     className="read-more-link"
-                    onClick={() =>
+                    onClick={(e) => {
+                      e.stopPropagation();
                       navigate(`/news/${encodeURIComponent(article.url)}`, {
                         state: {
                           article,
                           allNews: accumulatedNews,
                         },
-                      })
-                    }
+                      });
+                    }}
                   >
                     Read Article <ArrowRight size={14} />
                   </button>

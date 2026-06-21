@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNews } from "../../../Context/NewsContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import VideoLoader from "../../Common/VideoLoader.jsx";
@@ -11,6 +11,7 @@ import {
   SlidersHorizontal,
   ChevronDown,
   Pencil,
+  Eye,
 } from "lucide-react";
 import "./Detail.css";
 import NewsComments from "../NewsComments/NewsComments.jsx";
@@ -20,12 +21,14 @@ export default function Detail() {
   const navigate = useNavigate();
   const newsDetails = location.state?.article || location.state;
   const allNews = location.state?.allNews || [];
-
+  const [views, setViews] = useState(0);
+  const [viewsUpdated, setViewsUpdated] = useState(false);
   const [showCopiedFeedback, setShowCopiedFeedback] = useState(false);
   const [writingComment, setWritingComment] = useState(false);
   const [sort, setSort] = useState("latest");
   const [filter, setFilter] = useState("all");
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const viewUpdateTimeoutRef = useRef(null);
 
   const relatedNews = allNews
     .filter(
@@ -35,7 +38,15 @@ export default function Detail() {
     )
     .slice(0, 5);
 
-  const { getNewsReactions, toggleReaction, isSaved, checkBookmark, toggleBookmark } = useNews();
+  const {
+    getNewsReactions,
+    toggleReaction,
+    isSaved,
+    checkBookmark,
+    toggleBookmark,
+    addView,
+    getViews,
+  } = useNews();
 
   const [reactionStats, setReactionStats] = useState({
     like: 0,
@@ -87,7 +98,12 @@ export default function Detail() {
   };
 
   const emojiMap = { like: "👍", hype: "🔥", shocked: "😲", sad: "😢" };
-  const reactionLabels = { like: "Like it", hype: "Hyped", shocked: "Shocked", sad: "Sad" };
+  const reactionLabels = {
+    like: "Like it",
+    hype: "Hyped",
+    shocked: "Shocked",
+    sad: "Sad",
+  };
 
   const getCategoryClass = (title = "", desc = "") => {
     const text = (title + " " + desc).toLowerCase();
@@ -112,23 +128,92 @@ export default function Detail() {
     });
   };
 
+  // Format views with K/M suffixes
+  const formatViews = useCallback((count) => {
+    if (!count && count !== 0) return "0";
+
+    if (count >= 1000000) {
+      return `${(count / 1000000).toFixed(1)}M`;
+    }
+    if (count >= 1000) {
+      return `${(count / 1000).toFixed(1)}K`;
+    }
+    return count.toString();
+  }, []);
+
+  // Get formatted exact count for tooltip
+  const getExactViews = useCallback((count) => {
+    if (!count && count !== 0) return "0 views";
+    return `${count.toLocaleString()} view${count !== 1 ? "s" : ""}`;
+  }, []);
+
   const handleShare = async () => {
+    const watchhubLink = `${window.location.origin}/news/${encodeURIComponent(newsDetails.url)}`;
+
     try {
       if (navigator.share) {
         await navigator.share({
           title: newsDetails.title,
           text: newsDetails.description,
-          url: newsDetails.url,
+          url: watchhubLink,
         });
       } else {
-        await navigator.clipboard.writeText(newsDetails.url);
+        await navigator.clipboard.writeText(watchhubLink);
         setShowCopiedFeedback(true);
         setTimeout(() => setShowCopiedFeedback(false), 2000);
       }
     } catch (error) {
-      if (error.name !== "AbortError") console.error("Error sharing:", error);
+      if (error.name !== "AbortError") {
+        console.error("Error sharing:", error);
+      }
     }
   };
+
+  useEffect(() => {
+    const updateViews = async () => {
+      if (!newsDetails?.url) return;
+
+      try {
+        // Get current views before adding
+        const currentViews = await getViews(newsDetails.url);
+
+        // Add new view
+        await addView(newsDetails.url);
+
+        // Get updated total
+        const totalViews = await getViews(newsDetails.url);
+
+        // Only trigger animation if views actually increased
+        if (totalViews > (currentViews || 0)) {
+          setViews(totalViews);
+          setViewsUpdated(true);
+
+          // Clear any existing timeout
+          if (viewUpdateTimeoutRef.current) {
+            clearTimeout(viewUpdateTimeoutRef.current);
+          }
+
+          // Reset animation class after animation completes
+          viewUpdateTimeoutRef.current = setTimeout(() => {
+            setViewsUpdated(false);
+          }, 1000);
+        } else {
+          setViews(totalViews || currentViews || 0);
+        }
+      } catch (error) {
+        console.error("Error updating views:", error);
+      }
+    };
+
+    updateViews();
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (viewUpdateTimeoutRef.current) {
+        clearTimeout(viewUpdateTimeoutRef.current);
+      }
+    };
+  }, [newsDetails?.url]);
 
   if (!newsDetails) {
     return (
@@ -160,8 +245,11 @@ export default function Detail() {
         {/* Badge row */}
         <div className="nd-badge-row">
           {newsDetails.category && (
-            <span className={`nd-badge badge-${getCategoryClass(newsDetails.title, newsDetails.description)}`}>
-              {getCategoryClass(newsDetails.title, newsDetails.description) === "show"
+            <span
+              className={`nd-badge badge-${getCategoryClass(newsDetails.title, newsDetails.description)}`}
+            >
+              {getCategoryClass(newsDetails.title, newsDetails.description) ===
+              "show"
                 ? "TV Show"
                 : getCategoryClass(newsDetails.title, newsDetails.description)}
             </span>
@@ -172,6 +260,24 @@ export default function Detail() {
           <div className={`impact-badge ${newsDetails.impact?.toLowerCase()}`}>
             {newsDetails.impact}
           </div>
+
+          {/* Enhanced Views Counter */}
+          <div
+            className={`views-counter ${viewsUpdated ? "updated" : ""}`}
+            data-tooltip={views > 999 ? getExactViews(views) : null}
+          >
+            <div className="views-icon-wrapper">
+              <Eye size={16} />
+              <span className="views-live-dot" />
+            </div>
+            <span
+              className={`views-number ${views >= 1000 ? "formatted" : ""}`}
+            >
+              {formatViews(views)}
+            </span>
+            {viewsUpdated && <span className="views-increment">+1</span>}
+          </div>
+
           <div className="share">
             <button
               className={`nd-share-btn ${showCopiedFeedback ? "copied" : ""}`}
@@ -191,12 +297,17 @@ export default function Detail() {
           </div>
         </div>
 
+        {/* Rest of your component remains the same */}
         <h1 className="nd-headline">{newsDetails.title}</h1>
 
         <div className="nd-meta-row">
           {newsDetails.author && <span>By {newsDetails.author}</span>}
-          {newsDetails.author && newsDetails.publishedAt && <span className="nd-dot" />}
-          {newsDetails.publishedAt && <span>{formatDate(newsDetails.publishedAt)}</span>}
+          {newsDetails.author && newsDetails.publishedAt && (
+            <span className="nd-dot" />
+          )}
+          {newsDetails.publishedAt && (
+            <span>{formatDate(newsDetails.publishedAt)}</span>
+          )}
         </div>
 
         <div className="nd-divider" />
@@ -235,17 +346,23 @@ export default function Detail() {
             {Object.entries(emojiMap).map(([key, emoji]) => {
               const count = reactionStats[key] || 0;
               const isActive = reactionStats.userReaction === key;
-              const pct = totalReactions > 0 ? Math.round((count / totalReactions) * 100) : 0;
+              const pct =
+                totalReactions > 0
+                  ? Math.round((count / totalReactions) * 100)
+                  : 0;
               return (
                 <button
                   key={key}
                   className={`reaction-pill ${isActive ? "active" : ""}`}
                   onClick={() => handleReactionClick(key)}
+                  data-type={key}
                 >
                   <span className="reaction-emoji">{emoji}</span>
                   <div className="reaction-info">
                     <div className="reaction-info-top">
-                      <span className="reaction-label">{reactionLabels[key]}</span>
+                      <span className="reaction-label">
+                        {reactionLabels[key]}
+                      </span>
                       <span className="reaction-pct">{pct}%</span>
                     </div>
                     <div className="reaction-bar-wrap">
@@ -274,7 +391,9 @@ export default function Detail() {
           </div>
           <div className="nd-info-cell">
             <p className="nd-info-label">Published</p>
-            <p className="nd-info-value">{formatDate(newsDetails.publishedAt) || "—"}</p>
+            <p className="nd-info-value">
+              {formatDate(newsDetails.publishedAt) || "—"}
+            </p>
           </div>
         </div>
 
@@ -308,13 +427,17 @@ export default function Detail() {
                         <div className="related-image-placeholder" />
                       )}
                       <span className={`related-badge badge-${catClass}`}>
-                        {catClass === "show" ? "TV SHOW" : catClass.toUpperCase()}
+                        {catClass === "show"
+                          ? "TV SHOW"
+                          : catClass.toUpperCase()}
                       </span>
                     </div>
                     <div className="related-content">
                       <div className="related-meta">
                         <span className="related-source">{item.source}</span>
-                        <span className="related-date">{formatDate(item.publishedAt)}</span>
+                        <span className="related-date">
+                          {formatDate(item.publishedAt)}
+                        </span>
                       </div>
                       <h3 className="related-title">{item.title}</h3>
                     </div>
@@ -341,7 +464,11 @@ export default function Detail() {
                 >
                   <SlidersHorizontal size={15} />
                   <span>
-                    {sort === "mostLiked" ? "Most Liked" : sort === "latest" ? "Latest" : "Oldest"}
+                    {sort === "mostLiked"
+                      ? "Most Liked"
+                      : sort === "latest"
+                        ? "Latest"
+                        : "Oldest"}
                   </span>
                   <ChevronDown size={13} />
                 </button>
@@ -355,7 +482,10 @@ export default function Detail() {
                       <button
                         key={s.key}
                         className={`nd-sort-item ${sort === s.key ? "active" : ""}`}
-                        onClick={() => { setSort(s.key); setShowSortMenu(false); }}
+                        onClick={() => {
+                          setSort(s.key);
+                          setShowSortMenu(false);
+                        }}
                       >
                         {s.label}
                       </button>

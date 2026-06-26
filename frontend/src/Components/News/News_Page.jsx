@@ -229,43 +229,33 @@ export default function News_Page({ category, searchQuery }) {
                       "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600&auto=format&fit=crop";
                   }}
                 />
-                <div className="detail">
-                  <span className={`news-card-badge badge-${catClass}`}>
-                    {catClass === "show" ? "TV SHOW" : catClass.toUpperCase()}
-                  </span>
-
-                  {/* Enhanced Views Counter - Only shows when views > 0 */}
-                  {hasViews ? (
-                    <div
-                      className="news-card-views"
-                      title={`${viewCount.toLocaleString()} views`}
-                    >
-                      <Eye size={13} className="views-icon" />
-                      <span className="views-count">
-                        {formatViews(viewCount)}
-                      </span>
-                      <span className="views-label">views</span>
-                    </div>
-                  ) : (
-                    <div className="news-card-views-empty">
-                      <EyeOff size={12} className="views-empty-icon" />
-                      <span>New</span>
-                    </div>
-                  )}
-                </div>
-                {article.mostReactedEmoji && (
-                  <span className="news-card-reaction-badge">
-                    {article.mostReactedEmoji}
-                  </span>
-                )}
+                <span className={`news-card-badge badge-${catClass}`}>
+                  {catClass === "show" ? "TV SHOW" : catClass.toUpperCase()}
+                </span>
               </div>
 
               <div className="news-content">
                 <div className="news-meta-top">
-                  <span className="news-source">{article.source}</span>
-                  <span className="news-date">
-                    {formatDate(article.publishedAt)}
-                  </span>
+                  <div className="news-meta-left">
+                    <span className="news-source">{article.source}</span>
+                    <span className="news-meta-dot" />
+                    <span className="news-date">{formatDate(article.publishedAt)}</span>
+                  </div>
+                  <div className="news-meta-right">
+                    {article.mostReactedEmoji && (
+                      <span className="news-card-reaction" title="Most Reacted Emoji">
+                        {article.mostReactedEmoji}
+                      </span>
+                    )}
+                    {hasViews ? (
+                      <span className="news-card-views-inline" title={`${viewCount.toLocaleString()} views`}>
+                        <Eye size={12} />
+                        <span className="views-inline-count">{formatViews(viewCount)}</span>
+                      </span>
+                    ) : (
+                      <span className="news-card-views-inline-new">New</span>
+                    )}
+                  </div>
                 </div>
 
                 <h3 className="news-title">{article.title}</h3>

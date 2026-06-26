@@ -12,6 +12,7 @@ import {
   ChevronDown,
   Pencil,
   Eye,
+  Smile,
 } from "lucide-react";
 import "./Detail.css";
 import NewsComments from "../NewsComments/NewsComments.jsx";
@@ -28,7 +29,9 @@ export default function Detail() {
   const [sort, setSort] = useState("latest");
   const [filter, setFilter] = useState("all");
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const [showReactionPicker, setShowReactionPicker] = useState(false);
   const viewUpdateTimeoutRef = useRef(null);
+  const reactionPickerRef = useRef(null);
 
   const relatedNews = allNews
     .filter(
@@ -69,6 +72,19 @@ export default function Detail() {
   useEffect(() => {
     if (newsDetails?.url) checkBookmark(newsDetails.url);
   }, [newsDetails]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        reactionPickerRef.current &&
+        !reactionPickerRef.current.contains(event.target)
+      ) {
+        setShowReactionPicker(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleReactionClick = async (type) => {
     if (!newsDetails?.url) return;
@@ -261,6 +277,53 @@ export default function Detail() {
             {newsDetails.impact}
           </div>
 
+          {/* Reactions trigger & Popover */}
+          <div className="reaction-trigger-container" ref={reactionPickerRef}>
+            <button
+              className={`reaction-trigger-btn ${
+                reactionStats.userReaction ? "has-reacted" : ""
+              }`}
+              onClick={() => setShowReactionPicker((prev) => !prev)}
+              aria-label="React to this news"
+            >
+              <span className="reaction-trigger-emoji">
+                {reactionStats.userReaction ? (
+                  emojiMap[reactionStats.userReaction]
+                ) : (
+                  <Smile size={14} className="smile-icon" />
+                )}
+              </span>
+              {totalReactions > 0 ? (
+                <span className="reaction-trigger-count">{totalReactions}</span>
+              ) : (
+                !reactionStats.userReaction && <span className="reaction-trigger-add">+</span>
+              )}
+            </button>
+
+            {showReactionPicker && (
+              <div className="reaction-popover">
+                {Object.entries(emojiMap).map(([key, emoji]) => {
+                  const count = reactionStats[key] || 0;
+                  const isActive = reactionStats.userReaction === key;
+                  return (
+                    <button
+                      key={key}
+                      className={`popover-reaction-option ${isActive ? "active" : ""}`}
+                      onClick={() => {
+                        handleReactionClick(key);
+                        setShowReactionPicker(false);
+                      }}
+                      title={`${reactionLabels[key]} (${count})`}
+                    >
+                      <span className="popover-emoji">{emoji}</span>
+                      <span className="popover-count">{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           {/* Enhanced Views Counter */}
           <div
             className={`views-counter ${viewsUpdated ? "updated" : ""}`}
@@ -324,60 +387,7 @@ export default function Detail() {
           <ArrowRight size={15} />
         </a>
 
-        {/* ── Reactions ── */}
-        <div className="news-reactions-container">
-          <div className="reactions-header-row">
-            <div className="reactions-title-group">
-              <h3 className="reactions-title">How do you feel about this?</h3>
-              <p className="reactions-subtitle">
-                {totalReactions > 0
-                  ? `${totalReactions} reaction${totalReactions !== 1 ? "s" : ""}`
-                  : "Be the first to react"}
-              </p>
-            </div>
-            {reactionStats.userReaction && (
-              <span className="reactions-your-pick">
-                You reacted {emojiMap[reactionStats.userReaction]}
-              </span>
-            )}
-          </div>
 
-          <div className="reactions-list">
-            {Object.entries(emojiMap).map(([key, emoji]) => {
-              const count = reactionStats[key] || 0;
-              const isActive = reactionStats.userReaction === key;
-              const pct =
-                totalReactions > 0
-                  ? Math.round((count / totalReactions) * 100)
-                  : 0;
-              return (
-                <button
-                  key={key}
-                  className={`reaction-pill ${isActive ? "active" : ""}`}
-                  onClick={() => handleReactionClick(key)}
-                  data-type={key}
-                >
-                  <span className="reaction-emoji">{emoji}</span>
-                  <div className="reaction-info">
-                    <div className="reaction-info-top">
-                      <span className="reaction-label">
-                        {reactionLabels[key]}
-                      </span>
-                      <span className="reaction-pct">{pct}%</span>
-                    </div>
-                    <div className="reaction-bar-wrap">
-                      <div
-                        className="reaction-bar-fill"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                  </div>
-                  <span className="reaction-count">{count}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
         {/* Info strip */}
         <div className="nd-info-strip">

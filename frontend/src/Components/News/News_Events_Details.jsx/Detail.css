@@ -534,313 +534,206 @@
 
 /* ── Paste this block into Detail.css ── */
 
-/* ── Reactions (editorial style, matches info-strip / badges) ── */
-.news-reactions-container {
-  margin: 36px 0 32px;
-  padding: 28px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 16px;
+/* ── Reactions Inline Trigger & Popover Styles ── */
+.reaction-trigger-container {
   position: relative;
-  overflow: hidden;
+  display: inline-flex;
 }
 
-.news-reactions-container::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 56px;
-  height: 2px;
-  background: var(--color-primary);
-  border-radius: 2px;
-}
-
-.reactions-header-row {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 22px;
-  flex-wrap: wrap;
-}
-
-.reactions-title-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.reactions-title {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: white;
-  font-family: var(--font-heading);
-  letter-spacing: -0.2px;
-}
-
-.reactions-subtitle {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.35);
-}
-
-.reactions-your-pick {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-primary);
-  background: rgba(229, 9, 20, 0.1);
-  border: 1px solid rgba(229, 9, 20, 0.25);
-  padding: 6px 14px;
-  border-radius: 30px;
-  white-space: nowrap;
-}
-
-/* Reaction pills row */
-.reactions-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.reaction-pill {
-  display: flex;
+.reaction-trigger-btn {
+  display: inline-flex;
   align-items: center;
-  gap: 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 12px 18px;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  padding: 5px 14px;
   cursor: pointer;
-  flex: 1 1 200px;
-  min-width: 0;
-  max-width: 280px;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.15s ease,
-    flex-basis 0.3s ease,
-    max-width 0.3s ease;
-  user-select: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(4px);
+  color: rgba(255, 255, 255, 0.7);
+  height: 30px;
   font-family: inherit;
+  user-select: none;
 }
 
-.reaction-pill:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.16);
-  transform: translateY(-2px);
+.reaction-trigger-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
 }
 
-.reaction-pill:active {
+.reaction-trigger-btn:active {
   transform: scale(0.97);
 }
 
-/* Collapse non-selected pills once one is active */
-.reactions-list:has(.reaction-pill.active) .reaction-pill:not(.active) {
-  flex: 0 1 130px;
-  max-width: 130px;
-  opacity: 0.55;
-}
-
-.reactions-list:has(.reaction-pill.active) .reaction-pill.active {
-  flex: 1 1 260px;
-  max-width: 100%;
-}
-
-/* Active / selected state */
-.reaction-pill.active {
+.reaction-trigger-btn.has-reacted {
   background: rgba(229, 9, 20, 0.08);
   border-color: rgba(229, 9, 20, 0.35);
+  color: #ff4d5a;
 }
 
-.reaction-pill.active.just-activated {
-  animation: reaction-pop 0.25s ease;
-}
-
-.reaction-pill.active .reaction-label {
-  color: white;
-}
-
-.reaction-pill.active .reaction-count {
-  background: var(--color-primary);
-  color: white;
-}
-
-.reaction-pill.active .reaction-bar-fill {
-  background: var(--color-primary);
-}
-
-.reaction-pill.active .reaction-pct {
-  color: var(--color-primary);
-}
-
-/* Emoji */
-.reaction-emoji {
-  font-size: 24px;
+.reaction-trigger-emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
   line-height: 1;
-  display: block;
-  flex-shrink: 0;
   transition: transform 0.2s ease;
 }
 
-.reaction-pill[data-type="sad"].active .reaction-emoji {
-  animation: emoji-sad-bob 1.4s ease-in-out infinite;
-}
-.reaction-pill[data-type="hype"].active .reaction-emoji {
-  animation: emoji-fire-flicker 0.9s ease-in-out infinite;
-}
-.reaction-pill[data-type="shocked"].active .reaction-emoji {
-  animation: emoji-shock-shake 0.5s ease-in-out infinite;
-}
-.reaction-pill[data-type="like"].active .reaction-emoji {
-  animation: emoji-thumb-bounce 0.8s ease-in-out infinite;
+.reaction-trigger-btn.has-reacted .reaction-trigger-emoji {
+  animation: reaction-pop-in 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.35);
 }
 
-/* Info column: label/pct row + bar */
-.reaction-info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.reaction-info-top {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.reaction-label {
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
+.reaction-trigger-btn .smile-icon {
   color: rgba(255, 255, 255, 0.55);
   transition: color 0.2s ease;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.reaction-pct {
+.reaction-trigger-btn:hover .smile-icon {
+  color: #ff4d5a;
+}
+
+.reaction-trigger-count {
   font-size: 0.72rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.35);
-  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-variant-numeric: tabular-nums;
+}
+
+.reaction-trigger-btn.has-reacted .reaction-trigger-count {
+  color: #ff4d5a;
+}
+
+.reaction-trigger-add {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
   transition: color 0.2s ease;
 }
 
-.reaction-bar-wrap {
-  width: 100%;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.07);
-  border-radius: 4px;
-  overflow: hidden;
+.reaction-trigger-btn:hover .reaction-trigger-add {
+  color: white;
 }
 
-.reaction-bar-fill {
-  height: 100%;
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: 4px;
-  transition:
-    width 0.4s ease,
-    background 0.2s ease;
-}
-
-.reaction-count {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.85);
-  min-width: 26px;
-  height: 26px;
+/* Floating popover */
+.reaction-popover {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 0;
   display: flex;
+  gap: 6px;
+  background: rgba(15, 15, 20, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  padding: 6px 10px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 
+    0 12px 30px rgba(0, 0, 0, 0.6), 
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  z-index: 110;
+  transform-origin: bottom left;
+  animation: popover-scale-up 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Individual options */
+.popover-reaction-option {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  position: relative;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 50%;
-  flex-shrink: 0;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s;
+  width: 36px;
+  height: 36px;
 }
 
-/* Pulse on toggle */
-@keyframes reaction-pop {
+.popover-reaction-option:hover {
+  transform: translateY(-6px) scale(1.25);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.popover-reaction-option.active {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.popover-emoji {
+  font-size: 1.35rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+}
+
+/* Custom Count Tooltip above emoji */
+.popover-count {
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.8);
+  background: rgba(15, 15, 20, 0.95);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+}
+
+.popover-reaction-option:hover .popover-count {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px) scale(1);
+}
+
+.popover-reaction-option.active .popover-count {
+  color: #ff4d5a;
+  background: rgba(229, 9, 20, 0.12);
+  border-color: rgba(229, 9, 20, 0.25);
+}
+
+/* Animations */
+@keyframes popover-scale-up {
   0% {
-    transform: scale(1);
-  }
-  40% {
-    transform: scale(1.04);
+    opacity: 0;
+    transform: scale(0.85) translateY(8px);
   }
   100% {
-    transform: scale(1);
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 
-@keyframes emoji-sad-bob {
-  0%,
-  100% {
-    transform: translateY(0);
+@keyframes reaction-pop-in {
+  0% {
+    transform: scale(0.5) rotate(-15deg);
   }
   50% {
-    transform: translateY(3px);
+    transform: scale(1.35) rotate(10deg);
   }
-}
-
-@keyframes emoji-fire-flicker {
-  0%,
   100% {
     transform: scale(1) rotate(0deg);
   }
-  25% {
-    transform: scale(1.08) rotate(-3deg);
-  }
-  75% {
-    transform: scale(1.05) rotate(3deg);
-  }
 }
 
-@keyframes emoji-shock-shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-2px);
-  }
-  75% {
-    transform: translateX(2px);
-  }
+.reaction-trigger-btn.has-reacted:hover .reaction-trigger-emoji {
+  animation: bounce-active 1.5s ease-in-out infinite;
 }
 
-@keyframes emoji-thumb-bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-3px);
-  }
-}
-
-@media (max-width: 640px) {
-  .news-reactions-container {
-    padding: 20px;
-  }
-  .reaction-pill {
-    flex-basis: 100%;
-    max-width: 100%;
-  }
-  .reactions-list:has(.reaction-pill.active) .reaction-pill:not(.active) {
-    flex-basis: 100%;
-    max-width: 100%;
-    opacity: 0.5;
-  }
+@keyframes bounce-active {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
 }
 
 /* ── Share Button (Fixed UI with Green Feedback) ── */
@@ -981,28 +874,7 @@
   }
 }
 
-/* Mobile */
-@media (max-width: 480px) {
-  .reactions-list {
-    gap: 8px;
-  }
 
-  .reaction-pill {
-    padding: 8px 14px;
-  }
-
-  .reaction-emoji {
-    font-size: 18px;
-  }
-
-  .reaction-label {
-    font-size: 12px;
-  }
-
-  .reaction-count {
-    font-size: 12px;
-  }
-}
 
 /* ── Responsive ── */
 @media (max-width: 768px) {

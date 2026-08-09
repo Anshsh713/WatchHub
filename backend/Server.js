@@ -7,6 +7,7 @@ const MediaRoutes = require("./routes/MediaRoutes");
 const ReviewsRoutes = require("./routes/ReviewsRoutes");
 const NewsRoutes = require("./routes/NewsRoutes");
 const CommentsRoutes = require("./routes/CommentsRoutes");
+const Franchiseroutes = require("./routes/Franchiseroutes");
 const WatchHub = express();
 
 // ==========================
@@ -31,6 +32,7 @@ WatchHub.use("/api", MediaRoutes);
 WatchHub.use("/api/reviews", ReviewsRoutes);
 WatchHub.use("/api/news", NewsRoutes);
 WatchHub.use("/api/comments", CommentsRoutes);
+WatchHub.use("/api/franchises", Franchiseroutes);
 
 WatchHub.get("/", (req, res) => {
   res.status(200).json({

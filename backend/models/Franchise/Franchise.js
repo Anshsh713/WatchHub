@@ -5,30 +5,53 @@ const FranchiseSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
+      trim: true,
     },
 
     slug: {
       type: String,
       unique: true,
       required: true,
+      trim: true,
     },
 
-    description: String,
+    description: {
+      type: String,
+      default: "",
+    },
 
-    logo: String,
-    banner: String,
+    logo: {
+      type: String,
+      default: "",
+    },
 
+    banner: {
+      type: String,
+      default: "",
+    },
+
+    // Primary source shown in the UI
     sourceType: {
       type: String,
       enum: ["collection", "company", "keyword"],
       required: true,
     },
 
-    tmdbCollectionId: Number,
+    // Existing fields
+    tmdbCollectionId: {
+      type: Number,
+      default: null,
+    },
 
-    tmdbCompanyId: Number,
+    tmdbCompanyId: {
+      type: Number,
+      default: null,
+    },
 
-    keywords: [String],
+    keywords: {
+      type: [String],
+      default: [],
+    },
 
     followers: {
       type: Number,
@@ -37,6 +60,7 @@ const FranchiseSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    versionKey: false,
   },
 );
 

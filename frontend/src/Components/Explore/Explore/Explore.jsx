@@ -5,6 +5,7 @@ import { ChevronLeft } from "lucide-react";
 import VideoLoader from "../../Common/VideoLoader";
 import { AnimatePresence, motion } from "framer-motion";
 import Search from "../../Common/Search";
+import FranchiseList from "../Franchise/FranchiseList";
 import "./Explore.css";
 import "../../Home/Home.css";
 
@@ -15,6 +16,10 @@ export default function Explore() {
   const category =
     params.category || (mediaType === "explore" ? mediaId : undefined);
   const navigate = useNavigate();
+
+  if (category === "franchise") {
+    return <FranchiseList />;
+  }
   const [hasFetched, setHasFetched] = useState(false);
 
   useEffect(() => {

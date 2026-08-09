@@ -1,4 +1,5 @@
 const express = require("express");
+const { protect: authMiddleware } = require("../middleware/Protect");
 const adminMiddleware = require("../middleware/AdminProtect");
 const router = express.Router();
 
@@ -12,9 +13,11 @@ const {
   followFranchise,
   unfollowFranchise,
   myFranchises,
+  seedFranchises,
 } = require("../controllers/FranchiseControllers");
 
 router.get("/", getFranchises);
+router.post("/seed", seedFranchises);
 
 router.get("/my/following", authMiddleware, myFranchises);
 
@@ -31,3 +34,5 @@ router.delete("/:id", authMiddleware, adminMiddleware, deleteFranchise);
 router.get("/:slug/content", getFranchiseContent);
 
 router.get("/:slug", getFranchiseDetails);
+
+module.exports = router;

@@ -38,6 +38,7 @@ export default function FranchiseDetails() {
   const [filterType, setFilterType] = useState("all"); // 'all', 'movie', 'tv'
   const [sortBy, setSortBy] = useState("release"); // 'release', 'title', 'rating'
   const [imageErrors, setImageErrors] = useState({});
+  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     if (slug) {
@@ -145,20 +146,18 @@ export default function FranchiseDetails() {
 
         <div className="detail-hero-content flex flex-col md:flex-row items-start justify-between gap-lg">
           <div className="info-main">
-            {currentFranchise.logo && (
-              <img src={currentFranchise.logo} alt={currentFranchise.name} className="detail-logo" />
+            {currentFranchise.logo && !logoError && (
+              <img
+                src={currentFranchise.logo}
+                alt=""
+                className="detail-logo"
+                onError={() => setLogoError(true)}
+              />
             )}
             <h1 className="detail-title">{currentFranchise.name}</h1>
             <p className="detail-description">{currentFranchise.description}</p>
 
             <div className="detail-meta flex items-center gap-md">
-              <span className="meta-badge flex items-center gap-xs">
-                {currentFranchise.sourceType === "collection" && <Layers size={14} />}
-                {currentFranchise.sourceType === "company" && <Building size={14} />}
-                {currentFranchise.sourceType === "keyword" && <Key size={14} />}
-                {currentFranchise.sourceType ? currentFranchise.sourceType.toUpperCase() : "FRANCHISE"}
-              </span>
-
               <span className="followers-badge flex items-center gap-xs">
                 <Flame size={14} fill="#e50914" color="#e50914" />
                 {currentFranchise.followers || 0} Followers

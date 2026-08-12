@@ -28,8 +28,9 @@ const DEFAULT_PRESET_FRANCHISES = [
     slug: "marvel-cinematic-universe",
     description: "The epic superhero franchise encompassing Earth's mightiest heroes, cosmic defenders, and the multiverse.",
     banner: "https://image.tmdb.org/t/p/original/muth4OYamXf41G2evdrLEg8d3om.jpg",
-    sourceType: "collection",
-    tmdbCollectionId: 86311,
+    sourceType: "company",
+    tmdbCompanyId: 420,
+    keywords: ["Avengers", "Iron Man", "Spider-Man", "Captain America", "Thor", "Guardians of the Galaxy"],
     followers: 1250,
   },
   {
@@ -39,6 +40,7 @@ const DEFAULT_PRESET_FRANCHISES = [
     banner: "https://image.tmdb.org/t/p/original/5iwx1ScqU220uHw7tB62qmoqL4r.jpg",
     sourceType: "collection",
     tmdbCollectionId: 10,
+    keywords: ["Star Wars", "Mandalorian", "Ahsoka", "Andor"],
     followers: 980,
   },
   {
@@ -48,6 +50,7 @@ const DEFAULT_PRESET_FRANCHISES = [
     banner: "https://image.tmdb.org/t/p/original/5NYvVP2YexOQ8UKwFzToL4z8IGa.jpg",
     sourceType: "collection",
     tmdbCollectionId: 1241,
+    keywords: ["Harry Potter", "Fantastic Beasts"],
     followers: 1120,
   },
   {
@@ -57,6 +60,7 @@ const DEFAULT_PRESET_FRANCHISES = [
     banner: "https://image.tmdb.org/t/p/original/706awcxVJ6V4txw3Z9W6d328H8L.jpg",
     sourceType: "company",
     tmdbCompanyId: 10342,
+    keywords: ["Studio Ghibli", "Hayao Miyazaki"],
     followers: 850,
   },
   {
@@ -66,6 +70,7 @@ const DEFAULT_PRESET_FRANCHISES = [
     banner: "https://image.tmdb.org/t/p/original/vL5LR6WvyjPZ1JvYi2zLSpMEvjM.jpg",
     sourceType: "collection",
     tmdbCollectionId: 119,
+    keywords: ["Lord of the Rings", "The Hobbit", "Rings of Power"],
     followers: 1430,
   },
   {
@@ -74,8 +79,26 @@ const DEFAULT_PRESET_FRANCHISES = [
     description: "Gotham City's Dark Knight fighting crime, villains, and corruption across films and series.",
     banner: "https://image.tmdb.org/t/p/original/b0PlSFdDwbyK0cf5RxwDpaOJm2n.jpg",
     sourceType: "keyword",
-    keywords: ["Batman", "Dark Knight"],
+    keywords: ["Batman", "Dark Knight", "The Batman", "Penguin"],
     followers: 910,
+  },
+  {
+    name: "DC Extended Universe",
+    slug: "dc-multiverse",
+    description: "Earth's greatest heroes: Superman, Batman, Wonder Woman, Aquaman, and the Justice League.",
+    banner: "https://image.tmdb.org/t/p/original/t9XkeE7vFJm12TknT1g6pPh36mE.jpg",
+    sourceType: "keyword",
+    keywords: ["Justice League", "Superman", "Wonder Woman", "Aquaman"],
+    followers: 870,
+  },
+  {
+    name: "Spider-Man Universe",
+    slug: "spiderman-universe",
+    description: "Your friendly neighborhood Spider-Man across live-action sagas, Spider-Verse, and Venom.",
+    banner: "https://image.tmdb.org/t/p/original/8Y43POKjjKDGI9z89v0efz1uWz8.jpg",
+    sourceType: "keyword",
+    keywords: ["Spider-Man", "Spider-Verse", "Venom"],
+    followers: 1350,
   },
 ];
 
@@ -100,6 +123,8 @@ export default function FranchiseList() {
   const [sortBy, setSortBy] = useState("followers"); // 'followers', 'new', 'old'
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [seeding, setSeeding] = useState(false);
+  const [bannerErrors, setBannerErrors] = useState({});
+  const [logoErrors, setLogoErrors] = useState({});
 
   useEffect(() => {
     fetchFranchises(sortBy);
@@ -261,31 +286,13 @@ export default function FranchiseList() {
             className={`tab-btn ${activeTab === "all" ? "active" : ""}`}
             onClick={() => setActiveTab("all")}
           >
-            All ({franchises.length})
+            All Franchises ({franchises.length})
           </button>
           <button
             className={`tab-btn ${activeTab === "following" ? "active" : ""}`}
             onClick={() => setActiveTab("following")}
           >
             Following ({myFollowing.length})
-          </button>
-          <button
-            className={`tab-btn ${activeTab === "collection" ? "active" : ""}`}
-            onClick={() => setActiveTab("collection")}
-          >
-            Collections
-          </button>
-          <button
-            className={`tab-btn ${activeTab === "company" ? "active" : ""}`}
-            onClick={() => setActiveTab("company")}
-          >
-            Studios
-          </button>
-          <button
-            className={`tab-btn ${activeTab === "keyword" ? "active" : ""}`}
-            onClick={() => setActiveTab("keyword")}
-          >
-            Keywords
           </button>
         </div>
 
@@ -307,7 +314,7 @@ export default function FranchiseList() {
           <p>
             {activeTab === "following"
               ? "You haven't followed any franchises yet. Explore the catalog and hit Follow!"
-              : "No franchises match your search query or filter."}
+              : "No franchises match your search query."}
           </p>
           {franchises.length === 0 && (
             <button className="btn-primary mt-md" onClick={handleSeedDefaults} disabled={seeding}>
@@ -329,15 +336,25 @@ export default function FranchiseList() {
                 <Link to={`/explore/franchise/${item.slug}`} className="franchise-card glass-panel">
                   {/* Banner Image Container */}
                   <div className="card-banner-wrapper">
-                    {item.banner ? (
-                      <img src={item.banner} alt={item.name} className="card-banner" loading="lazy" />
+                    {item.banner && !bannerErrors[item.slug || item._id] ? (
+                      <img
+                        src={item.banner}
+                        alt=""
+                        className="card-banner"
+                        loading="lazy"
+                        onError={() =>
+                          setBannerErrors((prev) => ({
+                            ...prev,
+                            [item.slug || item._id]: true,
+                          }))
+                        }
+                      />
                     ) : (
-                      <div className="card-banner-placeholder flex items-center justify-center">
-                        <Flame size={40} />
+                      <div className="card-banner-placeholder flex flex-col items-center justify-center gap-xs">
+                        <Film size={36} />
+                        <span className="placeholder-name">{item.name}</span>
                       </div>
                     )}
-                    <div className="banner-overlay" />
-                    {getSourceBadge(item.sourceType)}
                     <button
                       className={`follow-toggle-btn ${isFollowing ? "following" : ""}`}
                       onClick={(e) => handleToggleFollow(e, item._id || item.id)}
@@ -346,14 +363,26 @@ export default function FranchiseList() {
                       <Heart size={16} fill={isFollowing ? "#e50914" : "none"} color={isFollowing ? "#e50914" : "#fff"} />
                       <span>{isFollowing ? "Following" : "Follow"}</span>
                     </button>
-                  </div>
+                  {/* Banner gradient overlay */}
+                  <div className="card-banner-gradient" />
+                </div>
 
                   {/* Content Info */}
                   <div className="card-body">
                     <div className="card-header flex items-center justify-between">
                       <h3 className="franchise-name">{item.name}</h3>
-                      {item.logo && (
-                        <img src={item.logo} alt="" className="franchise-logo-thumb" />
+                      {item.logo && !logoErrors[item.slug || item._id] && (
+                        <img
+                          src={item.logo}
+                          alt=""
+                          className="franchise-logo-thumb"
+                          onError={() =>
+                            setLogoErrors((prev) => ({
+                              ...prev,
+                              [item.slug || item._id]: true,
+                            }))
+                          }
+                        />
                       )}
                     </div>
                     <p className="franchise-desc">
@@ -365,12 +394,15 @@ export default function FranchiseList() {
                     </p>
 
                     <div className="card-footer flex items-center justify-between">
-                      <span className="followers-count flex items-center gap-xs">
-                        <Flame size={14} className="flame-icon" />
-                        {item.followers || 0} Followers
-                      </span>
+                      <div className="followers-count flex items-center gap-xs">
+                        <Flame size={15} className="flame-icon" />
+                        <div className="followers-stat">
+                          <span className="followers-num">{(item.followers || 0).toLocaleString()}</span>
+                          <span className="followers-label">Followers</span>
+                        </div>
+                      </div>
                       <span className="explore-link flex items-center gap-xs">
-                        Explore Universe &rarr;
+                        Explore Universe →
                       </span>
                     </div>
                   </div>

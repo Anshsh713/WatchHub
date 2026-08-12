@@ -19,21 +19,19 @@
   --fx-radius-lg: 20px;
   --fx-radius-md: 14px;
   --fx-radius-sm: 10px;
-  /* Height of the site's fixed/sticky top navbar. Adjust this one value
-     if your navbar is taller or shorter than 84px — everything below
-     reads off it, so you only need to change it in one place. */
-  --fx-navbar-offset: 84px;
+  /* Top clearance so hero never overlaps with fixed site header navbar */
+  --fx-navbar-offset: 130px;
 
   min-height: 100vh;
   background:
     radial-gradient(
       ellipse 900px 500px at 15% -10%,
-      rgba(229, 9, 20, 0.1),
+      rgba(229, 9, 20, 0.12),
       transparent 60%
     ),
     radial-gradient(
       ellipse 700px 500px at 100% 0%,
-      rgba(139, 92, 246, 0.06),
+      rgba(139, 92, 246, 0.08),
       transparent 55%
     ),
     var(--fx-bg);
@@ -189,7 +187,7 @@
    ========================================================================== */
 
 .franchise-hero {
-  padding: 40px 64px 28px;
+  padding: 16px 64px 24px;
   position: relative;
 }
 
@@ -355,61 +353,74 @@
   text-decoration: none;
   color: inherit;
   cursor: pointer;
+  border-radius: var(--fx-radius-lg);
+  border: 1px solid var(--fx-border);
+  background: var(--fx-bg-elevated);
   transition:
-    transform 0.35s ease,
-    box-shadow 0.35s ease,
-    border-color 0.35s ease;
-}
-.franchise-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  z-index: 3;
-  background: linear-gradient(90deg, var(--fx-accent), var(--fx-accent-bright));
-  opacity: 0.9;
-}
-.franchise-card[data-type="collection"]::before {
-  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
-}
-.franchise-card[data-type="company"]::before {
-  background: linear-gradient(90deg, #10b981, #34d399);
-}
-.franchise-card[data-type="keyword"]::before {
-  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 }
 .franchise-card:hover {
-  transform: translateY(-8px);
-  border-color: var(--fx-border-strong);
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+  transform: translateY(-6px);
+  border-color: rgba(229, 9, 20, 0.3);
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(229, 9, 20, 0.12);
 }
 
 .card-banner-wrapper {
   position: relative;
   height: 190px;
   overflow: hidden;
+  background: #18181c;
 }
 .card-banner {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.6s ease;
+  transition: transform 0.5s ease;
   display: block;
 }
 .franchise-card:hover .card-banner {
-  transform: scale(1.09);
+  transform: scale(1.06);
+}
+
+/* Cinematic gradient overlay on banner */
+.card-banner-gradient {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to top,
+      rgba(10, 10, 11, 0.92) 0%,
+      rgba(10, 10, 11, 0.4) 40%,
+      rgba(10, 10, 11, 0.05) 100%
+    ),
+    linear-gradient(
+      to right,
+      rgba(10, 10, 11, 0.3) 0%,
+      transparent 60%
+    );
+  pointer-events: none;
+  z-index: 1;
 }
 .card-banner-placeholder {
   width: 100%;
   height: 100%;
   background: linear-gradient(
     135deg,
-    rgba(229, 9, 20, 0.25),
-    rgba(20, 20, 22, 0.9)
+    rgba(229, 9, 20, 0.15),
+    rgba(20, 20, 25, 0.95)
   );
-  color: rgba(255, 255, 255, 0.28);
+  color: var(--fx-text-secondary);
+  padding: 16px;
+  text-align: center;
+}
+.placeholder-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fx-text);
 }
 .banner-overlay {
   position: absolute;
@@ -533,6 +544,24 @@
   font-size: 13px;
   color: var(--fx-text-secondary);
   font-weight: 500;
+  align-items: center;
+}
+.followers-stat {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.followers-num {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fx-text);
+}
+.followers-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--fx-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 .flame-icon {
   color: var(--fx-accent);

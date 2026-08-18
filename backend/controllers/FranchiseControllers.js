@@ -162,7 +162,7 @@ const DEFAULT_FRANCHISES = [
     banner:
       "https://image.tmdb.org/t/p/original/yF1FAMmL2DB9DEyStfVJzotTYEO.jpg",
     sourceType: "collection",
-    tmdbCollectionId: 2570,
+    tmdbCollectionId: 9485,
     keywords: ["Fast & Furious", "Fast and Furious", "Hobbs & Shaw"],
     followers: 790,
   },
@@ -289,61 +289,133 @@ already had, so seeding never hard-fails because of one bad entry.
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/original";
 
+/*
+Gathers every movie TMDB associates with this franchise, using the
+exact same source-specific calls getFranchiseContent already relies
+on. This gives a real pool of actual movies to choose a banner from,
+instead of trusting a single collection/company-level image field
+(which is often missing or empty on TMDB even when the collection
+or company itself is valid).
+*/
+const gatherCandidateMovies = async (data) => {
+  if (data.sourceType === "collection" && data.tmdbCollectionId) {
+    const collection = await fetchFromTMDB(
+      `/collection/${data.tmdbCollectionId}`,
+    );
+    return collection?.parts || [];
+  }
+
+  if (data.sourceType === "company" && data.tmdbCompanyId) {
+    const discover = await fetchFromTMDB("/discover/movie", {
+      with_companies: data.tmdbCompanyId,
+      sort_by: "popularity.desc",
+      include_adult: false,
+    });
+    return discover?.results || [];
+  }
+
+  if (
+    data.sourceType === "keyword" &&
+    Array.isArray(data.keywords) &&
+    data.keywords.length > 0
+  ) {
+    // Search across every keyword (not just the first) so there's a
+    // real pool of movies to pick the "best" one from.
+    const searches = await Promise.all(
+      data.keywords.map((kw) =>
+        fetchFromTMDB("/search/movie", {
+          query: kw,
+          include_adult: false,
+        }).catch(() => ({ results: [] })),
+      ),
+    );
+    return searches.flatMap((s) => s?.results || []);
+  }
+
+  return [];
+};
+
+/*
+"Best" = most popular movie in the franchise that actually has a
+backdrop image. Popularity is TMDB's own ranking signal, so this
+naturally lands on the most iconic/well-known entry (e.g. Endgame
+for MCU) rather than an obscure title with a missing image.
+*/
+const pickBestMovie = (movies) => {
+  const withBackdrop = movies.filter((m) => m && m.backdrop_path);
+  if (withBackdrop.length === 0) return null;
+  return withBackdrop.sort(
+    (a, b) => (b.popularity || 0) - (a.popularity || 0),
+  )[0];
+};
+
 const resolveBannerAndLogo = async (data) => {
   const fallback = { banner: data.banner || "", logo: data.logo || "" };
+  const tag = `[banner:${data.slug}]`;
 
   try {
-    if (data.sourceType === "collection" && data.tmdbCollectionId) {
-      const collection = await fetchFromTMDB(
-        `/collection/${data.tmdbCollectionId}`,
+    const candidates = await gatherCandidateMovies(data);
+    const best = pickBestMovie(candidates);
+
+    if (!best) {
+      console.log(
+        `${tag} checked ${candidates.length} candidate movie(s), none had a backdrop_path -> keeping fallback banner`,
       );
-      return {
-        banner: collection?.backdrop_path
-          ? `${TMDB_IMAGE_BASE}${collection.backdrop_path}`
-          : fallback.banner,
-        logo: fallback.logo,
-      };
+      return fallback;
     }
 
-    if (data.sourceType === "company" && data.tmdbCompanyId) {
-      const discover = await fetchFromTMDB("/discover/movie", {
-        with_companies: data.tmdbCompanyId,
-        sort_by: "popularity.desc",
-        include_adult: false,
-      });
-      const withBackdrop = (discover?.results || []).find(
-        (m) => m.backdrop_path,
-      );
-      return {
-        banner: withBackdrop
-          ? `${TMDB_IMAGE_BASE}${withBackdrop.backdrop_path}`
-          : fallback.banner,
-        logo: fallback.logo,
-      };
-    }
-
-    if (
-      data.sourceType === "keyword" &&
-      Array.isArray(data.keywords) &&
-      data.keywords.length > 0
-    ) {
-      const search = await fetchFromTMDB("/search/movie", {
-        query: data.keywords[0],
-        include_adult: false,
-      });
-      const withBackdrop = (search?.results || []).find((m) => m.backdrop_path);
-      return {
-        banner: withBackdrop
-          ? `${TMDB_IMAGE_BASE}${withBackdrop.backdrop_path}`
-          : fallback.banner,
-        logo: fallback.logo,
-      };
-    }
+    const banner = `${TMDB_IMAGE_BASE}${best.backdrop_path}`;
+    console.log(
+      `${tag} picked best movie "${best.title}" (popularity ${best.popularity}) out of ${candidates.length} candidates -> ${banner}`,
+    );
+    return { banner, logo: fallback.logo };
   } catch (err) {
-    console.error(`Banner resolve failed for "${data.slug}":`, err.message);
+    console.error(`${tag} TMDB call threw an error:`, err.message);
   }
 
   return fallback;
+};
+
+/*
+============================================================
+DEBUG: CHECK TMDB BANNER RESOLUTION
+============================================================
+
+GET /api/franchises/debug/banners
+
+Temporary diagnostic route — walks every default franchise and
+reports exactly why each one's TMDB banner lookup succeeds or
+fails (bad API key, wrong collection/company id, no backdrop
+available, etc). Hit this in your browser or Postman, read the
+JSON, then delete this route + the matching one in your routes
+file once you're done debugging.
+============================================================
+*/
+
+exports.debugBanners = async (req, res) => {
+  const report = [];
+
+  for (const f of DEFAULT_FRANCHISES) {
+    let status = "";
+    try {
+      const candidates = await gatherCandidateMovies(f);
+      const best = pickBestMovie(candidates);
+
+      status = best
+        ? `OK -> picked "${best.title}" (popularity ${best.popularity}) out of ${candidates.length} candidate(s), backdrop: ${best.backdrop_path}`
+        : `NO USABLE BACKDROP -> got ${candidates.length} candidate(s) but none had a backdrop_path${
+            candidates.length === 0
+              ? " (zero candidates usually means a wrong tmdbCollectionId/tmdbCompanyId, or a keyword search that matched nothing)"
+              : ""
+          }`;
+    } catch (err) {
+      status = `THREW: ${err.message}`;
+    }
+
+    report.push({ slug: f.slug, sourceType: f.sourceType, status });
+  }
+
+  res.status(200).json({ report });
 };
 
 /*
@@ -416,6 +488,43 @@ exports.getFranchises = async (req, res) => {
     */
 
     let franchises = await Franchise.find(query).sort(sortOption);
+
+    /*
+    ----------------------------------------------------------
+    AUTO-HEAL BANNERS ON EVERY FETCH  (TEMPORARY)
+    ----------------------------------------------------------
+
+    Re-resolves every franchise's banner from TMDB on each
+    request and persists it if it changed. This exists purely
+    so that reloading the franchise list page is enough to fix
+    stale/broken banners — no separate POST /seed call needed.
+
+    This does add one round of TMDB calls per franchise per
+    request, which is fine for dev/small traffic but wasteful
+    long-term. Once you've confirmed images are correct, either
+    delete this block (and rely on /seed for future refreshes)
+    or gate it behind a `?refreshBanners=true` query param.
+    ----------------------------------------------------------
+    */
+
+    franchises = await Promise.all(
+      franchises.map(async (franchise) => {
+        try {
+          const { banner, logo } = await resolveBannerAndLogo(franchise);
+          if (banner && banner !== franchise.banner) {
+            franchise.banner = banner;
+            if (logo) franchise.logo = logo;
+            await franchise.save();
+          }
+        } catch (err) {
+          console.error(
+            `Auto-heal banner failed for "${franchise.slug}":`,
+            err.message,
+          );
+        }
+        return franchise;
+      }),
+    );
 
     /*
     ----------------------------------------------------------

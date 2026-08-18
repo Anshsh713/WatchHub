@@ -161,14 +161,14 @@
   transform: translateY(-2px);
 }
 
-.back-btn {
+.back-icon {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   background: transparent;
   border: none;
   color: var(--fx-text-secondary);
-  font-size: 14px;
+  font-size: 25px;
   font-weight: 600;
   cursor: pointer;
   padding: 8px 4px;
@@ -177,7 +177,7 @@
     color 0.2s ease,
     transform 0.2s ease;
 }
-.back-btn:hover {
+.back-icon:hover {
   color: var(--fx-text);
   transform: translateX(-3px);
 }
@@ -187,7 +187,7 @@
    ========================================================================== */
 
 .franchise-hero {
-  padding: 16px 64px 24px;
+  padding: 24px 24px 4px;
   position: relative;
 }
 
@@ -241,31 +241,31 @@
   flex-wrap: wrap;
   gap: 18px;
   margin: 0 64px 32px;
+  background: transparent;
   padding: 14px 20px;
 }
 
 .search-box {
+  background: rgba(255, 255, 255, 0.04);
   flex: 1 1 240px;
   min-width: 220px;
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid var(--fx-border);
   border-radius: 14px;
-  padding: 11px 16px;
+  margin-left: -1%;
+  border: 1px solid var(--fx-border);
+  padding: 11px 14px;
   transition:
     border-color 0.2s ease,
     background 0.2s ease;
 }
+
 .search-box:focus-within {
   border-color: rgba(229, 9, 20, 0.5);
   background: rgba(255, 255, 255, 0.05);
 }
-.search-icon {
-  color: var(--fx-text-muted);
-  flex-shrink: 0;
-}
+
 .search-box input {
   flex: 1;
   background: transparent;
@@ -273,7 +273,9 @@
   outline: none;
   color: var(--fx-text);
   font-size: 14px;
+  width: 100%;
 }
+
 .search-box input::placeholder {
   color: var(--fx-text-muted);
 }
@@ -316,27 +318,100 @@
   border-color: rgba(229, 9, 20, 0.35);
 }
 
+/* =========================================================
+   Sort Dropdown — Matches Reviews Filter
+   ========================================================= */
+
 .sort-selector {
-  color: var(--fx-text-muted);
   flex-shrink: 0;
 }
-.sort-selector select {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--fx-border);
-  color: var(--fx-text);
-  border-radius: 10px;
-  padding: 9px 12px;
+
+.sort-dropdown {
+  position: relative;
+}
+
+/* Dropdown Button */
+.sort-dropdown-button {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 18px;
+  border-radius: 12px;
+
+  color: #f5f5f5;
   font-size: 13px;
   font-weight: 500;
+
   cursor: pointer;
-  outline: none;
+  transition: all 0.2s ease;
+
+  min-width: 140px;
+  text-align: left;
 }
-.sort-selector select:focus {
-  border-color: rgba(229, 9, 20, 0.5);
+
+.sort-dropdown-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Dropdown Menu */
+.sort-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+
+  width: 150px;
+
+  background: rgba(20, 20, 22, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+
+  padding: 8px;
+  margin: 0;
+
+  list-style: none;
+
+  z-index: 100;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Dropdown Items */
+.sort-dropdown-menu li {
+  padding: 10px 12px;
+
+  font-size: 13px;
+  border-radius: 8px;
+
+  color: #ddd;
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.sort-dropdown-menu li:hover {
+  background: var(--fx-accent, rgba(229, 9, 20, 0.2));
+
+  color: #fff;
+}
+
+/* Currently Selected */
+.sort-dropdown-menu li.active {
+  background: rgba(229, 9, 20, 0.14);
+  color: var(--fx-accent);
 }
 
 /* ==========================================================================
    Franchise grid & cards (list page)
+   The whole card IS the banner image now — no separate body underneath.
+   Bottom-left: name · Bottom-right: arrow · Top-right: follow button.
+   On hover, a short description slides up from the bottom and the arrow
+   nudges upward.
    ========================================================================== */
 
 .franchise-grid {
@@ -371,7 +446,7 @@
 
 .card-banner-wrapper {
   position: relative;
-  height: 190px;
+  height: 280px;
   overflow: hidden;
   background: #18181c;
 }
@@ -386,22 +461,18 @@
   transform: scale(1.06);
 }
 
-/* Cinematic gradient overlay on banner */
+/* Cinematic gradient overlay on banner — keeps bottom text legible */
 .card-banner-gradient {
   position: absolute;
   inset: 0;
   background:
     linear-gradient(
       to top,
-      rgba(10, 10, 11, 0.92) 0%,
-      rgba(10, 10, 11, 0.4) 40%,
+      rgba(10, 10, 11, 0.95) 0%,
+      rgba(10, 10, 11, 0.55) 35%,
       rgba(10, 10, 11, 0.05) 100%
     ),
-    linear-gradient(
-      to right,
-      rgba(10, 10, 11, 0.3) 0%,
-      transparent 60%
-    );
+    linear-gradient(to right, rgba(10, 10, 11, 0.3) 0%, transparent 60%);
   pointer-events: none;
   z-index: 1;
 }
@@ -467,6 +538,7 @@
   border-color: rgba(251, 191, 36, 0.35);
 }
 
+/* Follow toggle — top right, floating over the image */
 .follow-toggle-btn {
   position: absolute;
   top: 14px;
@@ -495,12 +567,37 @@
   border-color: transparent;
 }
 
-.card-banner-title {
+/* Bottom overlay — holds the hover-reveal description + the name/arrow row.
+   Anchored to the bottom of the image, so the description grows upward
+   from behind the title when the card is hovered. */
+.card-bottom-overlay {
   position: absolute;
   left: 18px;
   right: 18px;
-  bottom: 12px;
+  bottom: 16px;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-hover-details {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateY(12px);
+  transition:
+    max-height 0.4s ease,
+    opacity 0.3s ease,
+    transform 0.35s ease;
+}
+.franchise-card:hover .card-hover-details {
+  max-height: 90px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.card-banner-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -516,64 +613,29 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.franchise-logo-thumb {
-  height: 26px;
-  width: auto;
-  object-fit: contain;
-  flex-shrink: 0;
-}
 
-.card-body {
-  padding: 16px 20px 20px;
-}
 .franchise-desc {
-  font-size: 13.5px;
+  margin: 0;
+  font-size: 12.5px;
   color: var(--fx-text-secondary);
   line-height: 1.55;
-  margin: 0 0 16px;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.card-footer {
-  padding-top: 14px;
-  border-top: 1px solid var(--fx-border);
-}
-.followers-count {
-  font-size: 13px;
-  color: var(--fx-text-secondary);
-  font-weight: 500;
+
+/* Arrow, bottom right — nudges up on hover */
+.explore-arrow {
+  display: inline-flex;
   align-items: center;
-}
-.followers-stat {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-.followers-num {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--fx-text);
-}
-.followers-label {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--fx-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.flame-icon {
+  justify-content: center;
   color: var(--fx-accent);
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
 }
-.explore-link {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--fx-accent);
-  transition: transform 0.2s ease;
-}
-.franchise-card:hover .explore-link {
-  transform: translateX(3px);
+.franchise-card:hover .explore-arrow {
+  transform: translateY(-4px);
 }
 
 /* Empty states */
@@ -1111,6 +1173,9 @@
   }
   .franchise-grid {
     grid-template-columns: 1fr;
+  }
+  .card-banner-wrapper {
+    height: 220px;
   }
   .form-row {
     flex-direction: column;

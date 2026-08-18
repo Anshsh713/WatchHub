@@ -79,9 +79,11 @@ export default function CreateFranchiseModal({ isOpen, onClose }) {
       setFormData({
         name: "Marvel Cinematic Universe",
         slug: "marvel-cinematic-universe",
-        description: "The epic superhero franchise encompassing Earth's mightiest heroes, cosmic defenders, and the multiverse.",
+        description:
+          "The epic superhero franchise encompassing Earth's mightiest heroes, cosmic defenders, and the multiverse.",
         logo: "https://image.tmdb.org/t/p/w500/8qBwBD2Yx3d30vJ7mlyJ3d57P9p.png",
-        banner: "https://image.tmdb.org/t/p/original/muth4OYamXf41G2evdrLEg8d3om.jpg",
+        banner:
+          "https://image.tmdb.org/t/p/original/muth4OYamXf41G2evdrLEg8d3om.jpg",
         sourceType: "collection",
         tmdbCollectionId: "86311",
         tmdbCompanyId: "",
@@ -91,9 +93,11 @@ export default function CreateFranchiseModal({ isOpen, onClose }) {
       setFormData({
         name: "Star Wars",
         slug: "star-wars",
-        description: "In a galaxy far, far away... Explore the legendary saga of Jedi, Sith, and galactic conflict.",
+        description:
+          "In a galaxy far, far away... Explore the legendary saga of Jedi, Sith, and galactic conflict.",
         logo: "https://image.tmdb.org/t/p/w500/6804WSpTM8k41LioZgvtMVPp4v4.png",
-        banner: "https://image.tmdb.org/t/p/original/5iwx1ScqU220uHw7tB62qmoqL4r.jpg",
+        banner:
+          "https://image.tmdb.org/t/p/original/5iwx1ScqU220uHw7tB62qmoqL4r.jpg",
         sourceType: "collection",
         tmdbCollectionId: "10",
         tmdbCompanyId: "",
@@ -103,9 +107,11 @@ export default function CreateFranchiseModal({ isOpen, onClose }) {
       setFormData({
         name: "Studio Ghibli",
         slug: "studio-ghibli",
-        description: "Whimsical, enchanting animated masterpieces created by Hayao Miyazaki and Isao Takahata.",
+        description:
+          "Whimsical, enchanting animated masterpieces created by Hayao Miyazaki and Isao Takahata.",
         logo: "",
-        banner: "https://image.tmdb.org/t/p/original/706awcxVJ6V4txw3Z9W6d328H8L.jpg",
+        banner:
+          "https://image.tmdb.org/t/p/original/706awcxVJ6V4txw3Z9W6d328H8L.jpg",
         sourceType: "company",
         tmdbCollectionId: "",
         tmdbCompanyId: "10342",
@@ -126,18 +132,29 @@ export default function CreateFranchiseModal({ isOpen, onClose }) {
             <X size={20} />
           </button>
         </div>
-
         {error && <div className="modal-error">{error}</div>}
 
         <div className="quick-presets flex gap-sm items-center">
           <span>Quick Presets:</span>
-          <button type="button" onClick={() => handleQuickFill("mcu")} className="preset-chip">
+          <button
+            type="button"
+            onClick={() => handleQuickFill("mcu")}
+            className="preset-chip"
+          >
             Marvel MCU
           </button>
-          <button type="button" onClick={() => handleQuickFill("starwars")} className="preset-chip">
+          <button
+            type="button"
+            onClick={() => handleQuickFill("starwars")}
+            className="preset-chip"
+          >
             Star Wars
           </button>
-          <button type="button" onClick={() => handleQuickFill("ghibli")} className="preset-chip">
+          <button
+            type="button"
+            onClick={() => handleQuickFill("ghibli")}
+            className="preset-chip"
+          >
             Studio Ghibli
           </button>
         </div>
@@ -204,7 +221,9 @@ export default function CreateFranchiseModal({ isOpen, onClose }) {
           <div className="form-group">
             <label>Source Type *</label>
             <div className="source-type-selector flex gap-md">
-              <label className={`type-card ${formData.sourceType === "collection" ? "active" : ""}`}>
+              <label
+                className={`type-card ${formData.sourceType === "collection" ? "active" : ""}`}
+              >
                 <input
                   type="radio"
                   name="sourceType"
@@ -216,7 +235,9 @@ export default function CreateFranchiseModal({ isOpen, onClose }) {
                 <span>TMDB Collection</span>
               </label>
 
-              <label className={`type-card ${formData.sourceType === "company" ? "active" : ""}`}>
+              <label
+                className={`type-card ${formData.sourceType === "company" ? "active" : ""}`}
+              >
                 <input
                   type="radio"
                   name="sourceType"
@@ -228,7 +249,9 @@ export default function CreateFranchiseModal({ isOpen, onClose }) {
                 <span>Studio / Company</span>
               </label>
 
-              <label className={`type-card ${formData.sourceType === "keyword" ? "active" : ""}`}>
+              <label
+                className={`type-card ${formData.sourceType === "keyword" ? "active" : ""}`}
+              >
                 <input
                   type="radio"
                   name="sourceType"

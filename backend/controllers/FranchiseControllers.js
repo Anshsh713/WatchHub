@@ -6,6 +6,13 @@ const { fetchFromTMDB } = require("../ultils/tmdbService");
 ============================================================
 DEFAULT FRANCHISES
 ============================================================
+
+NOTE: `banner` values below are only used as a last-resort
+fallback if a live TMDB lookup fails (see resolveBannerAndLogo
+below). They are intentionally allowed to be stale/wrong —
+the seeding functions always try to replace them with a real,
+verified image straight from TMDB first.
+============================================================
 */
 
 const DEFAULT_FRANCHISES = [
@@ -107,7 +114,14 @@ const DEFAULT_FRANCHISES = [
     banner:
       "https://image.tmdb.org/t/p/original/b0PlSFdDwbyK0cf5RxwDpaOJm2n.jpg",
     sourceType: "keyword",
-    keywords: ["Batman", "Dark Knight", "The Batman", "Penguin", "Joker", "Gotham"],
+    keywords: [
+      "Batman",
+      "Dark Knight",
+      "The Batman",
+      "Penguin",
+      "Joker",
+      "Gotham",
+    ],
     followers: 910,
   },
   {
@@ -160,7 +174,13 @@ const DEFAULT_FRANCHISES = [
     banner:
       "https://image.tmdb.org/t/p/original/3i81E83aElnc7zS6aD2N5qKqP7w.jpg",
     sourceType: "keyword",
-    keywords: ["James Bond", "007", "Casino Royale", "Skyfall", "No Time to Die"],
+    keywords: [
+      "James Bond",
+      "007",
+      "Casino Royale",
+      "Skyfall",
+      "No Time to Die",
+    ],
     followers: 940,
   },
   {
@@ -231,10 +251,100 @@ const DEFAULT_FRANCHISES = [
       "https://image.tmdb.org/t/p/original/lxD5h2p69wE0fR3uW1V6nZ6vW1P.jpg",
     sourceType: "company",
     tmdbCompanyId: 3,
-    keywords: ["Toy Story", "Inside Out", "Incredibles", "Cars", "Finding Nemo"],
+    keywords: [
+      "Toy Story",
+      "Inside Out",
+      "Incredibles",
+      "Cars",
+      "Finding Nemo",
+    ],
     followers: 1180,
   },
 ];
+
+/*
+============================================================
+RESOLVE REAL BANNER/LOGO FROM TMDB
+============================================================
+
+Static image hashes typed by hand (or generated) drift out of
+date or were simply never real TMDB assets, which is why some
+franchise cards were falling back to the placeholder icon.
+
+Instead of guessing paths, this pulls a real, currently-valid
+image straight from TMDB using the IDs/keywords the franchise
+already has:
+
+  - collection  -> GET /collection/:id            -> backdrop_path
+  - company     -> GET /discover/movie?with_companies=:id (most
+                   popular title with a backdrop, since TMDB's
+                   company endpoint itself has no backdrop_path)
+  - keyword     -> GET /search/movie?query=<first keyword>
+
+If the lookup fails for any reason (network issue, bad ID, TMDB
+down) it quietly falls back to whatever banner/logo the caller
+already had, so seeding never hard-fails because of one bad entry.
+============================================================
+*/
+
+const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/original";
+
+const resolveBannerAndLogo = async (data) => {
+  const fallback = { banner: data.banner || "", logo: data.logo || "" };
+
+  try {
+    if (data.sourceType === "collection" && data.tmdbCollectionId) {
+      const collection = await fetchFromTMDB(
+        `/collection/${data.tmdbCollectionId}`,
+      );
+      return {
+        banner: collection?.backdrop_path
+          ? `${TMDB_IMAGE_BASE}${collection.backdrop_path}`
+          : fallback.banner,
+        logo: fallback.logo,
+      };
+    }
+
+    if (data.sourceType === "company" && data.tmdbCompanyId) {
+      const discover = await fetchFromTMDB("/discover/movie", {
+        with_companies: data.tmdbCompanyId,
+        sort_by: "popularity.desc",
+        include_adult: false,
+      });
+      const withBackdrop = (discover?.results || []).find(
+        (m) => m.backdrop_path,
+      );
+      return {
+        banner: withBackdrop
+          ? `${TMDB_IMAGE_BASE}${withBackdrop.backdrop_path}`
+          : fallback.banner,
+        logo: fallback.logo,
+      };
+    }
+
+    if (
+      data.sourceType === "keyword" &&
+      Array.isArray(data.keywords) &&
+      data.keywords.length > 0
+    ) {
+      const search = await fetchFromTMDB("/search/movie", {
+        query: data.keywords[0],
+        include_adult: false,
+      });
+      const withBackdrop = (search?.results || []).find((m) => m.backdrop_path);
+      return {
+        banner: withBackdrop
+          ? `${TMDB_IMAGE_BASE}${withBackdrop.backdrop_path}`
+          : fallback.banner,
+        logo: fallback.logo,
+      };
+    }
+  } catch (err) {
+    console.error(`Banner resolve failed for "${data.slug}":`, err.message);
+  }
+
+  return fallback;
+};
 
 /*
 ============================================================
@@ -313,14 +423,21 @@ exports.getFranchises = async (req, res) => {
     ----------------------------------------------------------
 
     If database is completely empty, insert default
-    franchises automatically.
+    franchises automatically — resolving each one's banner
+    from TMDB first so the very first paint has real images.
     */
 
     if (franchises.length === 0 && !sourceType) {
       const totalCount = await Franchise.countDocuments();
 
       if (totalCount === 0) {
-        await Franchise.insertMany(DEFAULT_FRANCHISES);
+        const resolved = [];
+        for (const franchise of DEFAULT_FRANCHISES) {
+          const { banner, logo } = await resolveBannerAndLogo(franchise);
+          resolved.push({ ...franchise, banner, logo });
+        }
+
+        await Franchise.insertMany(resolved);
 
         franchises = await Franchise.find(query).sort(sortOption);
       }
@@ -345,18 +462,22 @@ POST /api/franchises/seed
 
 Development/admin utility.
 
-This updates existing default franchises as well.
+This updates existing default franchises as well — call this
+again any time to re-resolve banners against live TMDB data
+(e.g. right now, to fix the broken images already in the DB).
 */
 
 exports.seedFranchises = async (req, res) => {
   try {
     for (const franchise of DEFAULT_FRANCHISES) {
+      const { banner, logo } = await resolveBannerAndLogo(franchise);
+
       await Franchise.updateOne(
         {
           slug: franchise.slug,
         },
         {
-          $set: franchise,
+          $set: { ...franchise, banner, logo },
         },
         {
           upsert: true,
@@ -468,7 +589,9 @@ exports.getFranchiseContent = async (req, res) => {
           const pagePromises = [];
           for (let page = 2; page <= totalPages; page++) {
             pagePromises.push(
-              fetchFromTMDB(endpoint, { ...params, page }).catch(() => ({ results: [] }))
+              fetchFromTMDB(endpoint, { ...params, page }).catch(() => ({
+                results: [],
+              })),
             );
           }
           const pageResponses = await Promise.all(pagePromises);
@@ -532,10 +655,16 @@ exports.getFranchiseContent = async (req, res) => {
     ==========================================================
     Fetch movies and TV shows using specified keywords.
     */
-    if (franchise.sourceType === "keyword" && Array.isArray(franchise.keywords)) {
+    if (
+      franchise.sourceType === "keyword" &&
+      Array.isArray(franchise.keywords)
+    ) {
       const kwPromises = franchise.keywords.map(async (keyword) => {
         const [kwMovies, kwShows] = await Promise.all([
-          fetchAllPages("/search/movie", { query: keyword, include_adult: false }),
+          fetchAllPages("/search/movie", {
+            query: keyword,
+            include_adult: false,
+          }),
           fetchAllPages("/search/tv", { query: keyword, include_adult: false }),
         ]);
         return [
@@ -571,62 +700,176 @@ exports.getFranchiseContent = async (req, res) => {
 
     results = results.filter((item) => {
       const title = (item.title || item.name || "").toLowerCase();
-      const originalTitle = (item.original_title || item.original_name || "").toLowerCase();
+      const originalTitle = (
+        item.original_title ||
+        item.original_name ||
+        ""
+      ).toLowerCase();
       const overview = (item.overview || "").toLowerCase();
       const fullText = `${title} ${originalTitle} ${overview}`;
 
       if (slug === "marvel-cinematic-universe") {
         const marvelTerms = [
-          "marvel", "avengers", "iron man", "spider-man", "spiderman", "captain america",
-          "thor", "guardians of the galaxy", "doctor strange", "black panther", "ant-man",
-          "deadpool", "wolverine", "loki", "wandavision", "hawkeye", "moon knight",
-          "she-hulk", "ms. marvel", "secret invasion", "echo", "agatha", "daredevil",
-          "fantastic four", "x-men", "blade", "black widow", "shang-chi", "eternals",
+          "marvel",
+          "avengers",
+          "iron man",
+          "spider-man",
+          "spiderman",
+          "captain america",
+          "thor",
+          "guardians of the galaxy",
+          "doctor strange",
+          "black panther",
+          "ant-man",
+          "deadpool",
+          "wolverine",
+          "loki",
+          "wandavision",
+          "hawkeye",
+          "moon knight",
+          "she-hulk",
+          "ms. marvel",
+          "secret invasion",
+          "echo",
+          "agatha",
+          "daredevil",
+          "fantastic four",
+          "x-men",
+          "blade",
+          "black widow",
+          "shang-chi",
+          "eternals",
         ];
-        return marvelTerms.some((term) => title.includes(term) || originalTitle.includes(term));
+        return marvelTerms.some(
+          (term) => title.includes(term) || originalTitle.includes(term),
+        );
       }
 
       if (slug === "star-wars-saga") {
         const swTerms = [
-          "star wars", "mandalorian", "andor", "ahsoka", "obi-wan", "bad batch",
-          "rogue one", "boba fett", "solo: a star wars", "skeleton crew", "acolyte",
+          "star wars",
+          "mandalorian",
+          "andor",
+          "ahsoka",
+          "obi-wan",
+          "bad batch",
+          "rogue one",
+          "boba fett",
+          "solo: a star wars",
+          "skeleton crew",
+          "acolyte",
         ];
-        return swTerms.some((term) => title.includes(term) || originalTitle.includes(term));
+        return swTerms.some(
+          (term) => title.includes(term) || originalTitle.includes(term),
+        );
       }
 
       if (slug === "lord-of-the-rings") {
-        const lotrTerms = ["lord of the rings", "hobbit", "rings of power", "middle-earth", "rohirrim"];
-        return lotrTerms.some((term) => title.includes(term) || originalTitle.includes(term));
+        const lotrTerms = [
+          "lord of the rings",
+          "hobbit",
+          "rings of power",
+          "middle-earth",
+          "rohirrim",
+        ];
+        return lotrTerms.some(
+          (term) => title.includes(term) || originalTitle.includes(term),
+        );
       }
 
       if (slug === "harry-potter") {
-        const hpTerms = ["harry potter", "fantastic beasts", "hogwarts", "dumbledore", "philosophical stone", "sorcerer's stone"];
-        return hpTerms.some((term) => title.includes(term) || originalTitle.includes(term));
+        const hpTerms = [
+          "harry potter",
+          "fantastic beasts",
+          "hogwarts",
+          "dumbledore",
+          "philosophical stone",
+          "sorcerer's stone",
+        ];
+        return hpTerms.some(
+          (term) => title.includes(term) || originalTitle.includes(term),
+        );
       }
 
       if (slug === "batman-universe") {
-        const batmanTerms = ["batman", "dark knight", "joker", "penguin", "gotham", "catwoman", "harley quinn", "batwoman"];
-        return batmanTerms.some((term) => title.includes(term) || originalTitle.includes(term));
+        const batmanTerms = [
+          "batman",
+          "dark knight",
+          "joker",
+          "penguin",
+          "gotham",
+          "catwoman",
+          "harley quinn",
+          "batwoman",
+        ];
+        return batmanTerms.some(
+          (term) => title.includes(term) || originalTitle.includes(term),
+        );
       }
 
       if (slug === "spiderman-universe") {
-        const spideyTerms = ["spider-man", "spiderman", "spider-verse", "venom", "morbius", "madame web", "kraven"];
-        return spideyTerms.some((term) => title.includes(term) || originalTitle.includes(term));
+        const spideyTerms = [
+          "spider-man",
+          "spiderman",
+          "spider-verse",
+          "venom",
+          "morbius",
+          "madame web",
+          "kraven",
+        ];
+        return spideyTerms.some(
+          (term) => title.includes(term) || originalTitle.includes(term),
+        );
       }
 
       if (slug === "dc-multiverse") {
-        const dcTerms = ["justice league", "superman", "batman", "wonder woman", "aquaman", "flash", "suicide squad", "shazam", "black adam", "peacemaker", "blue beetle"];
-        return dcTerms.some((term) => title.includes(term) || originalTitle.includes(term));
+        const dcTerms = [
+          "justice league",
+          "superman",
+          "batman",
+          "wonder woman",
+          "aquaman",
+          "flash",
+          "suicide squad",
+          "shazam",
+          "black adam",
+          "peacemaker",
+          "blue beetle",
+        ];
+        return dcTerms.some(
+          (term) => title.includes(term) || originalTitle.includes(term),
+        );
       }
 
       if (slug === "fast-and-furious") {
-        const fastTerms = ["fast & furious", "fast and furious", "fast x", "hobbs & shaw", "tokyo drift", "2 fast 2 furious"];
-        return fastTerms.some((term) => title.includes(term) || originalTitle.includes(term));
+        const fastTerms = [
+          "fast & furious",
+          "fast and furious",
+          "fast x",
+          "hobbs & shaw",
+          "tokyo drift",
+          "2 fast 2 furious",
+        ];
+        return fastTerms.some(
+          (term) => title.includes(term) || originalTitle.includes(term),
+        );
       }
 
       if (slug === "james-bond") {
-        const bondTerms = ["james bond", "007", "casino royale", "skyfall", "no time to die", "spectre", "quantum of solace", "goldfinger", "goldeneye"];
-        return bondTerms.some((term) => title.includes(term) || originalTitle.includes(term));
+        const bondTerms = [
+          "james bond",
+          "007",
+          "casino royale",
+          "skyfall",
+          "no time to die",
+          "spectre",
+          "quantum of solace",
+          "goldfinger",
+          "goldeneye",
+        ];
+        return bondTerms.some(
+          (term) => title.includes(term) || originalTitle.includes(term),
+        );
       }
 
       if (slug === "jurassic-park") {
@@ -634,13 +877,28 @@ exports.getFranchiseContent = async (req, res) => {
       }
 
       if (slug === "monsterverse") {
-        const mvTerms = ["godzilla", "king kong", "kong:", "monsterverse", "monarch"];
-        return mvTerms.some((term) => title.includes(term) || originalTitle.includes(term));
+        const mvTerms = [
+          "godzilla",
+          "king kong",
+          "kong:",
+          "monsterverse",
+          "monarch",
+        ];
+        return mvTerms.some(
+          (term) => title.includes(term) || originalTitle.includes(term),
+        );
       }
 
       if (slug === "transformers") {
-        const tfTerms = ["transformers", "bumblebee", "rise of the beasts", "beast wars"];
-        return tfTerms.some((term) => title.includes(term) || originalTitle.includes(term));
+        const tfTerms = [
+          "transformers",
+          "bumblebee",
+          "rise of the beasts",
+          "beast wars",
+        ];
+        return tfTerms.some(
+          (term) => title.includes(term) || originalTitle.includes(term),
+        );
       }
 
       return true;
@@ -784,6 +1042,26 @@ exports.createFranchise = async (req, res) => {
 
     /*
     ----------------------------------------------------------
+    RESOLVE BANNER FROM TMDB IF NOT PROVIDED
+    ----------------------------------------------------------
+    */
+
+    let resolvedBanner = banner;
+    if (!resolvedBanner) {
+      const resolved = await resolveBannerAndLogo({
+        slug,
+        sourceType,
+        tmdbCollectionId,
+        tmdbCompanyId,
+        keywords,
+        banner: "",
+        logo: "",
+      });
+      resolvedBanner = resolved.banner;
+    }
+
+    /*
+    ----------------------------------------------------------
     CREATE
     ----------------------------------------------------------
     */
@@ -793,7 +1071,7 @@ exports.createFranchise = async (req, res) => {
       slug,
       description,
       logo,
-      banner,
+      banner: resolvedBanner,
       sourceType,
       tmdbCollectionId:
         sourceType === "collection" ? tmdbCollectionId : undefined,

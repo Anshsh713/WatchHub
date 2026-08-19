@@ -20,6 +20,7 @@ import VideoLoader from "../../Common/VideoLoader";
 import "./Franchise.css";
 
 export default function FranchiseDetails() {
+  const [sortOpen, setSortOpen] = useState(false);
   const { slug } = useParams();
   const navigate = useNavigate();
   const {
@@ -73,7 +74,9 @@ export default function FranchiseDetails() {
   const filteredContent = franchiseContent
     .filter((item) => {
       const title = item.title || item.name || "";
-      const matchesSearch = title.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = title
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
       if (!matchesSearch) return false;
 
       const mediaType = item.media_type || (item.title ? "movie" : "tv");
@@ -111,8 +114,13 @@ export default function FranchiseDetails() {
     return (
       <div className="FranchiseSection flex flex-col items-center justify-center min-h-screen">
         <h2>Franchise Not Found</h2>
-        <p className="text-muted mt-sm">The requested franchise slug standard was not found.</p>
-        <button className="btn-primary mt-md flex items-center gap-sm" onClick={() => navigate("/explore/franchise")}>
+        <p className="text-muted mt-sm">
+          The requested franchise slug standard was not found.
+        </p>
+        <button
+          className="btn-primary mt-md flex items-center gap-sm"
+          onClick={() => navigate("/explore/franchise")}
+        >
           <ChevronLeft size={20} /> Back to Franchises
         </button>
       </div>
@@ -140,7 +148,10 @@ export default function FranchiseDetails() {
             : undefined,
         }}
       >
-        <button className="back-btn" onClick={() => navigate("/explore/franchise")}>
+        <button
+          className="back-btn"
+          onClick={() => navigate("/explore/franchise")}
+        >
           <ChevronLeft size={24} /> Back to Franchises
         </button>
 
@@ -154,7 +165,26 @@ export default function FranchiseDetails() {
                 onError={() => setLogoError(true)}
               />
             )}
-            <h1 className="detail-title">{currentFranchise.name}</h1>
+            <div className="hero-right-actions">
+              <h1 className="detail-title">{currentFranchise.name}</h1>
+              <motion.button
+                className={`follow-main-btn ${isFollowing ? "following" : ""}`}
+                onClick={handleToggleFollow}
+                whileHover={{ scale: 1.12 }}
+                whileTap={{ scale: 0.82 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 400,
+                  damping: 17,
+                }}
+              >
+                <Heart
+                  size={20}
+                  fill={isFollowing ? "#fff" : "none"}
+                  color="#fff"
+                />
+              </motion.button>
+            </div>
             <p className="detail-description">{currentFranchise.description}</p>
 
             <div className="detail-meta flex items-center gap-md">
@@ -169,23 +199,12 @@ export default function FranchiseDetails() {
               </span>
             </div>
           </div>
-
-          <div className="hero-right-actions">
-            <button
-              className={`follow-main-btn ${isFollowing ? "following" : ""}`}
-              onClick={handleToggleFollow}
-            >
-              <Heart size={20} fill={isFollowing ? "#e50914" : "none"} color={isFollowing ? "#e50914" : "#fff"} />
-              <span>{isFollowing ? "Following Franchise" : "Follow Franchise"}</span>
-            </button>
-          </div>
         </div>
       </div>
 
       {/* Content Controls: Search within franchise, type tabs, sorting */}
-      <div className="detail-controls glass-panel">
+      <div className="detail-controls">
         <div className="search-box">
-          <SearchIcon size={18} className="search-icon" />
           <input
             type="text"
             placeholder={`Search titles in ${currentFranchise.name}...`}
@@ -215,13 +234,60 @@ export default function FranchiseDetails() {
           </button>
         </div>
 
-        <div className="sort-selector flex items-center gap-sm">
-          <span>Sort:</span>
-          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-            <option value="release">Latest Release</option>
-            <option value="rating">Highest Rated</option>
-            <option value="title">Title A-Z</option>
-          </select>
+        <div className="sort-selector">
+          <div className="sort-dropdown">
+            <button
+              className="sort-dropdown-button"
+              onClick={() => setSortOpen((prev) => !prev)}
+              type="button"
+            >
+              {sortBy === "release" && "Latest Release"}
+              {sortBy === "rating" && "Highest Rated"}
+              {sortBy === "title" && "Title A-Z"}
+            </button>
+
+            <AnimatePresence>
+              {sortOpen && (
+                <motion.ul
+                  initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                  transition={{ duration: 0.15 }}
+                  className="sort-dropdown-menu"
+                >
+                  <li
+                    className={sortBy === "release" ? "active" : ""}
+                    onClick={() => {
+                      setSortBy("release");
+                      setSortOpen(false);
+                    }}
+                  >
+                    Latest Release
+                  </li>
+
+                  <li
+                    className={sortBy === "rating" ? "active" : ""}
+                    onClick={() => {
+                      setSortBy("rating");
+                      setSortOpen(false);
+                    }}
+                  >
+                    Highest Rated
+                  </li>
+
+                  <li
+                    className={sortBy === "title" ? "active" : ""}
+                    onClick={() => {
+                      setSortBy("title");
+                      setSortOpen(false);
+                    }}
+                  >
+                    Title A-Z
+                  </li>
+                </motion.ul>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
 
@@ -256,8 +322,14 @@ export default function FranchiseDetails() {
             const hasErr = imageErrors[item.id];
 
             return (
-              <motion.div key={`${item.id}-${mediaType}`} variants={cardVariants}>
-                <Link to={`/media/${mediaType}/${item.id}`} className="detail-media-card glass-panel">
+              <motion.div
+                key={`${item.id}-${mediaType}`}
+                variants={cardVariants}
+              >
+                <Link
+                  to={`/media/${mediaType}/${item.id}`}
+                  className="detail-media-card glass-panel"
+                >
                   <div className="poster-container">
                     {!hasErr && posterPath ? (
                       <img
@@ -272,9 +344,16 @@ export default function FranchiseDetails() {
                         <span className="fallback-title">{title}</span>
                       </div>
                     )}
+
+                    <div className="poster-gradient" />
+
                     <div className="card-badge-top flex justify-between">
                       <span className={`media-tag ${mediaType}`}>
-                        {mediaType === "movie" ? <Film size={10} /> : <Tv size={10} />}
+                        {mediaType === "movie" ? (
+                          <Film size={10} />
+                        ) : (
+                          <Tv size={10} />
+                        )}
                         {mediaType.toUpperCase()}
                       </span>
                       {item.vote_average > 0 && (
@@ -284,15 +363,15 @@ export default function FranchiseDetails() {
                         </span>
                       )}
                     </div>
-                  </div>
 
-                  <div className="card-media-info">
-                    <h4 className="title-text">{title}</h4>
-                    {year && (
-                      <span className="year-text flex items-center gap-xs">
-                        <Calendar size={12} /> {year}
-                      </span>
-                    )}
+                    <div className="card-media-info">
+                      <h4 className="title-text">{title}</h4>
+                      {year && (
+                        <span className="year-text flex items-center gap-xs">
+                          <Calendar size={12} /> {year}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </Link>
               </motion.div>

@@ -40,7 +40,7 @@ const DEFAULT_FRANCHISES = [
       "Loki",
       "WandaVision",
     ],
-    followers: 1250,
+    followers: 0,
   },
   {
     name: "Star Wars Saga",
@@ -62,7 +62,7 @@ const DEFAULT_FRANCHISES = [
       "Rogue One",
       "Solo",
     ],
-    followers: 980,
+    followers: 0,
   },
   {
     name: "Harry Potter Wizarding World",
@@ -74,7 +74,7 @@ const DEFAULT_FRANCHISES = [
     sourceType: "collection",
     tmdbCollectionId: 1241,
     keywords: ["Harry Potter", "Fantastic Beasts"],
-    followers: 1120,
+    followers: 0,
   },
   {
     name: "Studio Ghibli Classics",
@@ -92,7 +92,7 @@ const DEFAULT_FRANCHISES = [
       "Totoro",
       "Howl's Moving Castle",
     ],
-    followers: 850,
+    followers: 0,
   },
   {
     name: "The Lord of the Rings",
@@ -104,7 +104,7 @@ const DEFAULT_FRANCHISES = [
     sourceType: "collection",
     tmdbCollectionId: 119,
     keywords: ["Lord of the Rings", "The Hobbit", "Rings of Power"],
-    followers: 1430,
+    followers: 0,
   },
   {
     name: "Batman Universe",
@@ -122,7 +122,7 @@ const DEFAULT_FRANCHISES = [
       "Joker",
       "Gotham",
     ],
-    followers: 910,
+    followers: 0,
   },
   {
     name: "DC Extended Universe",
@@ -141,7 +141,7 @@ const DEFAULT_FRANCHISES = [
       "Suicide Squad",
       "Shazam",
     ],
-    followers: 870,
+    followers: 0,
   },
   {
     name: "Spider-Man Universe",
@@ -152,7 +152,7 @@ const DEFAULT_FRANCHISES = [
       "https://image.tmdb.org/t/p/original/8Y43POKjjKDGI9z89v0efz1uWz8.jpg",
     sourceType: "keyword",
     keywords: ["Spider-Man", "Spider-Verse", "Venom"],
-    followers: 1350,
+    followers: 0,
   },
   {
     name: "Fast & Furious Saga",
@@ -164,7 +164,7 @@ const DEFAULT_FRANCHISES = [
     sourceType: "collection",
     tmdbCollectionId: 9485,
     keywords: ["Fast & Furious", "Fast and Furious", "Hobbs & Shaw"],
-    followers: 790,
+    followers: 0,
   },
   {
     name: "James Bond 007",
@@ -181,7 +181,7 @@ const DEFAULT_FRANCHISES = [
       "Skyfall",
       "No Time to Die",
     ],
-    followers: 940,
+    followers: 0,
   },
   {
     name: "Jurassic Park & World",
@@ -193,7 +193,7 @@ const DEFAULT_FRANCHISES = [
     sourceType: "collection",
     tmdbCollectionId: 328,
     keywords: ["Jurassic Park", "Jurassic World"],
-    followers: 880,
+    followers: 0,
   },
   {
     name: "MonsterVerse",
@@ -204,7 +204,7 @@ const DEFAULT_FRANCHISES = [
       "https://image.tmdb.org/t/p/original/7kW8XwL4aK7c6D9i4uW9t7g2t2W.jpg",
     sourceType: "keyword",
     keywords: ["Godzilla", "King Kong", "MonsterVerse"],
-    followers: 820,
+    followers: 0,
   },
   {
     name: "Transformers",
@@ -216,7 +216,7 @@ const DEFAULT_FRANCHISES = [
     sourceType: "collection",
     tmdbCollectionId: 8650,
     keywords: ["Transformers", "Bumblebee"],
-    followers: 760,
+    followers: 0,
   },
   {
     name: "Pirates of the Caribbean",
@@ -228,7 +228,7 @@ const DEFAULT_FRANCHISES = [
     sourceType: "collection",
     tmdbCollectionId: 295,
     keywords: ["Pirates of the Caribbean"],
-    followers: 1040,
+    followers: 0,
   },
   {
     name: "Avatar Saga",
@@ -240,7 +240,7 @@ const DEFAULT_FRANCHISES = [
     sourceType: "collection",
     tmdbCollectionId: 87096,
     keywords: ["Avatar"],
-    followers: 990,
+    followers: 0,
   },
   {
     name: "Pixar Animation Studio",
@@ -258,7 +258,7 @@ const DEFAULT_FRANCHISES = [
       "Cars",
       "Finding Nemo",
     ],
-    followers: 1180,
+    followers: 0,
   },
 ];
 
@@ -491,6 +491,41 @@ exports.getFranchises = async (req, res) => {
 
     /*
     ----------------------------------------------------------
+    SYNC REAL FOLLOWS COUNT
+    ----------------------------------------------------------
+    */
+
+    const followCounts = await FranchiseFollow.aggregate([
+      {
+        $group: {
+          _id: "$franchise",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const countMap = new Map();
+    followCounts.forEach((fc) => {
+      countMap.set(fc._id.toString(), fc.count);
+    });
+
+    franchises.forEach((franchise) => {
+      const realCount = countMap.get(franchise._id.toString()) || 0;
+      if (franchise.followers !== realCount) {
+        franchise.followers = realCount;
+        Franchise.updateOne(
+          { _id: franchise._id },
+          { $set: { followers: realCount } },
+        ).exec();
+      }
+    });
+
+    if (!sort || sort === "followers") {
+      franchises.sort((a, b) => (b.followers || 0) - (a.followers || 0));
+    }
+
+    /*
+    ----------------------------------------------------------
     AUTO-HEAL BANNERS ON EVERY FETCH  (TEMPORARY)
     ----------------------------------------------------------
 
@@ -543,7 +578,7 @@ exports.getFranchises = async (req, res) => {
         const resolved = [];
         for (const franchise of DEFAULT_FRANCHISES) {
           const { banner, logo } = await resolveBannerAndLogo(franchise);
-          resolved.push({ ...franchise, banner, logo });
+          resolved.push({ ...franchise, banner, logo, followers: 0 });
         }
 
         await Franchise.insertMany(resolved);
@@ -581,12 +616,20 @@ exports.seedFranchises = async (req, res) => {
     for (const franchise of DEFAULT_FRANCHISES) {
       const { banner, logo } = await resolveBannerAndLogo(franchise);
 
+      const existing = await Franchise.findOne({ slug: franchise.slug });
+      let realFollowers = 0;
+      if (existing) {
+        realFollowers = await FranchiseFollow.countDocuments({
+          franchise: existing._id,
+        });
+      }
+
       await Franchise.updateOne(
         {
           slug: franchise.slug,
         },
         {
-          $set: { ...franchise, banner, logo },
+          $set: { ...franchise, banner, logo, followers: realFollowers },
         },
         {
           upsert: true,
@@ -630,6 +673,18 @@ exports.getFranchiseDetails = async (req, res) => {
       return res.status(404).json({
         message: "Franchise not found",
       });
+    }
+
+    const realFollowers = await FranchiseFollow.countDocuments({
+      franchise: franchise._id,
+    });
+
+    if (franchise.followers !== realFollowers) {
+      franchise.followers = realFollowers;
+      await Franchise.updateOne(
+        { _id: franchise._id },
+        { $set: { followers: realFollowers } },
+      );
     }
 
     res.status(200).json(franchise);
@@ -1378,19 +1433,24 @@ exports.followFranchise = async (req, res) => {
 
     /*
     ----------------------------------------------------------
-    INCREMENT FOLLOWERS
+    UPDATE REAL FOLLOWERS COUNT
     ----------------------------------------------------------
     */
 
+    const realFollowers = await FranchiseFollow.countDocuments({
+      franchise: franchiseId,
+    });
+
     await Franchise.findByIdAndUpdate(franchiseId, {
-      $inc: {
-        followers: 1,
+      $set: {
+        followers: realFollowers,
       },
     });
 
     res.status(200).json({
       success: true,
       message: "Franchise followed successfully",
+      followers: realFollowers,
     });
   } catch (error) {
     console.error("Follow franchise error:", error);
@@ -1434,39 +1494,24 @@ exports.unfollowFranchise = async (req, res) => {
 
     /*
     ----------------------------------------------------------
-    DECREMENT FOLLOWERS
+    UPDATE REAL FOLLOWERS COUNT
     ----------------------------------------------------------
     */
 
-    await Franchise.findByIdAndUpdate(franchiseId, {
-      $inc: {
-        followers: -1,
-      },
+    const realFollowers = await FranchiseFollow.countDocuments({
+      franchise: franchiseId,
     });
 
-    /*
-    ----------------------------------------------------------
-    PREVENT NEGATIVE FOLLOWERS
-    ----------------------------------------------------------
-    */
-
-    await Franchise.updateOne(
-      {
-        _id: franchiseId,
-        followers: {
-          $lt: 0,
-        },
+    await Franchise.findByIdAndUpdate(franchiseId, {
+      $set: {
+        followers: realFollowers,
       },
-      {
-        $set: {
-          followers: 0,
-        },
-      },
-    );
+    });
 
     res.status(200).json({
       success: true,
       message: "Franchise unfollowed successfully",
+      followers: realFollowers,
     });
   } catch (error) {
     console.error("Unfollow franchise error:", error);

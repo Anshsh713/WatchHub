@@ -40,7 +40,7 @@ const DEFAULT_PRESET_FRANCHISES = [
       "Thor",
       "Guardians of the Galaxy",
     ],
-    followers: 1250,
+    followers: 0,
   },
   {
     name: "Star Wars Saga",
@@ -52,7 +52,7 @@ const DEFAULT_PRESET_FRANCHISES = [
     sourceType: "collection",
     tmdbCollectionId: 10,
     keywords: ["Star Wars", "Mandalorian", "Ahsoka", "Andor"],
-    followers: 980,
+    followers: 0,
   },
   {
     name: "Harry Potter Wizarding World",
@@ -64,7 +64,7 @@ const DEFAULT_PRESET_FRANCHISES = [
     sourceType: "collection",
     tmdbCollectionId: 1241,
     keywords: ["Harry Potter", "Fantastic Beasts"],
-    followers: 1120,
+    followers: 0,
   },
   {
     name: "Studio Ghibli Classics",
@@ -76,7 +76,7 @@ const DEFAULT_PRESET_FRANCHISES = [
     sourceType: "company",
     tmdbCompanyId: 10342,
     keywords: ["Studio Ghibli", "Hayao Miyazaki"],
-    followers: 850,
+    followers: 0,
   },
   {
     name: "The Lord of the Rings",
@@ -88,7 +88,7 @@ const DEFAULT_PRESET_FRANCHISES = [
     sourceType: "collection",
     tmdbCollectionId: 119,
     keywords: ["Lord of the Rings", "The Hobbit", "Rings of Power"],
-    followers: 1430,
+    followers: 0,
   },
   {
     name: "Batman Universe",
@@ -99,7 +99,7 @@ const DEFAULT_PRESET_FRANCHISES = [
       "https://image.tmdb.org/t/p/original/b0PlSFdDwbyK0cf5RxwDpaOJm2n.jpg",
     sourceType: "keyword",
     keywords: ["Batman", "Dark Knight", "The Batman", "Penguin"],
-    followers: 910,
+    followers: 0,
   },
   {
     name: "DC Extended Universe",
@@ -110,7 +110,7 @@ const DEFAULT_PRESET_FRANCHISES = [
       "https://image.tmdb.org/t/p/original/t9XkeE7vFJm12TknT1g6pPh36mE.jpg",
     sourceType: "keyword",
     keywords: ["Justice League", "Superman", "Wonder Woman", "Aquaman"],
-    followers: 870,
+    followers: 0,
   },
   {
     name: "Spider-Man Universe",
@@ -121,7 +121,7 @@ const DEFAULT_PRESET_FRANCHISES = [
       "https://image.tmdb.org/t/p/original/8Y43POKjjKDGI9z89v0efz1uWz8.jpg",
     sourceType: "keyword",
     keywords: ["Spider-Man", "Spider-Verse", "Venom"],
-    followers: 1350,
+    followers: 0,
   },
 ];
 
@@ -437,21 +437,25 @@ export default function FranchiseList() {
                       </div>
                     )}
 
-                    {/* Follow toggle — top right */}
-                    <button
-                      className={`follow-toggle-btn ${isFollowing ? "following" : ""}`}
+                    <motion.button
+                      className={`follow-main-btn ${isFollowing ? "following" : ""}`}
                       onClick={(e) =>
                         handleToggleFollow(e, item._id || item.id)
                       }
-                      title={isFollowing ? "Unfollow" : "Follow Franchise"}
+                      whileHover={{ scale: 1.12 }}
+                      whileTap={{ scale: 0.82 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 17,
+                      }}
                     >
                       <Heart
-                        size={16}
-                        fill={isFollowing ? "#e50914" : "none"}
-                        color={isFollowing ? "#e50914" : "#fff"}
+                        size={20}
+                        fill={isFollowing ? "#fff" : "none"}
+                        color="#fff"
                       />
-                      <span>{isFollowing ? "Following" : "Follow"}</span>
-                    </button>
+                    </motion.button>
 
                     {/* Banner gradient overlay so bottom text stays legible */}
                     <div className="card-banner-gradient" />

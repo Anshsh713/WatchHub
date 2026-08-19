@@ -142,7 +142,11 @@ export default function GCL({ typeofgcl, setMediaType }) {
   return (
     <div className="type_of">
       <motion.div className="type_of_title">
-        <ChevronLeft className="back-icon" onClick={() => setMediaType(null)} />
+        <ChevronLeft
+          size={36}
+          className="back-icon"
+          onClick={() => setMediaType(null)}
+        />
         <h2>{typeofgcl}</h2>
       </motion.div>
       <div className="search_container">

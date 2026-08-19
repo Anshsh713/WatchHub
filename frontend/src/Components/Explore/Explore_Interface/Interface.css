@@ -126,18 +126,33 @@
 .type_of_title {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  font-size: 1.5rem;
-  font-weight: 500;
+  gap: 16px;
+  margin-bottom: 24px;
   color: #fff;
 }
+
+.type_of_title h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
 .back-icon {
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  color: #fff;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 .back-icon:hover {
-  opacity: 0.7;
+  color: #e50914;
+  transform: translateX(-4px);
 }
 
 .type_grid {

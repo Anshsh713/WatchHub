@@ -207,7 +207,7 @@ export default function MediaDetail() {
         ) : (
           <div className="banner-placeholder"></div>
         )}
-        <div className="banner-overlay"></div>
+        <div className="banner-overlay-movie"></div>
       </div>
       <div className="main-content">
         <div className="media-image">

@@ -22,8 +22,7 @@
   object-fit: cover;
   object-position: center top;
 }
-
-.banner-overlay {
+.banner-overlay-movie {
   position: absolute;
   inset: 0;
   background:
@@ -41,7 +40,6 @@
       rgba(0, 0, 0, 0.1) 100%
     );
 }
-
 .main-content {
   position: relative;
   display: flex;
@@ -62,7 +60,7 @@
 }
 
 .image {
-  width: 90%;
+  width: 80%;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);

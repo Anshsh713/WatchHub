@@ -295,7 +295,7 @@ export default function MediaReviews({
                   <button
                     className="action-btn"
                     onClick={() => {
-                      if (review.repliesCount > 0) {
+                      if (review.repliesCount >= 0) {
                         if (revealReply === review._id) {
                           setRevealReply(null);
                         } else {

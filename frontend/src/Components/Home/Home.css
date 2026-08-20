@@ -328,3 +328,216 @@
   color: #a1a1aa;
   margin: 0;
 }
+
+/* Home Sections Container */
+.home-sections-container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.home-sections-list {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.home-section-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+}
+
+/* Section Header */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+  margin-bottom: 4px;
+}
+
+.section-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.3px;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.section-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-trending {
+  color: #ff5722;
+  filter: drop-shadow(0 0 8px rgba(255, 87, 34, 0.6));
+}
+
+.icon-top-rated {
+  color: #fbbf24;
+  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+}
+
+.icon-popular {
+  color: #38bdf8;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6));
+}
+
+.icon-upcoming {
+  color: #a855f7;
+  filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.6));
+}
+
+.icon-hidden-gems {
+  color: #34d399;
+  filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.6));
+}
+
+/* Platform Badges */
+.section-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.badge-netflix {
+  background: linear-gradient(135deg, #E50914, #B20710);
+  color: #ffffff;
+  border: 1px solid rgba(229, 9, 20, 0.6);
+  box-shadow: 0 0 12px rgba(229, 9, 20, 0.35);
+}
+
+.badge-jiohotstar {
+  background: linear-gradient(135deg, #0f1c3f, #0c2b64);
+  color: #00d6fe;
+  border: 1px solid rgba(0, 214, 254, 0.5);
+  box-shadow: 0 0 12px rgba(0, 214, 254, 0.25);
+}
+
+.badge-prime {
+  background: linear-gradient(135deg, #00A8E1, #0073A8);
+  color: #ffffff;
+  border: 1px solid rgba(0, 168, 225, 0.6);
+  box-shadow: 0 0 12px rgba(0, 168, 225, 0.35);
+}
+
+.badge-crunchyroll {
+  background: linear-gradient(135deg, #F47521, #d4590c);
+  color: #ffffff;
+  border: 1px solid rgba(244, 117, 33, 0.6);
+  box-shadow: 0 0 12px rgba(244, 117, 33, 0.35);
+}
+
+/* Scroll Arrow Controls */
+.section-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.scroll-arrow-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.scroll-arrow-btn:hover:not(.disabled) {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.08);
+}
+
+.scroll-arrow-btn.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Rating Chip on Card */
+.card-rating-chip {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 2px 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  z-index: 4;
+}
+
+/* Media Meta */
+.media-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #a1a1aa;
+}
+
+.media-type-tag {
+  font-size: 0.7rem;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 1px 5px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #e4e4e7;
+}
+
+/* Skeleton Loading */
+.skeleton-card {
+  pointer-events: none;
+}
+
+.skeleton-pulse {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonLoading 1.5s infinite;
+}
+
+@keyframes skeletonLoading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+

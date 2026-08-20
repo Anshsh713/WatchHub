@@ -21,6 +21,19 @@ export const MediaProvider = ({ children }) => {
   const [languagesCache, setLanguagesCache] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
 
+  const [homeSections, setHomeSections] = useState({
+    trending: [],
+    topRated: [],
+    popularThisWeek: [],
+    upcoming: [],
+    hiddenGems: [],
+    netflix: [],
+    jiohotstar: [],
+    prime: [],
+    crunchyroll: [],
+  });
+  const [homeLoading, setHomeLoading] = useState(false);
+
   const mediaMap = { all, movie: movies, tv: tvshow, anime };
 
   const [results, setResults] = useState([]);
@@ -275,6 +288,20 @@ export const MediaProvider = ({ children }) => {
     }
   };
 
+  const fetchHomeSections = async (type = currentType) => {
+    try {
+      setHomeLoading(true);
+      const res = await API.get("/media/home-sections", {
+        params: { type },
+      });
+      setHomeSections(res.data);
+      setHomeLoading(false);
+    } catch (err) {
+      console.error("Failed to fetch home sections", err);
+      setHomeLoading(false);
+    }
+  };
+
   useEffect(() => {
     let themeClass = "";
     if (currentType === "movie") themeClass = "theme-movie";
@@ -284,6 +311,7 @@ export const MediaProvider = ({ children }) => {
 
     document.body.className = themeClass;
     localStorage.setItem("mediaType", currentType);
+    fetchHomeSections(currentType);
   }, [currentType]);
 
   useEffect(() => {
@@ -313,6 +341,9 @@ export const MediaProvider = ({ children }) => {
         searchResults,
         results,
         page,
+        homeSections,
+        homeLoading,
+        fetchHomeSections,
       }}
     >
       {children}

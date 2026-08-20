@@ -621,3 +621,242 @@ exports.searchMedia = async (req, res) => {
     });
   }
 };
+
+const normalizeSectionItems = (items, fallbackType = "movie") => {
+  return (items || [])
+    .filter((item) => item && (item.title || item.name) && item.poster_path)
+    .map((item) => ({
+      ...item,
+      media_type:
+        item.media_type ||
+        (item.first_air_date ? "tv" : item.release_date ? "movie" : fallbackType),
+    }));
+};
+
+exports.getHomeSections = async (req, res) => {
+  try {
+    const { type = "all" } = req.query;
+    const cacheKey = `home_sections_${type}`;
+    const now = Date.now();
+
+    if (memCache[cacheKey] && memCache[cacheKey].expiry > now) {
+      return res.json(memCache[cacheKey].data);
+    }
+
+    // 1. Trending Now
+    const trendingEp =
+      type === "movie"
+        ? "/trending/movie/day"
+        : type === "tv"
+        ? "/trending/tv/day"
+        : type === "anime"
+        ? "/discover/tv"
+        : "/trending/all/day";
+    const trendingParams =
+      type === "anime"
+        ? { with_genres: 16, with_original_language: "ja", sort_by: "popularity.desc" }
+        : {};
+
+    // 2. Top Rated
+    const topRatedEp =
+      type === "movie"
+        ? "/movie/top_rated"
+        : type === "tv"
+        ? "/tv/top_rated"
+        : type === "anime"
+        ? "/discover/tv"
+        : "/movie/top_rated";
+    const topRatedParams =
+      type === "anime"
+        ? {
+            with_genres: 16,
+            with_original_language: "ja",
+            sort_by: "vote_average.desc",
+            "vote_count.gte": 200,
+          }
+        : {};
+
+    // 3. Popular This Week
+    const popWeekEp =
+      type === "movie"
+        ? "/trending/movie/week"
+        : type === "tv"
+        ? "/trending/tv/week"
+        : type === "anime"
+        ? "/discover/tv"
+        : "/trending/all/week";
+    const popWeekParams =
+      type === "anime"
+        ? {
+            with_genres: 16,
+            with_original_language: "ja",
+            sort_by: "popularity.desc",
+            page: 2,
+          }
+        : {};
+
+    // 4. Upcoming
+    const upcomingEp =
+      type === "tv"
+        ? "/discover/tv"
+        : type === "anime"
+        ? "/discover/tv"
+        : "/movie/upcoming";
+    const upcomingParams =
+      type === "tv"
+        ? { "first_air_date.gte": "2025-01-01", sort_by: "popularity.desc" }
+        : type === "anime"
+        ? {
+            with_genres: 16,
+            with_original_language: "ja",
+            "first_air_date.gte": "2024-01-01",
+            sort_by: "popularity.desc",
+          }
+        : {};
+
+    // 5. Hidden Gems
+    const gemEp =
+      type === "tv" || type === "anime" ? "/discover/tv" : "/discover/movie";
+    const gemParams =
+      type === "anime"
+        ? {
+            with_genres: 16,
+            with_original_language: "ja",
+            "vote_average.gte": 7.6,
+            "vote_count.gte": 30,
+            "vote_count.lte": 2000,
+            sort_by: "vote_average.desc",
+          }
+        : {
+            "vote_average.gte": 7.4,
+            "vote_count.gte": 40,
+            "vote_count.lte": 2000,
+            sort_by: "vote_average.desc",
+          };
+
+    // 6. Don't Miss These on Netflix
+    const netflixEp = type === "movie" ? "/discover/movie" : "/discover/tv";
+    const netflixParams = {
+      with_watch_providers: "8",
+      watch_region: "IN",
+      sort_by: "popularity.desc",
+      ...(type === "anime"
+        ? { with_genres: 16, with_original_language: "ja" }
+        : {}),
+    };
+
+    // 7. Don't Miss These on JioHotstar
+    const hotstarEp = type === "movie" ? "/discover/movie" : "/discover/tv";
+    const hotstarParams = {
+      with_watch_providers: "122|232|337",
+      watch_region: "IN",
+      sort_by: "popularity.desc",
+      ...(type === "anime" ? { with_genres: 16 } : {}),
+    };
+
+    // 8. Don't Miss These on Prime
+    const primeEp = type === "movie" ? "/discover/movie" : "/discover/tv";
+    const primeParams = {
+      with_watch_providers: "119|9",
+      watch_region: "IN",
+      sort_by: "popularity.desc",
+      ...(type === "anime" ? { with_genres: 16 } : {}),
+    };
+
+    // 9. Don't Miss These on Crunchyroll
+    const crEp = type === "movie" ? "/discover/movie" : "/discover/tv";
+    const crParams =
+      type === "movie"
+        ? {
+            with_genres: 16,
+            with_original_language: "ja",
+            sort_by: "popularity.desc",
+          }
+        : type === "anime"
+        ? {
+            with_genres: 16,
+            with_original_language: "ja",
+            sort_by: "popularity.desc",
+            page: 3,
+          }
+        : {
+            with_watch_providers: "283",
+            watch_region: "IN",
+            sort_by: "popularity.desc",
+          };
+
+    const [
+      tRes,
+      trRes,
+      pwRes,
+      uRes,
+      hgRes,
+      nRes,
+      jhRes,
+      pRes,
+      cRes,
+    ] = await Promise.allSettled([
+      fetchFromTMDB(trendingEp, trendingParams),
+      fetchFromTMDB(topRatedEp, topRatedParams),
+      fetchFromTMDB(popWeekEp, popWeekParams),
+      fetchFromTMDB(upcomingEp, upcomingParams),
+      fetchFromTMDB(gemEp, gemParams),
+      fetchFromTMDB(netflixEp, netflixParams),
+      fetchFromTMDB(hotstarEp, hotstarParams),
+      fetchFromTMDB(primeEp, primeParams),
+      fetchFromTMDB(crEp, crParams),
+    ]);
+
+    const fallbackType = type === "anime" ? "tv" : type;
+
+    const sections = {
+      trending: normalizeSectionItems(
+        tRes.status === "fulfilled" ? tRes.value.results : [],
+        fallbackType
+      ),
+      topRated: normalizeSectionItems(
+        trRes.status === "fulfilled" ? trRes.value.results : [],
+        fallbackType
+      ),
+      popularThisWeek: normalizeSectionItems(
+        pwRes.status === "fulfilled" ? pwRes.value.results : [],
+        fallbackType
+      ),
+      upcoming: normalizeSectionItems(
+        uRes.status === "fulfilled" ? uRes.value.results : [],
+        fallbackType
+      ),
+      hiddenGems: normalizeSectionItems(
+        hgRes.status === "fulfilled" ? hgRes.value.results : [],
+        fallbackType
+      ),
+      netflix: normalizeSectionItems(
+        nRes.status === "fulfilled" ? nRes.value.results : [],
+        fallbackType
+      ),
+      jiohotstar: normalizeSectionItems(
+        jhRes.status === "fulfilled" ? jhRes.value.results : [],
+        fallbackType
+      ),
+      prime: normalizeSectionItems(
+        pRes.status === "fulfilled" ? pRes.value.results : [],
+        fallbackType
+      ),
+      crunchyroll: normalizeSectionItems(
+        cRes.status === "fulfilled" ? cRes.value.results : [],
+        "tv"
+      ),
+    };
+
+    memCache[cacheKey] = {
+      data: sections,
+      expiry: now + 10 * 60 * 1000, // 10 minutes cache
+    };
+
+    res.json(sections);
+  } catch (error) {
+    console.error("Home sections error:", error.message);
+    res.status(500).json({ message: "Failed to fetch home sections" });
+  }
+};
+

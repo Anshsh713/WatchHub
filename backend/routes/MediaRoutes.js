@@ -12,8 +12,10 @@ const {
   getMediaByLanguage,
   getExploreCategories,
   searchMedia,
+  getHomeSections,
 } = require("../controllers/MediaControllers");
 
+router.get("/media/home-sections", getHomeSections);
 router.get("/media/genres", getAllGenres);
 router.get("/media/countries", getAllCountries);
 router.get("/media/languages", getAllLanguages);

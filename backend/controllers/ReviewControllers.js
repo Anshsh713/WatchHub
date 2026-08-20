@@ -1,19 +1,30 @@
 const MediaReview = require("../models/Media_Reviews");
 const User = require("../models/WatchHub_User_model");
+const { detectSpoilerAI } = require("../AI_ultils/spoilerDetector");
 
 exports.createReview = async (req, res) => {
   try {
-    const { MediaID, MediaType, rating, comment, isSpoiler } = req.body;
+    let { MediaID, MediaType, rating, comment, isSpoiler } = req.body;
     const userId = req.user._id;
 
     if (!MediaID || !MediaType || !rating || !comment) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const existingReview = await MediaReview.findOne({
-      MediaID,
-      User: userId,
-    });
+    // Run AI if the user didn't manually check the spoiler box
+    if (isSpoiler === false || isSpoiler === undefined) {
+      console.log("Analyzing review for spoilers...");
+      const aiDetected = await detectSpoilerAI(comment);
+
+      if (aiDetected) {
+        isSpoiler = true;
+        console.log("✅ RESULT: AI flagged as Spoiler");
+      } else {
+        console.log("❌ RESULT: AI flagged as Safe");
+      }
+    }
+
+    const existingReview = await MediaReview.findOne({ MediaID, User: userId });
 
     if (existingReview) {
       existingReview.rating = rating;
@@ -43,7 +54,7 @@ exports.createReview = async (req, res) => {
       isUpdate: false,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Controller Error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };

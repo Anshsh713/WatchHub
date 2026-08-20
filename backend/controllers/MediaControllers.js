@@ -622,15 +622,30 @@ exports.searchMedia = async (req, res) => {
   }
 };
 
-const normalizeSectionItems = (items, fallbackType = "movie") => {
+const MediaReview = require("../models/Media_Reviews");
+
+const RATING_COLORS = {
+  Perfection: "#a855f7",
+  "Go for it": "#00d284",
+  TimePass: "#ffb703",
+  "Skip it": "#ff6384",
+};
+
+const normalizeSectionItems = (items, fallbackType = "movie", ratingMap = {}) => {
   return (items || [])
     .filter((item) => item && (item.title || item.name) && item.poster_path)
-    .map((item) => ({
-      ...item,
-      media_type:
-        item.media_type ||
-        (item.first_air_date ? "tv" : item.release_date ? "movie" : fallbackType),
-    }));
+    .map((item) => {
+      const mediaIdStr = item.id?.toString();
+      const ratingInfo = ratingMap[mediaIdStr] || null;
+
+      return {
+        ...item,
+        media_type:
+          item.media_type ||
+          (item.first_air_date ? "tv" : item.release_date ? "movie" : fallbackType),
+        watchhub_rating: ratingInfo,
+      };
+    });
 };
 
 exports.getHomeSections = async (req, res) => {
@@ -807,50 +822,135 @@ exports.getHomeSections = async (req, res) => {
       fetchFromTMDB(crEp, crParams),
     ]);
 
+    const allRawItems = [
+      ...(tRes.status === "fulfilled" ? tRes.value.results || [] : []),
+      ...(trRes.status === "fulfilled" ? trRes.value.results || [] : []),
+      ...(pwRes.status === "fulfilled" ? pwRes.value.results || [] : []),
+      ...(uRes.status === "fulfilled" ? uRes.value.results || [] : []),
+      ...(hgRes.status === "fulfilled" ? hgRes.value.results || [] : []),
+      ...(nRes.status === "fulfilled" ? nRes.value.results || [] : []),
+      ...(jhRes.status === "fulfilled" ? jhRes.value.results || [] : []),
+      ...(pRes.status === "fulfilled" ? pRes.value.results || [] : []),
+      ...(cRes.status === "fulfilled" ? cRes.value.results || [] : []),
+    ];
+
+    const allMediaIds = Array.from(
+      new Set(allRawItems.map((item) => item.id?.toString()).filter(Boolean))
+    );
+
+    const ratingMap = {};
+    if (allMediaIds.length > 0) {
+      try {
+        const aggregation = await MediaReview.aggregate([
+          { $match: { MediaID: { $in: allMediaIds } } },
+          {
+            $group: {
+              _id: { mediaId: "$MediaID", rating: "$rating" },
+              count: { $sum: 1 },
+            },
+          },
+          {
+            $group: {
+              _id: "$_id.mediaId",
+              ratings: {
+                $push: {
+                  rating: "$_id.rating",
+                  count: "$count",
+                },
+              },
+              total: { $sum: "$count" },
+            },
+          },
+        ]);
+
+        if (aggregation && aggregation.length > 0) {
+          aggregation.forEach((item) => {
+            const total = item.total || 0;
+            if (total > 0) {
+              const perfectionItem = item.ratings?.find(
+                (r) => r.rating === "Perfection"
+              );
+              const perfectionPercent = perfectionItem
+                ? Math.round((perfectionItem.count / total) * 100)
+                : 0;
+
+              const highest = item.ratings?.reduce(
+                (max, curr) => (curr.count > max.count ? curr : max),
+                item.ratings[0]
+              );
+              const dominantRating = highest ? highest.rating : "Perfection";
+              const dominantPercent = highest
+                ? Math.round((highest.count / total) * 100)
+                : perfectionPercent;
+
+              ratingMap[item._id] = {
+                total,
+                perfection: perfectionPercent,
+                dominantRating,
+                dominantPercent,
+                color: RATING_COLORS[dominantRating] || "#a855f7",
+              };
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Error aggregating reviews:", err.message);
+      }
+    }
+
     const fallbackType = type === "anime" ? "tv" : type;
 
     const sections = {
       trending: normalizeSectionItems(
         tRes.status === "fulfilled" ? tRes.value.results : [],
-        fallbackType
+        fallbackType,
+        ratingMap
       ),
       topRated: normalizeSectionItems(
         trRes.status === "fulfilled" ? trRes.value.results : [],
-        fallbackType
+        fallbackType,
+        ratingMap
       ),
       popularThisWeek: normalizeSectionItems(
         pwRes.status === "fulfilled" ? pwRes.value.results : [],
-        fallbackType
+        fallbackType,
+        ratingMap
       ),
       upcoming: normalizeSectionItems(
         uRes.status === "fulfilled" ? uRes.value.results : [],
-        fallbackType
+        fallbackType,
+        ratingMap
       ),
       hiddenGems: normalizeSectionItems(
         hgRes.status === "fulfilled" ? hgRes.value.results : [],
-        fallbackType
+        fallbackType,
+        ratingMap
       ),
       netflix: normalizeSectionItems(
         nRes.status === "fulfilled" ? nRes.value.results : [],
-        fallbackType
+        fallbackType,
+        ratingMap
       ),
       jiohotstar: normalizeSectionItems(
         jhRes.status === "fulfilled" ? jhRes.value.results : [],
-        fallbackType
+        fallbackType,
+        ratingMap
       ),
       prime: normalizeSectionItems(
         pRes.status === "fulfilled" ? pRes.value.results : [],
-        fallbackType
+        fallbackType,
+        ratingMap
       ),
       crunchyroll: normalizeSectionItems(
         cRes.status === "fulfilled" ? cRes.value.results : [],
-        "tv"
+        "tv",
+        ratingMap
       ),
     };
 
     memCache[cacheKey] = {
       data: sections,
-      expiry: now + 10 * 60 * 1000, // 10 minutes cache
+      expiry: now + 5 * 60 * 1000, // 5 minutes cache
     };
 
     res.json(sections);

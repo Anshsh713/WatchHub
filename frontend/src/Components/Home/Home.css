@@ -417,6 +417,41 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+.platform-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  flex-shrink: 0;
+}
+
+.platform-icon-wrap.netflix-wrap {
+  background: rgba(229, 9, 20, 0.15);
+  border: 1px solid rgba(229, 9, 20, 0.4);
+  box-shadow: 0 0 10px rgba(229, 9, 20, 0.25);
+}
+
+.platform-icon-wrap.jiohotstar-wrap {
+  background: rgba(0, 214, 254, 0.12);
+  border: 1px solid rgba(0, 214, 254, 0.4);
+  box-shadow: 0 0 10px rgba(0, 214, 254, 0.25);
+}
+
+.platform-icon-wrap.prime-wrap {
+  background: rgba(0, 168, 225, 0.15);
+  border: 1px solid rgba(0, 168, 225, 0.4);
+  box-shadow: 0 0 10px rgba(0, 168, 225, 0.25);
+}
+
+.platform-icon-wrap.crunchyroll-wrap {
+  background: rgba(244, 117, 33, 0.15);
+  border: 1px solid rgba(244, 117, 33, 0.4);
+  box-shadow: 0 0 10px rgba(244, 117, 33, 0.25);
+}
+
 .badge-netflix {
   background: linear-gradient(135deg, #E50914, #B20710);
   color: #ffffff;
@@ -478,23 +513,74 @@
   cursor: not-allowed;
 }
 
-/* Rating Chip on Card */
-.card-rating-chip {
+/* WatchHub Perfection Rating Expanding Dot & Morphing Pill */
+.watchhub-rating-pill {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 6px;
-  padding: 2px 6px;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  height: 16px;
+  min-width: 16px;
+  max-width: 16px;
+  border-radius: 50%;
+  background: var(--rating-color, #a855f7);
+  box-shadow: 0 0 10px var(--rating-color, #a855f7);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  padding: 0;
+  backdrop-filter: blur(8px);
+}
+
+.rating-dot-inner {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ffffff;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  display: none;
+}
+
+.rating-text-expanded {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #fff;
-  z-index: 4;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  opacity: 0;
+  max-width: 0;
+  transform: translateX(4px);
+  transition: opacity 0.2s ease 0.08s, max-width 0.3s ease, transform 0.25s ease 0.08s;
+  pointer-events: none;
+}
+
+/* Hover Morphing State: Expands into border-radius 10px rectangle */
+.watchhub-rating-pill:hover {
+  max-width: 170px;
+  height: 28px;
+  border-radius: 10px;
+  padding: 0 10px;
+  gap: 7px;
+  background: rgba(15, 12, 22, 0.95);
+  border: 1px solid var(--rating-color, #a855f7);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7), 0 0 14px var(--rating-color, #a855f7);
+}
+
+.watchhub-rating-pill:hover .rating-dot-inner {
+  display: block;
+  background: var(--rating-color, #a855f7);
+  box-shadow: 0 0 6px var(--rating-color, #a855f7);
+}
+
+.watchhub-rating-pill:hover .rating-text-expanded {
+  opacity: 1;
+  max-width: 140px;
+  transform: translateX(0);
 }
 
 /* Media Meta */

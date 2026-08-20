@@ -9,7 +9,31 @@ import {
   Sparkles,
   Gem,
 } from "lucide-react";
+import { SiNetflix, SiPrimevideo, SiCrunchyroll } from "react-icons/si";
 import "./Home.css";
+
+const JioHotstarLogo = ({ size = 18 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <defs>
+      <linearGradient id="hotstarGradIcon" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#00d6fe" />
+        <stop offset="60%" stopColor="#0077ff" />
+        <stop offset="100%" stopColor="#0033aa" />
+      </linearGradient>
+    </defs>
+    <path
+      d="M12 2l2.4 5.8 6.2.5-4.7 4.2 1.4 6.1L12 15.5 6.7 18.6l1.4-6.1-4.7-4.2 6.2-.5L12 2z"
+      fill="url(#hotstarGradIcon)"
+    />
+    <circle cx="12" cy="11.8" r="2.2" fill="#ffffff" />
+  </svg>
+);
 
 export default function Movies_Section() {
   const {
@@ -121,8 +145,11 @@ export default function Movies_Section() {
             {/* 6. Don't Miss These on Netflix */}
             <HorizontalMediaList
               title="Don't Miss These on Netflix"
-              badge="NETFLIX"
-              badgeClass="badge-netflix"
+              icon={
+                <div className="platform-icon-wrap netflix-wrap">
+                  <SiNetflix size={18} color="#E50914" />
+                </div>
+              }
               media={homeSections?.netflix}
               type={currentType}
               loading={homeLoading}
@@ -131,8 +158,11 @@ export default function Movies_Section() {
             {/* 7. Don't Miss These on JioHotstar */}
             <HorizontalMediaList
               title="Don't Miss These on JioHotstar"
-              badge="JioHotstar"
-              badgeClass="badge-jiohotstar"
+              icon={
+                <div className="platform-icon-wrap jiohotstar-wrap">
+                  <JioHotstarLogo size={18} />
+                </div>
+              }
               media={homeSections?.jiohotstar}
               type={currentType}
               loading={homeLoading}
@@ -141,8 +171,11 @@ export default function Movies_Section() {
             {/* 8. Don't Miss These on Prime */}
             <HorizontalMediaList
               title="Don't Miss These on Prime"
-              badge="Prime Video"
-              badgeClass="badge-prime"
+              icon={
+                <div className="platform-icon-wrap prime-wrap">
+                  <SiPrimevideo size={22} color="#00A8E1" />
+                </div>
+              }
               media={homeSections?.prime}
               type={currentType}
               loading={homeLoading}
@@ -151,8 +184,11 @@ export default function Movies_Section() {
             {/* 9. Don't Miss These on Crunchyroll */}
             <HorizontalMediaList
               title="Don't Miss These on Crunchyroll"
-              badge="Crunchyroll"
-              badgeClass="badge-crunchyroll"
+              icon={
+                <div className="platform-icon-wrap crunchyroll-wrap">
+                  <SiCrunchyroll size={18} color="#F47521" />
+                </div>
+              }
               media={homeSections?.crunchyroll}
               type={currentType}
               loading={homeLoading}

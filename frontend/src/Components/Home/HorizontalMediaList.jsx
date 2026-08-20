@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useRef, useState } from "react";
 import {
   animate,
@@ -9,7 +7,7 @@ import {
   useScroll,
 } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import "./Home.css";
 
 const left = "0%";
@@ -130,9 +128,6 @@ export default function HorizontalMediaList({
                     : type);
                 const year = (item.release_date || item.first_air_date || "")
                   .split("-")[0];
-                const rating = item.vote_average
-                  ? Number(item.vote_average).toFixed(1)
-                  : null;
 
                 return (
                   <Link
@@ -152,12 +147,25 @@ export default function HorizontalMediaList({
                           <div className="media-placeholder">No Image</div>
                         )}
 
-                        {rating && rating > "0.0" && (
-                          <div className="card-rating-chip">
-                            <Star size={11} fill="#eab308" color="#eab308" />
-                            <span>{rating}</span>
-                          </div>
-                        )}
+                        {/* WatchHub Perfection Rating Expanding Dot */}
+                        {item.watchhub_rating &&
+                          item.watchhub_rating.total > 0 && (
+                            <div
+                              className="watchhub-rating-pill"
+                              onClick={(e) => e.stopPropagation()}
+                              style={{
+                                "--rating-color":
+                                  item.watchhub_rating.color || "#a855f7",
+                              }}
+                            >
+                              <span className="rating-dot-inner" />
+                              <span className="rating-text-expanded">
+                                {item.watchhub_rating.perfection}%{" "}
+                                {item.watchhub_rating.dominantRating ||
+                                  "Perfection"}
+                              </span>
+                            </div>
+                          )}
 
                         <div className="media-info">
                           <h4>{item.title || item.name}</h4>

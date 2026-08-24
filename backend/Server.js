@@ -8,6 +8,7 @@ const ReviewsRoutes = require("./routes/ReviewsRoutes");
 const NewsRoutes = require("./routes/NewsRoutes");
 const CommentsRoutes = require("./routes/CommentsRoutes");
 const Franchiseroutes = require("./routes/Franchiseroutes");
+const DiscoverRoutes = require("./routes/DiscoverRoutes");
 const { initializeAI } = require("./AI_ultils/spoilerDetector"); // Import AI Init
 const WatchHub = express();
 
@@ -29,6 +30,7 @@ WatchHub.use("/api/reviews", ReviewsRoutes);
 WatchHub.use("/api/news", NewsRoutes);
 WatchHub.use("/api/comments", CommentsRoutes);
 WatchHub.use("/api/franchises", Franchiseroutes);
+WatchHub.use("/api", DiscoverRoutes);
 
 // Global Error Handler
 WatchHub.use((err, req, res, next) => {

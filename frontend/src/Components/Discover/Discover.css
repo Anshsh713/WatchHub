@@ -1,0 +1,319 @@
+.discover-page {
+  min-height: 100vh;
+  padding: 100px 5% 80px;
+  color: #fff;
+  background: #090909;
+}
+
+.discover-hero {
+  padding: 50px 0 70px;
+}
+
+.discover-label {
+  color: #e50914;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+
+.discover-hero h1 {
+  margin: 8px 0;
+  font-size: 3.5rem;
+  font-weight: 600;
+}
+
+.discover-hero p {
+  color: #999;
+  font-size: 1.05rem;
+  max-width: 600px;
+}
+
+.discover-section {
+  margin-bottom: 70px;
+}
+
+.discover-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 30px;
+  margin-bottom: 25px;
+}
+
+.discover-section-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.discover-section-header h2 svg {
+  width: 24px;
+  height: 24px;
+}
+
+.discover-section-header p {
+  color: #777;
+  margin: 8px 0 0;
+}
+
+.discover-range {
+  display: flex;
+  gap: 8px;
+}
+
+.discover-range button {
+  border: 1px solid #292929;
+  background: #111;
+  color: #999;
+  padding: 9px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.discover-range button.active {
+  background: #e50914;
+  color: white;
+  border-color: #e50914;
+}
+
+.discover-media-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 18px;
+}
+
+.discover-media-card {
+  cursor: pointer;
+}
+
+.discover-poster {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #151515;
+}
+
+.discover-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.poster-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #666;
+}
+
+.media-type-badge {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  padding: 4px 7px;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.75);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.discover-card-info {
+  padding: 10px 3px;
+}
+
+.discover-card-info h3 {
+  margin: 0 0 5px;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.discover-card-info span {
+  color: #777;
+  font-size: 0.8rem;
+}
+
+/* TRAILERS */
+
+.trailer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.trailer-card {
+  background: #111;
+  border: 1px solid #1c1c1c;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.trailer-thumbnail {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.trailer-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.trailer-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trailer-play svg {
+  width: 55px;
+  height: 55px;
+  padding: 15px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.trailer-info {
+  padding: 14px;
+}
+
+.trailer-info h3 {
+  margin: 0 0 5px;
+}
+
+.trailer-info span {
+  color: #777;
+}
+
+/* ANNOUNCEMENTS */
+
+.announcement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.announcement-card {
+  display: flex;
+  gap: 18px;
+  padding: 14px;
+  background: #111;
+  border: 1px solid #1d1d1d;
+  border-radius: 12px;
+}
+
+.announcement-poster {
+  width: 80px;
+  height: 110px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #181818;
+}
+
+.announcement-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.announcement-content {
+  padding: 5px 0;
+}
+
+.announcement-type {
+  color: #e50914;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.announcement-content h3 {
+  margin: 7px 0;
+}
+
+.announcement-content p {
+  color: #999;
+  margin: 0 0 10px;
+}
+
+.announcement-date {
+  color: #555;
+  font-size: 0.8rem;
+}
+
+/* FEATURE CARDS */
+
+.discover-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.discover-feature-card {
+  padding: 25px;
+  background: #111;
+  border: 1px solid #1c1c1c;
+  border-radius: 14px;
+}
+
+.feature-icon {
+  margin-bottom: 20px;
+  color: #e50914;
+}
+
+.discover-feature-card h3 {
+  margin: 0 0 8px;
+}
+
+.discover-feature-card p {
+  color: #777;
+  margin: 0;
+}
+
+@media (max-width: 1100px) {
+  .discover-media-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .discover-feature-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .discover-page {
+    padding: 90px 20px 50px;
+  }
+
+  .discover-hero h1 {
+    font-size: 2.5rem;
+  }
+
+  .discover-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .discover-media-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .trailer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .discover-feature-grid {
+    grid-template-columns: 1fr;
+  }
+}

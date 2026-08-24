@@ -126,8 +126,11 @@ export default function HorizontalMediaList({
                       ? "tv"
                       : "movie"
                     : type);
-                const year = (item.release_date || item.first_air_date || "")
-                  .split("-")[0];
+                const year = (
+                  item.release_date ||
+                  item.first_air_date ||
+                  ""
+                ).split("-")[0];
 
                 return (
                   <Link
@@ -160,7 +163,7 @@ export default function HorizontalMediaList({
                             >
                               <span className="rating-dot-inner" />
                               <span className="rating-text-expanded">
-                                {item.watchhub_rating.perfection}%{" "}
+                                {item.watchhub_rating.dominantPercent}%{" "}
                                 {item.watchhub_rating.dominantRating ||
                                   "Perfection"}
                               </span>

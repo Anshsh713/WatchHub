@@ -195,11 +195,14 @@ export default function MediaDetail() {
 
   return (
     <div className="Main-box">
-      <div className="banner">
+      <div
+        className="banner"
+        onClick={() => mediaDetails.trailer && setVideo(!video)}
+        style={{ cursor: mediaDetails.trailer ? "pointer" : "default" }}
+      >
         {!backdropError && mediaDetails.images?.backdrop ? (
           <img
             loading="lazy"
-            onClick={() => setVideo(!video)}
             src={`https://image.tmdb.org/t/p/original${mediaDetails.images.backdrop}`}
             alt="Backdrop"
             onError={() => setBackdropError(true)}

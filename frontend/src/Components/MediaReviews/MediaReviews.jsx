@@ -65,24 +65,35 @@ export default function MediaReviews({
   const CreatingReview = async () => {
     if (!selectedRating || !limit.trim()) return;
 
-    await CreateReview({
-      MediaID: mediaID,
-      MediaType: mediaType,
-      rating:
-        selectedRating === "skip"
-          ? "Skip it"
-          : selectedRating === "timepass"
-            ? "TimePass"
-            : selectedRating === "goforit"
-              ? "Go for it"
-              : "Perfection",
-      isSpoiler: isspoiler,
-      comment: limit,
-    });
-    await fetchStats(mediaID);
-    setLimit("");
-    setSelectedRating(null);
-    setWritingReview(false);
+    try {
+      await CreateReview({
+        MediaID: mediaID,
+        MediaType: mediaType,
+        rating:
+          selectedRating === "skip"
+            ? "Skip it"
+            : selectedRating === "timepass"
+              ? "TimePass"
+              : selectedRating === "goforit"
+                ? "Go for it"
+                : "Perfection",
+        isSpoiler: isspoiler,
+        comment: limit,
+      });
+
+      // Get the updated review including existing likes
+      await fetchReviews(mediaID, 1, sort, filter);
+
+      // Update the rating graph
+      await fetchStats(mediaID);
+
+      setLimit("");
+      setSelectedRating(null);
+      setIsSpoiler(false);
+      setWritingReview(false);
+    } catch (error) {
+      console.error("Error creating/updating review:", error);
+    }
   };
 
   useEffect(() => {
@@ -216,7 +227,7 @@ export default function MediaReviews({
             </p>
           </div>
         )}
-        {!loading && reviews.length === 0 && (
+        {!loading && reviews.filter((r) => showSpoiler || !r.isSpoiler).length === 0 && (
           <div className="notfound">
             <video
               src="/notreviews.mp4"
@@ -232,98 +243,151 @@ export default function MediaReviews({
             />
           </div>
         )}
-        {reviews.map((review) => {
-          const isLiked = review.isLiked;
-          return (
-            <motion.div
-              key={review._id}
-              layout
-              className="review-card"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.25 }}
-            >
-              <div className="review-header">
-                <div className="user">
-                  <CircleUser size={24} />
-                  <div className="user-date">
-                    <h4>{review.User?.User_Name || user?.User_Name}</h4>
-                    <p>{formatRelativeTime(review.createdAt)}</p>
+        {reviews
+          .filter((review) => (showSpoiler ? true : !review.isSpoiler))
+          .map((review) => {
+            const isLiked = review.isLiked;
+            const isBlurred = review.isSpoiler && !revealedSpoilers[review._id];
+
+            return (
+              <motion.div
+                key={review._id}
+                layout
+                className="review-card"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.25 }}
+              >
+                <div className="review-header">
+                  <div className="user">
+                    <CircleUser size={24} />
+                    <div className="user-date">
+                      <div className="username">
+                        <h4>{review.User?.User_Name || user?.User_Name}</h4>
+                        <p>{review.isEdited && " (Edited)"}</p>
+                      </div>
+                      <p>{formatRelativeTime(review.updatedAt)}</p>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    {review.isSpoiler && (
+                      <span
+                        className="spoiler-indicator-badge"
+                        style={{
+                          background: "rgba(239, 68, 68, 0.15)",
+                          color: "#f87171",
+                          border: "1px solid rgba(239, 68, 68, 0.35)",
+                          padding: "2px 8px",
+                          borderRadius: "8px",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        Spoiler
+                      </span>
+                    )}
+
+                    <span
+                      className="rating-badge"
+                      style={{
+                        background:
+                          review.rating === "Skip it"
+                            ? "#ef4444"
+                            : review.rating === "TimePass"
+                              ? "#facc15"
+                              : review.rating === "Go for it"
+                                ? "#22c55e"
+                                : "#8b5cf6",
+                      }}
+                    >
+                      {review.rating}
+                    </span>
                   </div>
                 </div>
 
-                <span
-                  className="rating-badge"
-                  style={{
-                    background:
-                      review.rating === "Skip it"
-                        ? "#ef4444"
-                        : review.rating === "TimePass"
-                          ? "#facc15"
-                          : review.rating === "Go for it"
-                            ? "#22c55e"
-                            : "#8b5cf6",
+                <div
+                  className="review-content-wrap"
+                  style={{ position: "relative", cursor: review.isSpoiler ? "pointer" : "default" }}
+                  onClick={() => {
+                    if (review.isSpoiler) toggleSpoiler(review._id);
                   }}
                 >
-                  {review.rating}
-                </span>
-              </div>
+                  <div className={`review-content${isBlurred ? " spoiler" : ""}`}>
+                    <p>
+                      {review.comment.slice(0, 400)}
+                      {review.comment.length > 400 ? " ...more" : ""}
+                    </p>
+                  </div>
 
-              <div
-                className={`review-content${review.isSpoiler && !revealedSpoilers[review._id] && !showSpoiler ? " spoiler" : ""}`}
-                onClick={() => {
-                  if (showSpoiler) return;
-                  if (review.isSpoiler) toggleSpoiler(review._id);
-                }}
-              >
-                <p>
-                  {review.comment.slice(0, 400)}
-                  {review.comment.length > 400 ? " ...more" : ""}
-                </p>
-              </div>
-              <div className="rev-section">
-                <div className="review-actions">
-                  <button
-                    className={`action-btn ${isLiked ? "liked" : ""}`}
-                    onClick={() => toggleLike(review._id)}
-                  >
-                    <ThumbsUp size={18} />
-                    <span>{formatCompactNumber(review.likesCount || 0)}</span>
-                  </button>
+                  {isBlurred && (
+                    <div
+                      className="spoiler-blur-overlay-hint"
+                      style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        background: "rgba(0, 0, 0, 0.8)",
+                        color: "#f87171",
+                        border: "1px solid rgba(239, 68, 68, 0.4)",
+                        padding: "4px 12px",
+                        borderRadius: "6px",
+                        fontSize: "12px",
+                        fontWeight: 500,
+                        pointerEvents: "none",
+                        whiteSpace: "nowrap",
+                        backdropFilter: "blur(4px)",
+                      }}
+                    >
+                      ⚠️ Spoiler • Click to reveal
+                    </div>
+                  )}
+                </div>
 
-                  <button
-                    className="action-btn"
-                    onClick={() => {
-                      if (review.repliesCount >= 0) {
-                        if (revealReply === review._id) {
-                          setRevealReply(null);
-                        } else {
-                          setRevealReply(review._id);
-                          fetchReplies(review._id);
+                <div className="rev-section">
+                  <div className="review-actions">
+                    <button
+                      className={`action-btn ${isLiked ? "liked" : ""}`}
+                      onClick={() => toggleLike(review._id)}
+                    >
+                      <ThumbsUp size={18} />
+                      <span>{formatCompactNumber(review.likesCount || 0)}</span>
+                    </button>
+
+                    <button
+                      className="action-btn"
+                      onClick={() => {
+                        if (review.repliesCount >= 0) {
+                          if (revealReply === review._id) {
+                            setRevealReply(null);
+                          } else {
+                            setRevealReply(review._id);
+                            fetchReplies(review._id);
+                          }
                         }
-                      }
-                    }}
-                  >
-                    <MessageCircle size={18} />
-                    <span>{formatCompactNumber(review.repliesCount || 0)}</span>
-                  </button>
+                      }}
+                    >
+                      <MessageCircle size={18} />
+                      <span>{formatCompactNumber(review.repliesCount || 0)}</span>
+                    </button>
+                  </div>
+                  <div className="report">
+                    <Ellipsis size={18} />
+                  </div>
                 </div>
-                <div className="report">
-                  <Ellipsis size={18} />
-                </div>
-              </div>
 
-              {revealReply === review._id && (
-                <Reply
-                  review={review}
-                  replies={repliesMap[review._id] || []}
-                  closing={setRevealReply}
-                />
-              )}
-            </motion.div>
-          );
-        })}
+                {revealReply === review._id && (
+                  <Reply
+                    review={review}
+                    replies={repliesMap[review._id] || []}
+                    closing={setRevealReply}
+                  />
+                )}
+              </motion.div>
+            );
+          })}
       </div>
       <div ref={reviewRef} style={{ height: "20px" }} />
     </motion.div>

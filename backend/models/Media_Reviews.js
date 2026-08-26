@@ -30,6 +30,11 @@ const mediaReviewSchema = new mongoose.Schema(
       default: false,
     },
 
+    isEdited: {
+      type: Boolean,
+      default: false,
+    },
+
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,

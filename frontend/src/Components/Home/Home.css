@@ -298,7 +298,12 @@
   left: 0;
   width: 100%;
   padding: 40px 15px 15px 15px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 60%, transparent 100%);
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.5) 60%,
+    transparent 100%
+  );
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -424,7 +429,9 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   flex-shrink: 0;
 }
 
@@ -453,7 +460,7 @@
 }
 
 .badge-netflix {
-  background: linear-gradient(135deg, #E50914, #B20710);
+  background: linear-gradient(135deg, #e50914, #b20710);
   color: #ffffff;
   border: 1px solid rgba(229, 9, 20, 0.6);
   box-shadow: 0 0 12px rgba(229, 9, 20, 0.35);
@@ -467,14 +474,14 @@
 }
 
 .badge-prime {
-  background: linear-gradient(135deg, #00A8E1, #0073A8);
+  background: linear-gradient(135deg, #00a8e1, #0073a8);
   color: #ffffff;
   border: 1px solid rgba(0, 168, 225, 0.6);
   box-shadow: 0 0 12px rgba(0, 168, 225, 0.35);
 }
 
 .badge-crunchyroll {
-  background: linear-gradient(135deg, #F47521, #d4590c);
+  background: linear-gradient(135deg, #f47521, #d4590c);
   color: #ffffff;
   border: 1px solid rgba(244, 117, 33, 0.6);
   box-shadow: 0 0 12px rgba(244, 117, 33, 0.35);
@@ -513,7 +520,6 @@
   cursor: not-allowed;
 }
 
-/* WatchHub Perfection Rating Expanding Dot & Morphing Pill */
 .watchhub-rating-pill {
   position: absolute;
   top: 10px;
@@ -524,7 +530,6 @@
   max-width: 16px;
   border-radius: 50%;
   background: var(--rating-color, #a855f7);
-  box-shadow: 0 0 10px var(--rating-color, #a855f7);
   border: 1.5px solid rgba(255, 255, 255, 0.4);
   display: flex;
   align-items: center;
@@ -555,11 +560,13 @@
   opacity: 0;
   max-width: 0;
   transform: translateX(4px);
-  transition: opacity 0.2s ease 0.08s, max-width 0.3s ease, transform 0.25s ease 0.08s;
+  transition:
+    opacity 0.2s ease 0.08s,
+    max-width 0.3s ease,
+    transform 0.25s ease 0.08s;
   pointer-events: none;
 }
 
-/* Hover Morphing State: Expands into border-radius 10px rectangle */
 .watchhub-rating-pill:hover {
   max-width: 170px;
   height: 28px;
@@ -568,13 +575,12 @@
   gap: 7px;
   background: rgba(15, 12, 22, 0.95);
   border: 1px solid var(--rating-color, #a855f7);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7), 0 0 14px var(--rating-color, #a855f7);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
 }
 
 .watchhub-rating-pill:hover .rating-dot-inner {
   display: block;
   background: var(--rating-color, #a855f7);
-  box-shadow: 0 0 6px var(--rating-color, #a855f7);
 }
 
 .watchhub-rating-pill:hover .rating-text-expanded {
@@ -626,4 +632,3 @@
     background-position: -200% 0;
   }
 }
-

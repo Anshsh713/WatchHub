@@ -3,7 +3,7 @@
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 105vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -14,8 +14,8 @@
 .reply-container {
   position: relative;
   display: flex;
-  width: 950px;
-  max-width: 95%;
+  width: 900px;
+  max-width: 90%;
   height: 550px;
   max-height: 85vh;
   background: rgba(20, 20, 22, 0.95);

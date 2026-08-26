@@ -69,12 +69,33 @@ export default function RatingSemiPie({ stats, total }) {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        justifyContent: "flex-start",
+        margin: "0 auto",
+        boxSizing: "border-box",
       }}
     >
       {/* Chart Section */}
-      <div style={{ width: "100%", height: 260, position: "relative" }}>
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "520px",
+          height: 260,
+          position: "relative",
+          margin: "0 auto",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
+          <PieChart
+            margin={{
+              top: 0,
+              right: 0,
+              bottom: 0,
+              left: 0,
+            }}
+          >
             <Pie
               tabIndex={-1}
               data={data}
@@ -114,7 +135,7 @@ export default function RatingSemiPie({ stats, total }) {
           </PieChart>
         </ResponsiveContainer>
 
-        {/* Center Info exactly like the image */}
+        {/* Center Info */}
         <div
           style={{
             position: "absolute",
@@ -123,6 +144,7 @@ export default function RatingSemiPie({ stats, total }) {
             transform: "translate(-50%, -50%)",
             textAlign: "center",
             pointerEvents: "none",
+            width: "150px",
           }}
         >
           <h2
@@ -137,12 +159,14 @@ export default function RatingSemiPie({ stats, total }) {
           >
             {percentage}%
           </h2>
+
           <p
             style={{
               fontSize: 18,
               color: "#e2e8f0",
-              margin: "8px 0 0 0",
+              margin: "8px 0 0",
               fontWeight: 400,
+              whiteSpace: "nowrap",
             }}
           >
             {segmentVotes}/{total} Votes
@@ -150,11 +174,13 @@ export default function RatingSemiPie({ stats, total }) {
         </div>
       </div>
 
-      {/* Simple Legend dots at the bottom as requested */}
+      {/* Legend */}
       <div
         style={{
+          width: "100%",
           display: "flex",
           justifyContent: "center",
+          alignItems: "center",
           flexWrap: "wrap",
           gap: 24,
           marginTop: 10,
@@ -191,6 +217,7 @@ export default function RatingSemiPie({ stats, total }) {
                   transition: "all 0.3s ease",
                 }}
               />
+
               <span
                 style={{
                   fontSize: 14,

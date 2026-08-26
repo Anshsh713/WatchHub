@@ -30,10 +30,23 @@ exports.createReview = async (req, res) => {
       existingReview.rating = rating;
       existingReview.comment = comment;
       existingReview.isSpoiler = isSpoiler;
+      existingReview.isEdited = true;
+
       await existingReview.save();
+
+      await existingReview.populate("User", "User_Name");
+
       return res.json({
         message: "Review updated successfully",
-        review: existingReview,
+        review: {
+          ...existingReview.toObject(),
+          likesCount: existingReview.likes?.length || 0,
+          repliesCount: existingReview.replies?.length || 0,
+          isLiked:
+            existingReview.likes?.some(
+              (id) => id.toString() === userId.toString(),
+            ) || false,
+        },
         isUpdate: true,
       });
     }
@@ -44,6 +57,7 @@ exports.createReview = async (req, res) => {
       User: userId,
       rating,
       isSpoiler,
+      isEdited: false,
       comment,
     });
 

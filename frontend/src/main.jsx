@@ -14,6 +14,7 @@ import { NewsProvider } from "./Context/NewsContext.jsx";
 import { NewsCommentsProvider } from "./Context/News_CommentsConstext.jsx";
 import { FranchiseProvider } from "./Context/FranchiseContext.jsx";
 import { DiscoverProvider } from "./Context/DiscoverContext.jsx";
+import { WatchListProvider } from "./Context/WatchListContext.jsx";
 import Home from "./Components/Home/Home.jsx";
 import Protected from "./Data_Management/Protected.jsx";
 import AuthPage from "./Login_Signup/AuthPage/AuthPage.jsx";
@@ -22,6 +23,7 @@ import Explore_Interface from "./Components/Explore/Explore_Interface/Interface.
 import Explore from "./Components/Explore/Explore/Explore.jsx";
 import FranchiseList from "./Components/Explore/Franchise/FranchiseList.jsx";
 import FranchiseDetails from "./Components/Explore/Franchise/FranchiseDetails.jsx";
+import WatchList from "./Components/WatchList/WatchList.jsx";
 import Main_Page from "./Components/News/Main_Page.jsx";
 import Detail from "./Components/News/News_Events_Details.jsx/Detail.jsx";
 import Discover from "./Components/Discover/Discover.jsx";
@@ -67,6 +69,14 @@ const router = createBrowserRouter([
         element: (
           <Protected>
             <Discover />
+          </Protected>
+        ),
+      },
+      {
+        path: "/watchlist",
+        element: (
+          <Protected>
+            <WatchList />
           </Protected>
         ),
       },
@@ -133,7 +143,9 @@ createRoot(document.getElementById("root")).render(
                 <MediaReviewsProvider>
                   <FranchiseProvider>
                     <DiscoverProvider>
-                      <RouterProvider router={router} />
+                      <WatchListProvider>
+                        <RouterProvider router={router} />
+                      </WatchListProvider>
                     </DiscoverProvider>
                   </FranchiseProvider>
                 </MediaReviewsProvider>

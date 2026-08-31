@@ -347,22 +347,111 @@ exports.getReplies = async (req, res) => {
   try {
     const { reviewId } = req.params;
 
-    const review = await MediaReview.findById(reviewId)
-      .populate("replies.user", "User_Name")
-      .lean();
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = 20;
+    const skip = (page - 1) * limit;
 
-    if (!review) {
-      return res.status(404).json({ message: "Review not found" });
+    const result = await MediaReview.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(reviewId),
+        },
+      },
+
+      {
+        $project: {
+          totalReplies: {
+            $size: { $ifNull: ["$replies", []] },
+          },
+
+          replies: {
+            $slice: [{ $ifNull: ["$replies", []] }, skip, limit],
+          },
+        },
+      },
+
+      {
+        $unwind: {
+          path: "$replies",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+
+      {
+        $lookup: {
+          from: "watchhub_users",
+          localField: "replies.user",
+          foreignField: "_id",
+          as: "replyUser",
+        },
+      },
+
+      {
+        $unwind: {
+          path: "$replyUser",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      {
+        $group: {
+          _id: "$_id",
+
+          totalReplies: {
+            $first: "$totalReplies",
+          },
+
+          replies: {
+            $push: {
+              _id: "$replies._id",
+              user: {
+                _id: "$replyUser._id",
+                User_Name: "$replyUser.User_Name",
+              },
+              comment: "$replies.comment",
+              replyingTo: "$replies.replyingTo",
+              likes: "$replies.likes",
+              createdAt: "$replies.createdAt",
+              likesCount: {
+                $size: {
+                  $ifNull: ["$replies.likes", []],
+                },
+              },
+            },
+          },
+        },
+      },
+    ]);
+
+    if (!result.length) {
+      return res.status(404).json({
+        message: "Review not found",
+      });
     }
 
-    const replies = review.replies.map((r) => ({
-      ...r,
-      likesCount: r.likes?.length || 0,
+    const data = result[0];
+
+    const replies = data.replies.map((reply) => ({
+      ...reply,
+      isLiked:
+        reply.likes?.some(
+          (id) => id.toString() === req.user?._id?.toString(),
+        ) || false,
     }));
 
-    res.json({ replies });
+    res.json({
+      replies,
+      pagination: {
+        currentPage: page,
+        limit,
+        totalReplies: data.totalReplies,
+        totalPages: Math.ceil(data.totalReplies / limit),
+        hasMore: skip + replies.length < data.totalReplies,
+      },
+    });
   } catch (error) {
-    console.error("getReviewById error:", error);
+    console.error("getReplies error:", error);
+
     res.status(500).json({
       message: "Internal server error",
       error: error.message,

@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import "./Reply.css";
+
 import { motion, AnimatePresence } from "framer-motion";
+
+import { CircleUser, ThumbsUp, MessageCircle } from "lucide-react";
+
 import { useMediaReviews } from "../../../Context/MediaReviewsContext";
-import { CircleUser, ThumbsUp, MessageCircle, X } from "lucide-react";
+
 import {
   formatRelativeTime,
   formatCompactNumber,
@@ -10,25 +14,84 @@ import {
 
 export default function Reply({ review, replies, closing }) {
   const [newReply, setNewReply] = useState("");
-  const { addReply, toggleLikeReply } = useMediaReviews();
+  const [loadingMore, setLoadingMore] = useState(false);
 
-  const handlePostReply = () => {
-    if (!newReply.trim()) return;
-    addReply(review._id, newReply);
-    setNewReply("");
+  const { addReply, toggleLikeReply, fetchReplies, repliesPagination } =
+    useMediaReviews();
+
+  /*
+   * Get pagination data for this specific review.
+   */
+  const pagination = repliesPagination?.[review._id];
+
+  // =========================
+  // LOAD MORE REPLIES
+  // =========================
+  const handleLoadMore = async () => {
+    if (!pagination?.hasMore || loadingMore) {
+      return;
+    }
+
+    setLoadingMore(true);
+
+    try {
+      await fetchReplies(review._id, pagination.currentPage + 1);
+    } catch (error) {
+      console.error("Failed to load more replies:", error);
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
+  // =========================
+  // POST MAIN REPLY
+  // =========================
+  const handlePostReply = async () => {
+    if (!newReply.trim()) {
+      return;
+    }
+
+    try {
+      await addReply(review._id, newReply.trim());
+
+      setNewReply("");
+    } catch (error) {
+      console.error("Failed to post reply:", error);
+    }
+  };
+
+  // =========================
+  // BUILD NESTED REPLIES
+  // =========================
   const buildNestedReplies = (replies) => {
     const map = {};
     const roots = [];
 
-    replies.forEach((r) => (map[r._id] = { ...r, children: [] }));
+    replies.forEach((reply) => {
+      map[reply._id] = {
+        ...reply,
+        children: [],
+      };
+    });
 
-    replies.forEach((r) => {
-      if (r.replyingTo) {
-        map[r.replyingTo]?.children.push(map[r._id]);
+    replies.forEach((reply) => {
+      if (reply.replyingTo) {
+        /*
+         * If parent exists in currently loaded
+         * replies, attach it as a child.
+         */
+        if (map[reply.replyingTo]) {
+          map[reply.replyingTo].children.push(map[reply._id]);
+        } else {
+          /*
+           * Parent isn't loaded yet.
+           *
+           * This can happen because replies are
+           * paginated.
+           */
+        }
       } else {
-        roots.push(map[r._id]);
+        roots.push(map[reply._id]);
       }
     });
 
@@ -37,22 +100,48 @@ export default function Reply({ review, replies, closing }) {
 
   const nestedReplies = buildNestedReplies(replies || []);
 
+  /*
+   * Total replies should come from pagination,
+   * because replies.length is only the number
+   * currently loaded.
+   */
+  const totalReplies = pagination?.totalReplies ?? replies?.length ?? 0;
+
   return (
     <motion.div
       className="reply-section"
       onClick={() => closing(false)}
-      initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-      animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
-      exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+      initial={{
+        opacity: 0,
+        backdropFilter: "blur(0px)",
+      }}
+      animate={{
+        opacity: 1,
+        backdropFilter: "blur(8px)",
+      }}
+      exit={{
+        opacity: 0,
+        backdropFilter: "blur(0px)",
+      }}
       transition={{ duration: 0.3 }}
     >
-      {console.log("review of reply page", review)}
-      {console.log("replies of reply page", replies)}
       <motion.div
         className="reply-container"
-        initial={{ opacity: 0, scale: 0.9, y: 30 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: 30 }}
+        initial={{
+          opacity: 0,
+          scale: 0.9,
+          y: 30,
+        }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+          y: 0,
+        }}
+        exit={{
+          opacity: 0,
+          scale: 0.9,
+          y: 30,
+        }}
         transition={{
           type: "spring",
           damping: 28,
@@ -60,13 +149,22 @@ export default function Reply({ review, replies, closing }) {
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* ========================= */}
+        {/* LEFT REVIEW */}
+        {/* ========================= */}
+
         <div className="left-review">
           <div className="review-reply-header">
             <CircleUser size={46} className="user-avatar" />
+
             <div>
-              <h3>{review.User?.User_Name || review.user?.User_Name}</h3>
+              <h3>
+                {review.User?.User_Name || review.user?.User_Name || "User"}
+              </h3>
+
               <p>{formatRelativeTime(review.createdAt)}</p>
             </div>
+
             <div className="review-of">
               <span
                 className="rating-badge"
@@ -89,12 +187,21 @@ export default function Reply({ review, replies, closing }) {
           <div className="review-text">{review.comment}</div>
         </div>
 
+        {/* ========================= */}
+        {/* RIGHT REPLIES */}
+        {/* ========================= */}
+
         <div className="right-replies">
+          {/* HEADER */}
+
           <div className="replies-header">
             <h4>
-              Replies <span>({formatCompactNumber(replies?.length || 0)})</span>
+              Replies <span>({formatCompactNumber(totalReplies)})</span>
             </h4>
           </div>
+
+          {/* REPLIES LIST */}
+
           <div className="replies-list">
             <AnimatePresence initial={false}>
               {nestedReplies.length > 0 ? (
@@ -110,26 +217,65 @@ export default function Reply({ review, replies, closing }) {
               ) : (
                 <motion.div
                   className="no-replies"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
+                  initial={{
+                    opacity: 0,
+                  }}
+                  animate={{
+                    opacity: 1,
+                  }}
                 >
                   <MessageCircle size={40} opacity={0.3} />
+
                   <p>No replies yet. Be the first to reply!</p>
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* ========================= */}
+            {/* LOAD MORE */}
+            {/* ========================= */}
+
+            {pagination?.hasMore && (
+              <motion.div
+                className="load-more-container"
+                initial={{
+                  opacity: 0,
+                }}
+                animate={{
+                  opacity: 1,
+                }}
+              >
+                <button
+                  className="load-more-btn"
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                >
+                  {loadingMore ? "Loading..." : "Load More Replies"}
+                </button>
+              </motion.div>
+            )}
           </div>
+
+          {/* ========================= */}
+          {/* MAIN REPLY INPUT */}
+          {/* ========================= */}
 
           <div className="reply-input-wrapper">
             <div className="reply-input">
               <CircleUser size={35} className="current-user-avatar" />
+
               <input
                 type="text"
                 placeholder="Add a reply..."
                 value={newReply}
                 onChange={(e) => setNewReply(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handlePostReply()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handlePostReply();
+                  }
+                }}
               />
+
               <button
                 onClick={handlePostReply}
                 className={newReply.trim() ? "active" : ""}
@@ -145,6 +291,10 @@ export default function Reply({ review, replies, closing }) {
   );
 }
 
+// =====================================================
+// REPLY ITEM
+// =====================================================
+
 const ReplyItem = ({
   reply,
   reviewId,
@@ -153,53 +303,92 @@ const ReplyItem = ({
   isNested = false,
 }) => {
   const [showReplyInput, setShowReplyInput] = useState(false);
+
   const [showChildren, setShowChildren] = useState(false);
+
   const [text, setText] = useState("");
 
-  const handleReply = () => {
-    if (!text.trim()) return;
+  // =========================
+  // REPLY TO REPLY
+  // =========================
 
-    addReply(reviewId, text, reply._id);
-    setText("");
-    setShowReplyInput(false);
-    setShowChildren(true);
+  const handleReply = async () => {
+    if (!text.trim()) {
+      return;
+    }
+
+    try {
+      await addReply(reviewId, text.trim(), reply._id);
+
+      setText("");
+      setShowReplyInput(false);
+      setShowChildren(true);
+    } catch (error) {
+      console.error("Failed to add nested reply:", error);
+    }
   };
+
+  const username = reply.user?.User_Name || reply.User?.User_Name || "User";
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+      initial={{
+        opacity: 0,
+        y: 10,
+      }}
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      exit={{
+        opacity: 0,
+        scale: 0.95,
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 400,
+        damping: 30,
+      }}
       className={`reply-card ${isNested ? "is-nested" : ""}`}
     >
       <CircleUser size={30} className="reply-avatar" />
 
       <div className="reply-body">
+        {/* USER + TIME */}
+
         <div className="reply-top">
-          <h4>{reply.user?.User_Name || reply.User?.User_Name || "User"}</h4>
+          <h4>{username}</h4>
+
           <span>{formatRelativeTime(reply.createdAt)}</span>
         </div>
 
+        {/* COMMENT */}
+
         <p className="reply-comment">{reply.comment}</p>
 
+        {/* ACTIONS */}
+
         <div className="reply-actions">
+          {/* LIKE */}
+
           <button
             className="action-btn like-btn"
             onClick={() => toggleLikeReply(reviewId, reply._id)}
           >
             <ThumbsUp size={14} className={reply.isLiked ? "liked" : ""} />
+
             <span>{formatCompactNumber(reply.likesCount || 0)}</span>
           </button>
+
+          {/* REPLY */}
 
           <button
             className={`action-btn reply-btn ${showReplyInput ? "active" : ""}`}
             onClick={() => {
               setShowReplyInput(!showReplyInput);
+
               if (!showReplyInput) {
-                setText(
-                  `@${reply.user?.User_Name || reply.User?.User_Name || ""} `,
-                );
+                setText(`@${username} `);
               } else {
                 setText("");
               }
@@ -209,23 +398,44 @@ const ReplyItem = ({
           </button>
         </div>
 
+        {/* ========================= */}
+        {/* NESTED REPLY INPUT */}
+        {/* ========================= */}
+
         <AnimatePresence>
           {showReplyInput && (
             <motion.div
-              initial={{ opacity: 0, height: 0, marginTop: 0 }}
-              animate={{ opacity: 1, height: "auto", marginTop: 10 }}
-              exit={{ opacity: 0, height: 0, marginTop: 0 }}
+              initial={{
+                opacity: 0,
+                height: 0,
+                marginTop: 0,
+              }}
+              animate={{
+                opacity: 1,
+                height: "auto",
+                marginTop: 10,
+              }}
+              exit={{
+                opacity: 0,
+                height: 0,
+                marginTop: 0,
+              }}
               className="nested-input-container"
             >
               <div className="nested-input">
                 <input
                   type="text"
-                  placeholder={`Reply to ${reply.user?.User_Name || "User"}`}
+                  placeholder={`Reply to ${username}`}
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleReply()}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleReply();
+                    }
+                  }}
                   autoFocus
                 />
+
                 <button
                   onClick={handleReply}
                   disabled={!text.trim()}
@@ -238,24 +448,44 @@ const ReplyItem = ({
           )}
         </AnimatePresence>
 
+        {/* ========================= */}
+        {/* VIEW CHILD REPLIES */}
+        {/* ========================= */}
+
         {reply.children && reply.children.length > 0 && (
           <button
             className="toggle-replies-btn"
             onClick={() => setShowChildren(!showChildren)}
           >
             <span className="line"></span>
+
             {showChildren
               ? "Hide Replies"
-              : `View ${reply.children.length} Repl${reply.children.length === 1 ? "y" : "ies"}`}
+              : `View ${reply.children.length} Repl${
+                  reply.children.length === 1 ? "y" : "ies"
+                }`}
           </button>
         )}
+
+        {/* ========================= */}
+        {/* CHILD REPLIES */}
+        {/* ========================= */}
 
         <AnimatePresence>
           {showChildren && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
+              initial={{
+                opacity: 0,
+                height: 0,
+              }}
+              animate={{
+                opacity: 1,
+                height: "auto",
+              }}
+              exit={{
+                opacity: 0,
+                height: 0,
+              }}
               className="nested-replies"
             >
               {reply.children?.map((child) => (

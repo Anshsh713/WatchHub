@@ -17,6 +17,8 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useFranchise } from "../../../Context/FranchiseContext";
 import VideoLoader from "../../Common/VideoLoader";
+import AddToCollectionButton from "../../Collections/AddToCollectionButton";
+import AddToCollectionModal from "../../Collections/AddToCollectionModal";
 import "./Franchise.css";
 
 export default function FranchiseDetails() {
@@ -40,6 +42,7 @@ export default function FranchiseDetails() {
   const [sortBy, setSortBy] = useState("release"); // 'release', 'title', 'rating'
   const [imageErrors, setImageErrors] = useState({});
   const [logoError, setLogoError] = useState(false);
+  const [franchiseModalOpen, setFranchiseModalOpen] = useState(false);
 
   useEffect(() => {
     if (slug) {
@@ -197,6 +200,17 @@ export default function FranchiseDetails() {
                 <Film size={14} />
                 {franchiseContent.length} Titles
               </span>
+
+              {franchiseContent.length > 0 && (
+                <button
+                  type="button"
+                  className="btn-add-to-collection"
+                  style={{ padding: "5px 12px", fontSize: "0.8rem", marginLeft: "8px" }}
+                  onClick={() => setFranchiseModalOpen(true)}
+                >
+                  <Layers size={14} /> Add Franchise to Collection
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -356,12 +370,26 @@ export default function FranchiseDetails() {
                         )}
                         {mediaType.toUpperCase()}
                       </span>
-                      {item.vote_average > 0 && (
-                        <span className="rating-tag flex items-center gap-xs">
-                          <Star size={10} fill="#f1c40f" color="#f1c40f" />
-                          {item.vote_average.toFixed(1)}
-                        </span>
-                      )}
+                      <div className="flex items-center gap-xs">
+                        {item.vote_average > 0 && (
+                          <span className="rating-tag flex items-center gap-xs">
+                            <Star size={10} fill="#f1c40f" color="#f1c40f" />
+                            {item.vote_average.toFixed(1)}
+                          </span>
+                        )}
+                        <AddToCollectionButton
+                          variant="icon"
+                          mediaItem={{
+                            tmdbId: item.id,
+                            mediaType,
+                            title,
+                            posterPath: item.poster_path,
+                            backdropPath: item.backdrop_path,
+                            releaseDate: item.release_date || item.first_air_date,
+                            voteAverage: item.vote_average,
+                          }}
+                        />
+                      </div>
                     </div>
 
                     <div className="card-media-info">
@@ -379,6 +407,21 @@ export default function FranchiseDetails() {
           })}
         </motion.div>
       )}
+
+      {/* Bulk Add Franchise Modal */}
+      <AddToCollectionModal
+        isOpen={franchiseModalOpen}
+        mediaItems={franchiseContent.map((item) => ({
+          tmdbId: item.id,
+          mediaType: item.media_type || (item.title ? "movie" : "tv"),
+          title: item.title || item.name,
+          posterPath: item.poster_path,
+          backdropPath: item.backdrop_path,
+          releaseDate: item.release_date || item.first_air_date,
+          voteAverage: item.vote_average,
+        }))}
+        onClose={() => setFranchiseModalOpen(false)}
+      />
     </div>
   );
 }

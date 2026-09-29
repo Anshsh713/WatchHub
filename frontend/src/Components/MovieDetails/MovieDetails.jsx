@@ -22,7 +22,8 @@ import {
 import VibeChart from "../Common/VideChart";
 import { useRef } from "react";
 import MediaReviews from "../MediaReviews/MediaReviews";
-import ReviewFilter from "../MediaReviews/Review";
+import WatchListButton from "../WatchList/WatchListButton";
+import AddToCollectionButton from "../Collections/AddToCollectionButton";
 import API from "../../Services/Axios_api";
 
 const DEFAULT_PROFILE =
@@ -261,6 +262,28 @@ export default function MediaDetail() {
           </div>
           <div className="Name">
             <h1>{mediaDetails.name}</h1>
+          </div>
+          <div className="media-actions-row" style={{ display: "flex", alignItems: "center", gap: "16px", margin: "6px 0 12px", flexWrap: "wrap" }}>
+            <WatchListButton
+              mediaId={id}
+              mediaType={type}
+              title={mediaDetails.name}
+              posterPath={mediaDetails.images?.poster}
+              backdropPath={mediaDetails.images?.backdrop}
+              releaseDate={mediaDetails.theatreStatus?.releaseDate}
+            />
+            <AddToCollectionButton
+              mediaItem={{
+                tmdbId: id,
+                mediaType: type,
+                title: mediaDetails.name,
+                posterPath: mediaDetails.images?.poster,
+                backdropPath: mediaDetails.images?.backdrop,
+                releaseDate: mediaDetails.theatreStatus?.releaseDate,
+                voteAverage: mediaDetails.vote_average,
+                genres: mediaDetails.genres?.map((g) => g.name || g),
+              }}
+            />
           </div>
           <div className="media-idea">
             <div className="media-title">

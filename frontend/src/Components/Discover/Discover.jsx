@@ -34,6 +34,7 @@ import {
 
 import { useDiscover } from "../../Context/DiscoverContext";
 import VideoLoader from "../Common/VideoLoader";
+import AddToCollectionButton from "../Collections/AddToCollectionButton";
 import "./Discover.css";
 
 /*
@@ -1174,7 +1175,7 @@ function HorizontalMediaSlider({ items = [], loading = false, emptyMessage, onIt
                       </div>
                     )}
 
-                    <div className="discover-card-badges">
+                    <div className="discover-card-badges" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
                       <span className="media-type-badge">
                         {item.media_type === "movie"
                           ? "Movie"
@@ -1182,6 +1183,18 @@ function HorizontalMediaSlider({ items = [], loading = false, emptyMessage, onIt
                             ? "Anime"
                             : "TV Series"}
                       </span>
+                      <AddToCollectionButton
+                        variant="icon"
+                        mediaItem={{
+                          tmdbId: item.id,
+                          mediaType: item.media_type || (item.first_air_date ? "tv" : "movie"),
+                          title,
+                          posterPath: item.poster_path,
+                          backdropPath: item.backdrop_path,
+                          releaseDate: date,
+                          voteAverage: item.vote_average || 0,
+                        }}
+                      />
                     </div>
 
                     <div className="discover-card-info">

@@ -206,7 +206,7 @@ export default function WatchListCard({ item, onOpenEditModal }) {
                 {item.personalRating}/10
               </span>
             ) : (
-              <span className="unrated-chip" onClick={handleEdit}>
+              <span className="unrated-chip" onClick={(e) => { e.stopPropagation(); handleEdit(e); }}>
                 <Star size={12} /> Rate
               </span>
             )}

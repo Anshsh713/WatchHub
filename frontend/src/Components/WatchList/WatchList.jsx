@@ -89,6 +89,7 @@ export default function WatchList() {
   const [searchInput, setSearchInput] = useState(searchQuery);
   const [sortOpen, setSortOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const [editModalItem, setEditModalItem] = useState(null);
   const [modalRating, setModalRating] = useState(0);
   const [modalNotes, setModalNotes] = useState("");
@@ -146,6 +147,31 @@ export default function WatchList() {
     window.scrollTo({ top: 400, behavior: "smooth" });
   };
 
+  const toggleHistory = () => {
+    const next = !historyOpen;
+    setHistoryOpen(next);
+    if (next && !historyLoaded) {
+      fetchHistory();
+      setHistoryLoaded(true);
+    }
+  };
+
+  // Build visible page numbers with ellipsis
+  const buildPageNumbers = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    const pages = [];
+    pages.push(1);
+    if (page > 3) pages.push("...");
+    for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) {
+      pages.push(i);
+    }
+    if (page < totalPages - 2) pages.push("...");
+    pages.push(totalPages);
+    return pages;
+  };
+
   // Open Edit Rating / Notes Modal
   const openEditModal = (item) => {
     setEditModalItem(item);
@@ -200,7 +226,7 @@ export default function WatchList() {
           <div className="watchlist-hero-actions">
             <button
               className={`watchlist-history-btn ${historyOpen ? "active" : ""}`}
-              onClick={() => setHistoryOpen(!historyOpen)}
+              onClick={toggleHistory}
             >
               <History size={17} />
               <span>Watch History</span>
@@ -239,7 +265,7 @@ export default function WatchList() {
                     <Trash2 size={15} /> Clear All History
                   </button>
                 )}
-                <button className="close-history-btn" onClick={() => setHistoryOpen(false)}>
+                <button className="close-history-btn" onClick={toggleHistory}>
                   <X size={18} />
                 </button>
               </div>
@@ -481,19 +507,29 @@ export default function WatchList() {
                   disabled={page <= 1}
                   onClick={() => handlePageChange(page - 1)}
                 >
-                  <ChevronLeft size={18} /> Previous
+                  <ChevronLeft size={16} /> Prev
                 </button>
 
-                <div className="page-indicator">
-                  Page <span>{page}</span> of <span>{totalPages}</span> ({totalCount} total items)
-                </div>
+                {buildPageNumbers().map((p, idx) =>
+                  p === "..." ? (
+                    <span key={`ellipsis-${idx}`} className="page-ellipsis">…</span>
+                  ) : (
+                    <button
+                      key={p}
+                      className={`page-number-btn ${p === page ? "active" : ""}`}
+                      onClick={() => handlePageChange(p)}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
 
                 <button
                   className="page-btn next"
                   disabled={page >= totalPages}
                   onClick={() => handlePageChange(page + 1)}
                 >
-                  Next <ChevronRight size={18} />
+                  Next <ChevronRight size={16} />
                 </button>
               </div>
             )}

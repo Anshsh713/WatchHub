@@ -3,12 +3,12 @@ import { Clock, Eye, CheckCircle2, PauseCircle, XCircle, Layers } from "lucide-r
 import { motion } from "framer-motion";
 
 const STATUS_CONFIG = [
-  { id: "all", label: "All Items", icon: Layers, color: "#e4e4e7", key: "all" },
-  { id: "want_to_watch", label: "Want to Watch", icon: Clock, color: "#3b82f6", key: "want_to_watch" },
-  { id: "watching", label: "Watching", icon: Eye, color: "#f59e0b", key: "watching" },
-  { id: "completed", label: "Completed", icon: CheckCircle2, color: "#22c55e", key: "completed" },
-  { id: "on_hold", label: "On Hold", icon: PauseCircle, color: "#8b5cf6", key: "on_hold" },
-  { id: "dropped", label: "Dropped", icon: XCircle, color: "#ef4444", key: "dropped" },
+  { id: "all",           label: "All Items",     icon: Layers,       color: "#e4e4e7", key: "all"          },
+  { id: "want_to_watch", label: "Want to Watch", icon: Clock,        color: "#3b82f6", key: "want_to_watch" },
+  { id: "watching",      label: "Watching",      icon: Eye,          color: "#f59e0b", key: "watching"      },
+  { id: "completed",     label: "Completed",     icon: CheckCircle2, color: "#22c55e", key: "completed"     },
+  { id: "on_hold",       label: "On Hold",       icon: PauseCircle,  color: "#8b5cf6", key: "on_hold"       },
+  { id: "dropped",       label: "Dropped",       icon: XCircle,      color: "#ef4444", key: "dropped"       },
 ];
 
 export default function WatchListStats({ statusCounts = {}, activeStatus = "all", onSelectStatus }) {
@@ -26,8 +26,9 @@ export default function WatchListStats({ statusCounts = {}, activeStatus = "all"
             onClick={() => onSelectStatus(status.id)}
             whileHover={{ y: -2 }}
             whileTap={{ scale: 0.97 }}
+            style={{ "--pill-color": status.color }}
           >
-            <div className="stat-icon-wrapper" style={{ color: status.color }}>
+            <div className="stat-icon-wrapper">
               <Icon size={16} />
             </div>
 

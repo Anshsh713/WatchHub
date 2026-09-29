@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const MediaReview = require("../models/Media_Reviews");
 const User = require("../models/WatchHub_User_model");
 const { detectSpoilerAI } = require("../AI_ultils/spoilerDetector");
@@ -33,7 +34,6 @@ exports.createReview = async (req, res) => {
       existingReview.isEdited = true;
 
       await existingReview.save();
-
       await existingReview.populate("User", "User_Name");
 
       return res.json({
@@ -84,12 +84,7 @@ exports.getReviewsStats = async (req, res) => {
 
     const aggregation = await MediaReview.aggregate([
       { $match: { MediaID } },
-      {
-        $group: {
-          _id: "$rating",
-          count: { $sum: 1 },
-        },
-      },
+      { $group: { _id: "$rating", count: { $sum: 1 } } },
     ]);
 
     const allRatings = ["Perfection", "Go for it", "TimePass", "Skip it"];
@@ -142,6 +137,14 @@ exports.toggleLikeReview = async (req, res) => {
   }
 };
 
+// =========================
+// ADD REPLY — fixed
+// Was: pushed the reply, then sent back review.replies (the WHOLE
+// array) on every single post. That's why the frontend only ever
+// showed anything right after posting — it was replacing repliesMap
+// with a full dump each time, and nothing populated it beforehand.
+// Now: sends back just the one reply that was created.
+// =========================
 exports.addReply = async (req, res) => {
   try {
     const { reviewId } = req.params;
@@ -153,36 +156,31 @@ exports.addReply = async (req, res) => {
     }
 
     const review = await MediaReview.findById(reviewId);
-
     if (!review) {
       return res.status(404).json({ message: "Review not found" });
     }
 
-    const newReply = {
+    review.replies.push({
       user: userId,
       comment,
       replyingTo: replyingTo || null,
-    };
+    });
 
-    review.replies.push(newReply);
+    const newReply = review.replies[review.replies.length - 1];
 
     await review.save();
     await review.populate("replies.user", "User_Name");
 
-    const repliesWithLikes = review.replies.map((r) => {
-      const replyObj = r.toObject ? r.toObject() : r;
-      return {
-        ...replyObj,
-        likesCount: replyObj.likes?.length || 0,
-        isLiked: replyObj.likes?.some(
-          (id) => id.toString() === userId.toString(),
-        ),
-      };
-    });
+    const populatedReply = review.replies.id(newReply._id).toObject();
 
     res.json({
       success: true,
-      replies: repliesWithLikes,
+      reply: {
+        ...populatedReply,
+        likesCount: 0,
+        isLiked: false,
+      },
+      totalReplies: review.replies.length,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -200,7 +198,6 @@ exports.toggleLikeReply = async (req, res) => {
     }
 
     const reply = review.replies.id(replyId);
-
     if (!reply) {
       return res.status(404).json({ message: "Reply not found" });
     }
@@ -235,7 +232,6 @@ exports.deleteReview = async (req, res) => {
     const userId = req.user._id;
 
     const review = await MediaReview.findById(reviewId);
-
     if (!review) {
       return res.status(404).json({ message: "Review not found" });
     }
@@ -246,10 +242,7 @@ exports.deleteReview = async (req, res) => {
 
     await review.deleteOne();
 
-    res.json({
-      success: true,
-      message: "Review deleted",
-    });
+    res.json({ success: true, message: "Review deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -265,28 +258,17 @@ exports.getReviewsByMedia = async (req, res) => {
     const skip = (page - 1) * limit;
 
     let query = { MediaID };
-
     if (filter === "byMe" && userId) {
       query.User = userId;
     }
 
     let pipeline = [
       { $match: query },
+      { $addFields: { likesCount: { $size: { $ifNull: ["$likes", []] } } } },
       {
-        $addFields: {
-          likesCount: { $size: { $ifNull: ["$likes", []] } },
-        },
+        $addFields: { repliesCount: { $size: { $ifNull: ["$replies", []] } } },
       },
-      {
-        $addFields: {
-          repliesCount: { $size: { $ifNull: ["$replies", []] } },
-        },
-      },
-      {
-        $project: {
-          replies: 0,
-        },
-      },
+      { $project: { replies: 0 } },
     ];
 
     if (sort === "mostLiked") {
@@ -308,12 +290,7 @@ exports.getReviewsByMedia = async (req, res) => {
           as: "User",
         },
       },
-      {
-        $unwind: {
-          path: "$User",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
+      { $unwind: { path: "$User", preserveNullAndEmptyArrays: true } },
     );
 
     let reviews = await MediaReview.aggregate(pipeline);
@@ -343,6 +320,12 @@ exports.getReviewsByMedia = async (req, res) => {
   }
 };
 
+// =========================
+// GET REPLIES — fixed
+// Was: used `mongoose.Types.ObjectId` without importing mongoose
+// anywhere in this file → ReferenceError → 500 on every call.
+// This is why nothing loaded on open.
+// =========================
 exports.getReplies = async (req, res) => {
   try {
     const { reviewId } = req.params;
@@ -352,31 +335,14 @@ exports.getReplies = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const result = await MediaReview.aggregate([
-      {
-        $match: {
-          _id: new mongoose.Types.ObjectId(reviewId),
-        },
-      },
-
+      { $match: { _id: new mongoose.Types.ObjectId(reviewId) } },
       {
         $project: {
-          totalReplies: {
-            $size: { $ifNull: ["$replies", []] },
-          },
-
-          replies: {
-            $slice: [{ $ifNull: ["$replies", []] }, skip, limit],
-          },
+          totalReplies: { $size: { $ifNull: ["$replies", []] } },
+          replies: { $slice: [{ $ifNull: ["$replies", []] }, skip, limit] },
         },
       },
-
-      {
-        $unwind: {
-          path: "$replies",
-          preserveNullAndEmptyArrays: false,
-        },
-      },
-
+      { $unwind: { path: "$replies", preserveNullAndEmptyArrays: false } },
       {
         $lookup: {
           from: "watchhub_users",
@@ -385,22 +351,11 @@ exports.getReplies = async (req, res) => {
           as: "replyUser",
         },
       },
-
-      {
-        $unwind: {
-          path: "$replyUser",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-
+      { $unwind: { path: "$replyUser", preserveNullAndEmptyArrays: true } },
       {
         $group: {
           _id: "$_id",
-
-          totalReplies: {
-            $first: "$totalReplies",
-          },
-
+          totalReplies: { $first: "$totalReplies" },
           replies: {
             $push: {
               _id: "$replies._id",
@@ -412,11 +367,7 @@ exports.getReplies = async (req, res) => {
               replyingTo: "$replies.replyingTo",
               likes: "$replies.likes",
               createdAt: "$replies.createdAt",
-              likesCount: {
-                $size: {
-                  $ifNull: ["$replies.likes", []],
-                },
-              },
+              likesCount: { $size: { $ifNull: ["$replies.likes", []] } },
             },
           },
         },
@@ -424,9 +375,7 @@ exports.getReplies = async (req, res) => {
     ]);
 
     if (!result.length) {
-      return res.status(404).json({
-        message: "Review not found",
-      });
+      return res.status(404).json({ message: "Review not found" });
     }
 
     const data = result[0];
@@ -451,7 +400,6 @@ exports.getReplies = async (req, res) => {
     });
   } catch (error) {
     console.error("getReplies error:", error);
-
     res.status(500).json({
       message: "Internal server error",
       error: error.message,

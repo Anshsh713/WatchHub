@@ -106,6 +106,13 @@ export const MediaReviewsProvider = ({ children }) => {
     }
   };
 
+  // =========================
+  // ADD REPLY — fixed
+  // Now appends the single reply the server sends back, instead of
+  // replacing the whole repliesMap[reviewId] array. This is what
+  // stopped both main replies and sub-replies from stomping on
+  // each other / getting wiped whenever a new reply was posted.
+  // =========================
   const addReply = async (reviewId, comment, replyingTo = null) => {
     try {
       const res = await API.post(
@@ -118,33 +125,36 @@ export const MediaReviewsProvider = ({ children }) => {
         },
       );
 
+      const newReply = res.data.reply;
+
       setRepliesMap((prev) => ({
         ...prev,
-        [reviewId]: res.data.replies,
+        [reviewId]: [...(prev[reviewId] || []), newReply],
       }));
 
       setRepliesPagination((prev) => ({
         ...prev,
         [reviewId]: {
           ...prev[reviewId],
-          totalReplies: (prev[reviewId]?.totalReplies || 0) + 1,
+          totalReplies: res.data.totalReplies,
         },
       }));
 
       setReviews((prev) =>
         prev.map((review) =>
           review._id === reviewId
-            ? {
-                ...review,
-                repliesCount: (review.repliesCount || 0) + 1,
-              }
+            ? { ...review, repliesCount: (review.repliesCount || 0) + 1 }
             : review,
         ),
       );
+
+      return newReply;
     } catch (err) {
       console.error(err);
+      throw err;
     }
   };
+
   const toggleLikeReply = async (reviewId, replyId) => {
     try {
       const res = await API.put(
@@ -183,7 +193,6 @@ export const MediaReviewsProvider = ({ children }) => {
 
       setRepliesMap((prev) => ({
         ...prev,
-
         [reviewId]:
           page === 1 ? newReplies : [...(prev[reviewId] || []), ...newReplies],
       }));
@@ -199,7 +208,6 @@ export const MediaReviewsProvider = ({ children }) => {
         "Fetch replies error:",
         error.response?.data || error.message,
       );
-
       throw error;
     }
   };

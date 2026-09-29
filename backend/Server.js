@@ -10,6 +10,7 @@ const CommentsRoutes = require("./routes/CommentsRoutes");
 const Franchiseroutes = require("./routes/Franchiseroutes");
 const DiscoverRoutes = require("./routes/DiscoverRoutes");
 const WatchlistRoutes = require("./routes/WatchlistRoutes");
+const CollectionRoutes = require("./routes/CollectionRoutes");
 const { initializeAI } = require("./AI_ultils/spoilerDetector"); // Import AI Init
 const WatchHub = express();
 
@@ -17,7 +18,7 @@ const WatchHub = express();
 WatchHub.use(
   cors({
     origin: process.env.FRONTEND_URL || "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   }),
 );
@@ -33,6 +34,7 @@ WatchHub.use("/api/comments", CommentsRoutes);
 WatchHub.use("/api/franchises", Franchiseroutes);
 WatchHub.use("/api", DiscoverRoutes);
 WatchHub.use("/api/watchlist", WatchlistRoutes);
+WatchHub.use("/api/collections", CollectionRoutes);
 
 // Global Error Handler
 WatchHub.use((err, req, res, next) => {

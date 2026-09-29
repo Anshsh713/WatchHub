@@ -1,0 +1,341 @@
+/* Collection Details Page Styles */
+.collection-details-page {
+  min-height: 100vh;
+  background-color: var(--color-bg, #0f0f0f);
+  color: var(--color-text-main, #ffffff);
+  padding-bottom: 80px;
+}
+
+/* Hero Banner Container */
+.collection-hero-banner {
+  position: relative;
+  width: 100%;
+  padding-top: 100px;
+  padding-bottom: 40px;
+  background-color: #121212;
+  overflow: hidden;
+  border-bottom: 1px solid var(--color-border, #2a2a2a);
+}
+
+.hero-backdrop-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(28px) brightness(0.25);
+  transform: scale(1.1);
+  pointer-events: none;
+}
+
+.hero-backdrop-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15,15,15,0.7) 0%, rgba(15,15,15,0.95) 100%);
+  pointer-events: none;
+}
+
+.collection-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  gap: 36px;
+  align-items: flex-start;
+}
+
+/* Left: Cover Art / Collage */
+.hero-cover-container {
+  width: 280px;
+  flex-shrink: 0;
+  aspect-ratio: 2 / 3;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #181818;
+  position: relative;
+}
+
+.hero-single-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-poster-collage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  width: 100%;
+  height: 100%;
+  gap: 2px;
+  background: #000;
+}
+
+.hero-collage-cell {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.hero-collage-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #666;
+}
+
+/* Right: Hero Meta & Actions */
+.hero-meta-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hero-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.hero-title {
+  font-family: var(--font-heading, "Outfit", sans-serif);
+  font-size: 2.3rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0;
+  color: #ffffff;
+}
+
+.hero-creator-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: #bbb;
+}
+
+.hero-creator-row .creator-link {
+  color: #fff;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.remix-attribution-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.hero-description {
+  font-size: 0.95rem;
+  color: #ccc;
+  line-height: 1.6;
+  max-width: 850px;
+  margin: 0;
+}
+
+/* Tags in Hero */
+.hero-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hero-tag-pill {
+  font-size: 0.75rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #bbb;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+
+/* Hero Stats Bar */
+.hero-stats-overview {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stat-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  color: #eee;
+  font-weight: 500;
+}
+
+.stat-chip.rating { color: #facc15; }
+.stat-chip.votes { color: #4ade80; }
+
+.stat-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Hero Action Bar */
+.hero-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.action-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: var(--color-primary, #e50914);
+  color: #fff;
+  transition: all 0.2s ease;
+}
+
+.action-btn-primary:hover {
+  background: var(--color-primary-hover, #b20710);
+  transform: translateY(-1px);
+}
+
+.action-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #eee;
+  transition: all 0.2s ease;
+}
+
+.action-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.action-btn-secondary.active {
+  background: rgba(244, 63, 94, 0.2);
+  border-color: #f43f5e;
+  color: #f43f5e;
+}
+
+.action-btn-secondary.following {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+.owner-actions-cluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* Tabs Navigation */
+.collection-tabs-bar {
+  max-width: 1280px;
+  margin: 24px auto 0;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid var(--color-border, #2a2a2a);
+}
+
+.collection-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #888;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.collection-tab-btn:hover {
+  color: #ccc;
+}
+
+.collection-tab-btn.active {
+  color: #fff;
+  border-bottom-color: var(--color-primary, #e50914);
+}
+
+/* Tab Content Viewport */
+.collection-tab-viewport {
+  max-width: 1280px;
+  margin: 32px auto 0;
+  padding: 0 24px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .collection-hero-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .hero-cover-container {
+    width: 220px;
+  }
+
+  .hero-badges-row,
+  .hero-creator-row,
+  .hero-tags-row,
+  .hero-stats-overview,
+  .hero-actions-bar {
+    justify-content: center;
+  }
+
+  .owner-actions-cluster {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -132,6 +132,142 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  /* === PROFILE & DASHBOARD === */
+  const getUserProfile = async (identifier = "me") => {
+    try {
+      const res = await API.get(`/user/profile/${identifier}`);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to load profile");
+    }
+  };
+
+  const updateUserProfile = async (data) => {
+    try {
+      const res = await API.put("/user/profile", data);
+      if (res.data.user) {
+        dispatch(setUser(res.data.user));
+      }
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to update profile");
+    }
+  };
+
+  /* === SETTINGS & SECURITY === */
+  const getUserSettings = async () => {
+    try {
+      const res = await API.get("/user/settings");
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to fetch settings");
+    }
+  };
+
+  const updateUserSettings = async (data) => {
+    try {
+      const res = await API.put("/user/settings", data);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to update settings");
+    }
+  };
+
+  const changePassword = async (currentPassword, newPassword) => {
+    try {
+      const res = await API.put("/user/security/password", {
+        currentPassword,
+        newPassword,
+      });
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to change password");
+    }
+  };
+
+  /* === FOLLOW & SOCIAL === */
+  const followUser = async (targetUserId) => {
+    try {
+      const res = await API.post(`/user/follow/${targetUserId}`);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to follow user");
+    }
+  };
+
+  const unfollowUser = async (targetUserId) => {
+    try {
+      const res = await API.post(`/user/unfollow/${targetUserId}`);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to unfollow user");
+    }
+  };
+
+  const getUserFollowers = async (identifier) => {
+    try {
+      const res = await API.get(`/user/${identifier}/followers`);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to fetch followers");
+    }
+  };
+
+  const getUserFollowing = async (identifier) => {
+    try {
+      const res = await API.get(`/user/${identifier}/following`);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to fetch following");
+    }
+  };
+
+  /* === PROFILE TABS CONTENT === */
+  const getUserWatchlist = async (identifier, params = {}) => {
+    try {
+      const res = await API.get(`/user/${identifier}/watchlist`, { params });
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to fetch user watchlist");
+    }
+  };
+
+  const getUserReviews = async (identifier) => {
+    try {
+      const res = await API.get(`/user/${identifier}/reviews`);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to fetch user reviews");
+    }
+  };
+
+  const getUserRatings = async (identifier) => {
+    try {
+      const res = await API.get(`/user/${identifier}/ratings`);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to fetch user ratings");
+    }
+  };
+
+  const getUserActivity = async (identifier) => {
+    try {
+      const res = await API.get(`/user/${identifier}/activity`);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to fetch user activity");
+    }
+  };
+
+  const getUserLikes = async (identifier) => {
+    try {
+      const res = await API.get(`/user/${identifier}/likes`);
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Failed to fetch user likes");
+    }
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -144,6 +280,20 @@ export const UserProvider = ({ children }) => {
         Password_Reset_Verify,
         Password_Reseting,
         DeletingOTP,
+        getUserProfile,
+        updateUserProfile,
+        getUserSettings,
+        updateUserSettings,
+        changePassword,
+        followUser,
+        unfollowUser,
+        getUserFollowers,
+        getUserFollowing,
+        getUserWatchlist,
+        getUserReviews,
+        getUserRatings,
+        getUserActivity,
+        getUserLikes,
       }}
     >
       {children}

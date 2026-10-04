@@ -16,6 +16,9 @@ import { FranchiseProvider } from "./Context/FranchiseContext.jsx";
 import { DiscoverProvider } from "./Context/DiscoverContext.jsx";
 import { WatchListProvider } from "./Context/WatchListContext.jsx";
 import { CollectionProvider } from "./Context/CollectionContext.jsx";
+import { ClubProvider } from "./Context/ClubContext.jsx";
+import { NotificationProvider } from "./Context/NotificationContext.jsx";
+
 import Home from "./Components/Home/Home.jsx";
 import Protected from "./Data_Management/Protected.jsx";
 import AuthPage from "./Login_Signup/AuthPage/AuthPage.jsx";
@@ -28,6 +31,9 @@ import WatchList from "./Components/WatchList/WatchList.jsx";
 import Collections from "./Components/Collections/Collections.jsx";
 import CollectionDetails from "./Components/Collections/CollectionDetails.jsx";
 import Profile from "./Components/Profile/Profile.jsx";
+import Clubs from "./Components/Clubs/Clubs.jsx";
+import ClubDetails from "./Components/Clubs/ClubDetails.jsx";
+import Settings from "./Components/Settings/Settings.jsx";
 import Main_Page from "./Components/News/Main_Page.jsx";
 import Detail from "./Components/News/News_Events_Details.jsx/Detail.jsx";
 import Discover from "./Components/Discover/Discover.jsx";
@@ -156,6 +162,7 @@ const router = createBrowserRouter([
           </Protected>
         ),
       },
+      // Profile routes
       {
         path: "/profile",
         element: (
@@ -165,10 +172,44 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/profile/:userId",
+        path: "/profile/:username",
         element: (
           <Protected>
             <Profile />
+          </Protected>
+        ),
+      },
+      // Community & Clubs routes
+      {
+        path: "/community",
+        element: (
+          <Protected>
+            <Clubs />
+          </Protected>
+        ),
+      },
+      {
+        path: "/clubs",
+        element: (
+          <Protected>
+            <Clubs />
+          </Protected>
+        ),
+      },
+      {
+        path: "/clubs/:slug",
+        element: (
+          <Protected>
+            <ClubDetails />
+          </Protected>
+        ),
+      },
+      // Settings route
+      {
+        path: "/settings",
+        element: (
+          <Protected>
+            <Settings />
           </Protected>
         ),
       },
@@ -189,7 +230,11 @@ createRoot(document.getElementById("root")).render(
                     <DiscoverProvider>
                       <WatchListProvider>
                         <CollectionProvider>
-                          <RouterProvider router={router} />
+                          <ClubProvider>
+                            <NotificationProvider>
+                              <RouterProvider router={router} />
+                            </NotificationProvider>
+                          </ClubProvider>
                         </CollectionProvider>
                       </WatchListProvider>
                     </DiscoverProvider>

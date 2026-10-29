@@ -37,6 +37,9 @@ import Settings from "./Components/Settings/Settings.jsx";
 import Main_Page from "./Components/News/Main_Page.jsx";
 import Detail from "./Components/News/News_Events_Details.jsx/Detail.jsx";
 import Discover from "./Components/Discover/Discover.jsx";
+import TheatreBooking from "./Components/TheatreBooking/TheatreBooking.jsx";
+import MyBookings from "./Components/TheatreBooking/MyBookings.jsx";
+import Marketplace from "./Components/Merchandise/Marketplace.jsx";
 import App from "./App.jsx";
 import "./index.css";
 import ErrorBoundary from "./Components/ErrorBoundary/ErrorBoundary.jsx";
@@ -45,6 +48,44 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    errorElement: (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#0f0f0f",
+          color: "#fff",
+          textAlign: "center",
+          padding: "20px",
+        }}
+      >
+        <h2 style={{ fontSize: "2rem", marginBottom: "12px", color: "#e50914" }}>
+          Something went wrong
+        </h2>
+        <p style={{ color: "#aaa", marginBottom: "24px", maxWidth: "480px" }}>
+          An unexpected error occurred while loading this page. You can return to
+          the home screen or try reloading.
+        </p>
+        <button
+          onClick={() => (window.location.href = "/home")}
+          style={{
+            padding: "12px 28px",
+            background: "#e50914",
+            color: "#fff",
+            border: "none",
+            borderRadius: "10px",
+            fontSize: "1rem",
+            fontWeight: "600",
+            cursor: "pointer",
+          }}
+        >
+          Return to Home
+        </button>
+      </div>
+    ),
     children: [
       { index: true, element: <Navigate to="/home" /> },
 
@@ -63,6 +104,46 @@ const router = createBrowserRouter([
         element: (
           <Protected>
             <MediaDetials />
+          </Protected>
+        ),
+      },
+      {
+        path: "/booking/:type/:id",
+        element: (
+          <Protected>
+            <TheatreBooking />
+          </Protected>
+        ),
+      },
+      {
+        path: "/booking/:id",
+        element: (
+          <Protected>
+            <TheatreBooking />
+          </Protected>
+        ),
+      },
+      {
+        path: "/bookings",
+        element: (
+          <Protected>
+            <MyBookings />
+          </Protected>
+        ),
+      },
+      {
+        path: "/marketplace",
+        element: (
+          <Protected>
+            <Marketplace />
+          </Protected>
+        ),
+      },
+      {
+        path: "/store",
+        element: (
+          <Protected>
+            <Marketplace />
           </Protected>
         ),
       },

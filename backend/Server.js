@@ -13,6 +13,8 @@ const WatchlistRoutes = require("./routes/WatchlistRoutes");
 const CollectionRoutes = require("./routes/CollectionRoutes");
 const ClubRoutes = require("./routes/ClubRoutes");
 const NotificationRoutes = require("./routes/NotificationRoutes");
+const BookingRoutes = require("./routes/BookingRoutes");
+const MerchRoutes = require("./routes/MerchRoutes");
 const { initializeAI } = require("./AI_ultils/spoilerDetector"); // Import AI Init
 const WatchHub = express();
 
@@ -39,6 +41,8 @@ WatchHub.use("/api/watchlist", WatchlistRoutes);
 WatchHub.use("/api/collections", CollectionRoutes);
 WatchHub.use("/api/clubs", ClubRoutes);
 WatchHub.use("/api/notifications", NotificationRoutes);
+WatchHub.use("/api/bookings", BookingRoutes);
+WatchHub.use("/api/merch", MerchRoutes);
 
 // Global Error Handler
 WatchHub.use((err, req, res, next) => {

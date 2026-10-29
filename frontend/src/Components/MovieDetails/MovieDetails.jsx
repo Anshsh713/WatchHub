@@ -18,10 +18,13 @@ import {
   Calendar,
   User,
   ExternalLink,
+  Ticket,
 } from "lucide-react";
+import "../TheatreBooking/TheatreBooking.css";
 import VibeChart from "../Common/VideChart";
 import { useRef } from "react";
-import MediaReviews from "../MediaReviews/MediaReviews";
+import ReviewFilter from "../MediaReviews/Review";
+import MovieMerchandiseSection from "../Merchandise/MovieMerchandiseSection";
 import WatchListButton from "../WatchList/WatchListButton";
 import AddToCollectionButton from "../Collections/AddToCollectionButton";
 import API from "../../Services/Axios_api";
@@ -162,7 +165,7 @@ export default function MediaDetail() {
     {
       name: "WatchHub Booking",
       logo: "/Watchhub.png",
-      link: "#",
+      link: `/booking/${type || "movie"}/${id}`,
     },
   ];
 
@@ -284,6 +287,14 @@ export default function MediaDetail() {
                 genres: mediaDetails.genres?.map((g) => g.name || g),
               }}
             />
+            {mediaDetails.theatreStatus?.isInTheatre && (
+              <button
+                className="btn-book-tickets-direct"
+                onClick={() => navigate(`/booking/${type || "movie"}/${id}`)}
+              >
+                <Ticket size={18} /> Book Tickets
+              </button>
+            )}
           </div>
           <div className="media-idea">
             <div className="media-title">
@@ -333,31 +344,58 @@ export default function MediaDetail() {
             {mediaDetails.theatreStatus.isInTheatre === true ? (
               <div className="theatre">
                 <h3>Tickets On</h3>
-                {bookingPlatforms.map((platform) => (
-                  <a
-                    key={platform.name}
-                    className="whaton"
-                    href={platform.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <div className="logo-show">
-                      <img
-                        src={platform.logo}
-                        alt={platform.name}
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src =
-                            "https://via.placeholder.com/40?text=▶";
-                        }}
-                      />
+                {bookingPlatforms.map((platform) =>
+                  platform.name === "WatchHub Booking" ? (
+                    <div
+                      key={platform.name}
+                      className="whaton whaton-watchhub"
+                      onClick={() => navigate(`/booking/${type || "movie"}/${id}`)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <div className="logo-show">
+                        <img
+                          src={platform.logo}
+                          alt={platform.name}
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/Watchhub.png";
+                          }}
+                        />
+                      </div>
+
+                      <div className="booking-platform-info">
+                        <span>{platform.name}</span>
+                        <span className="badge-fast-booking">Book Tickets</span>
+                      </div>
+
+                      <ChevronRight />
                     </div>
+                  ) : (
+                    <a
+                      key={platform.name}
+                      className="whaton"
+                      href={platform.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <div className="logo-show">
+                        <img
+                          src={platform.logo}
+                          alt={platform.name}
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src =
+                              "https://via.placeholder.com/40?text=▶";
+                          }}
+                        />
+                      </div>
 
-                    <span>{platform.name}</span>
+                      <span>{platform.name}</span>
 
-                    <ChevronRight />
-                  </a>
-                ))}
+                      <ChevronRight />
+                    </a>
+                  )
+                )}
               </div>
             ) : mediaDetails.platforms ? (
               <div className="theatre">
@@ -509,6 +547,12 @@ export default function MediaDetail() {
           </div>
         </div>
       )}
+
+      {/* Movie Merchandise & Collectibles Store */}
+      <MovieMerchandiseSection
+        mediaId={mediaDetails.id}
+        mediaTitle={mediaDetails.name}
+      />
 
       <div className="Reviews-media">
         <ReviewFilter mediaID={mediaDetails.id} mediaType={mediaDetails.type} />

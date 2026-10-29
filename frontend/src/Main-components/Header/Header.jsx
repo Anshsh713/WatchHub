@@ -15,6 +15,8 @@ import {
   Sparkles,
   Check,
   Trash2,
+  Ticket,
+  ShoppingBag,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector } from "react-redux";
@@ -76,6 +78,7 @@ export default function Header() {
   const navLinks = [
     { name: "Home", path: "/home" },
     { name: "Discover", path: "/discover" },
+    { name: "Store", path: "/marketplace" },
     { name: "Insider", path: "/insider" },
     { name: "Community", path: "/community" },
     { name: "Collections", path: "/collections" },
@@ -275,6 +278,14 @@ export default function Header() {
 
                   <Link to="/watchlist" onClick={() => setUserWork(false)}>
                     <Clock size={18} /> My WatchList
+                  </Link>
+
+                  <Link to="/bookings" onClick={() => setUserWork(false)}>
+                    <Ticket size={18} /> Cinema Tickets
+                  </Link>
+
+                  <Link to="/marketplace" onClick={() => setUserWork(false)}>
+                    <ShoppingBag size={18} /> Merch Store
                   </Link>
 
                   <Link to="/settings" onClick={() => setUserWork(false)}>

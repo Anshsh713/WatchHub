@@ -32,6 +32,16 @@ import API from "../../Services/Axios_api";
 const DEFAULT_PROFILE =
   "https://static.vecteezy.com/system/resources/previews/024/983/914/non_2x/simple-user-default-icon-free-png.png";
 
+const getYouTubeEmbedUrl = (trailer) => {
+  const videoId = trailer?.match(
+    /(?:[?&]v=|youtu\.be\/|\/embed\/|\/shorts\/)([A-Za-z0-9_-]+)/i,
+  )?.[1];
+
+  return videoId
+    ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1`
+    : null;
+};
+
 const ScrollablePeople = ({ title, data }) => {
   const ref = useRef(null);
   return (
@@ -72,6 +82,7 @@ export default function MediaDetail() {
   const [posterError, setPosterError] = useState(false);
   const [relatedNews, setRelatedNews] = useState([]);
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     if (mediaDetails && mediaDetails.name) {
@@ -196,13 +207,14 @@ export default function MediaDetail() {
   };
 
   const streamingPlatforms = normalizePlatforms(mediaDetails.platforms);
+  const trailerEmbedUrl = getYouTubeEmbedUrl(mediaDetails.trailer);
 
   return (
     <div className="Main-box">
       <div
         className="banner"
-        onClick={() => mediaDetails.trailer && setVideo(!video)}
-        style={{ cursor: mediaDetails.trailer ? "pointer" : "default" }}
+        onClick={() => trailerEmbedUrl && setVideo(!video)}
+        style={{ cursor: trailerEmbedUrl ? "pointer" : "default" }}
       >
         {!backdropError && mediaDetails.images?.backdrop ? (
           <img
@@ -265,36 +277,42 @@ export default function MediaDetail() {
           </div>
           <div className="Name">
             <h1>{mediaDetails.name}</h1>
-          </div>
-          <div className="media-actions-row" style={{ display: "flex", alignItems: "center", gap: "16px", margin: "6px 0 12px", flexWrap: "wrap" }}>
-            <WatchListButton
-              mediaId={id}
-              mediaType={type}
-              title={mediaDetails.name}
-              posterPath={mediaDetails.images?.poster}
-              backdropPath={mediaDetails.images?.backdrop}
-              releaseDate={mediaDetails.theatreStatus?.releaseDate}
-            />
-            <AddToCollectionButton
-              mediaItem={{
-                tmdbId: id,
-                mediaType: type,
-                title: mediaDetails.name,
-                posterPath: mediaDetails.images?.poster,
-                backdropPath: mediaDetails.images?.backdrop,
-                releaseDate: mediaDetails.theatreStatus?.releaseDate,
-                voteAverage: mediaDetails.vote_average,
-                genres: mediaDetails.genres?.map((g) => g.name || g),
-              }}
-            />
-            {mediaDetails.theatreStatus?.isInTheatre && (
-              <button
-                className="btn-book-tickets-direct"
-                onClick={() => navigate(`/booking/${type || "movie"}/${id}`)}
-              >
-                <Ticket size={18} /> Book Tickets
-              </button>
-            )}
+            <div className="media-actions-row">
+              <WatchListButton
+                mediaId={id}
+                mediaType={type}
+                title={mediaDetails.name}
+                posterPath={mediaDetails.images?.poster}
+                backdropPath={mediaDetails.images?.backdrop}
+                releaseDate={mediaDetails.theatreStatus?.releaseDate}
+                size="icon"
+              />
+              <AddToCollectionButton
+                mediaItem={{
+                  tmdbId: id,
+                  mediaType: type,
+                  title: mediaDetails.name,
+                  posterPath: mediaDetails.images?.poster,
+                  backdropPath: mediaDetails.images?.backdrop,
+                  releaseDate: mediaDetails.theatreStatus?.releaseDate,
+                  voteAverage: mediaDetails.vote_average,
+                  genres: mediaDetails.genres?.map((g) => g.name || g),
+                }}
+                variant="icon"
+              />
+              {mediaDetails.theatreStatus?.isInTheatre === true ? (
+                <button
+                  className="btn-book-tickets-direct icon-only"
+                  aria-label="Buy tickets"
+                  title="Buy tickets"
+                  onClick={() => navigate(`/booking/${type || "movie"}/${id}`)}
+                >
+                  <Ticket size={18} />
+                </button>
+              ) : (
+                <button className=""></button>
+              )}
+            </div>
           </div>
           <div className="media-idea">
             <div className="media-title">
@@ -343,14 +361,19 @@ export default function MediaDetail() {
           <div className="watch">
             {mediaDetails.theatreStatus.isInTheatre === true ? (
               <div className="theatre">
-                <h3>Tickets On</h3>
+                <h3>
+                  <Ticket size={18} aria-hidden="true" />
+                  Tickets On
+                </h3>
                 {bookingPlatforms.map((platform) =>
                   platform.name === "WatchHub Booking" ? (
-                    <div
+                    <button
+                      type="button"
                       key={platform.name}
-                      className="whaton whaton-watchhub"
-                      onClick={() => navigate(`/booking/${type || "movie"}/${id}`)}
-                      style={{ cursor: "pointer" }}
+                      className="whaton"
+                      onClick={() =>
+                        navigate(`/booking/${type || "movie"}/${id}`)
+                      }
                     >
                       <div className="logo-show">
                         <img
@@ -362,14 +385,9 @@ export default function MediaDetail() {
                           }}
                         />
                       </div>
-
-                      <div className="booking-platform-info">
-                        <span>{platform.name}</span>
-                        <span className="badge-fast-booking">Book Tickets</span>
-                      </div>
-
+                      <span>{platform.name}</span>
                       <ChevronRight />
-                    </div>
+                    </button>
                   ) : (
                     <a
                       key={platform.name}
@@ -394,10 +412,10 @@ export default function MediaDetail() {
 
                       <ChevronRight />
                     </a>
-                  )
+                  ),
                 )}
               </div>
-            ) : mediaDetails.platforms ? (
+            ) : mediaDetails.platforms != null ? (
               <div className="theatre">
                 <h3>Watch On</h3>
                 {streamingPlatforms.map((platform) => (
@@ -426,10 +444,14 @@ export default function MediaDetail() {
                   </a>
                 ))}
               </div>
-            ) : null}
+            ) : (
+              <div className="theatre">
+                <p>Currently not available on any platform.</p>
+              </div>
+            )}
           </div>
         </div>
-        {/*<pre>{JSON.stringify(mediaDetails, null, 2)}</pre>*/}
+        {/* <pre>{JSON.stringify(mediaDetails, null, 2)}</pre> */}
       </div>
 
       {/* Related News Section */}
@@ -548,17 +570,21 @@ export default function MediaDetail() {
         </div>
       )}
 
-      {/* Movie Merchandise & Collectibles Store */}
+      {/* Movie Merchandise & Collectibles Store 
       <MovieMerchandiseSection
         mediaId={mediaDetails.id}
         mediaTitle={mediaDetails.name}
-      />
-
-      <div className="Reviews-media">
-        <ReviewFilter mediaID={mediaDetails.id} mediaType={mediaDetails.type} />
-      </div>
+      />*/}
+      {mediaDetails.theatreStatus.releaseDate <= today ? (
+        <div className="Reviews-media">
+          <ReviewFilter
+            mediaID={mediaDetails.id}
+            mediaType={mediaDetails.type}
+          />
+        </div>
+      ) : null}
       <AnimatePresence>
-        {video && mediaDetails.trailer && (
+        {video && trailerEmbedUrl && (
           <motion.div
             className="trailer"
             initial={{ opacity: 0 }}
@@ -582,12 +608,9 @@ export default function MediaDetail() {
               <iframe
                 width="100%"
                 height="600"
-                src={
-                  mediaDetails.trailer.replace("watch?v=", "embed/") +
-                  "?autoplay=1&mute=1"
-                }
+                src={trailerEmbedUrl}
                 title="Trailer"
-                allow="autoplay; encrypted-media"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
             </motion.div>

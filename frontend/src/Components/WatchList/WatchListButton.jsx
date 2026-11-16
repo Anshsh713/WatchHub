@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Bookmark, Check, ChevronDown, Clock, Eye, CheckCircle2, PauseCircle, XCircle } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { useWatchList } from "../../Context/WatchListContext";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -66,11 +66,16 @@ export default function WatchListButton({
       return;
     }
 
-    if (inList) {
+    if (inList && size !== "icon") {
       setIsOpen(!isOpen);
-    } else {
-      try {
-        setLoadingAction(true);
+      return;
+    }
+
+    try {
+      setLoadingAction(true);
+      if (inList) {
+        await removeFromWatchlist(mediaId, mediaType);
+      } else {
         await addToWatchlist({
           tmdbId: mediaId,
           mediaType,
@@ -80,11 +85,14 @@ export default function WatchListButton({
           releaseDate,
           status: "want_to_watch",
         });
-      } catch (err) {
-        console.error("Failed to add:", err);
-      } finally {
-        setLoadingAction(false);
       }
+    } catch (err) {
+      console.error(
+        inList ? "Failed to remove:" : "Failed to add:",
+        err,
+      );
+    } finally {
+      setLoadingAction(false);
     }
   };
 
@@ -137,49 +145,15 @@ export default function WatchListButton({
     return (
       <div className="watchlist-btn-wrapper" ref={menuRef}>
         <button
+          type="button"
           className={`watchlist-icon-btn ${inList ? "active" : ""} ${className}`}
           onClick={handleMainClick}
-          title={inList ? `In WatchList (${currentStatusObj.label})` : "Add to WatchList"}
+          aria-label={inList ? "Remove from WatchList" : "Add to WatchList"}
+          title={inList ? "Remove from WatchList" : "Add to WatchList"}
           disabled={loadingAction}
         >
           <Bookmark size={18} fill={inList ? "currentColor" : "none"} />
         </button>
-
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              className="watchlist-popover-menu"
-              initial={{ opacity: 0, scale: 0.9, y: 5 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 5 }}
-              transition={{ duration: 0.15 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="popover-header">Set WatchList Status</div>
-              {STATUS_OPTIONS.map((opt) => {
-                const Icon = opt.icon;
-                const isSelected = inList && currentStatus === opt.id;
-                return (
-                  <button
-                    key={opt.id}
-                    className={`popover-item ${isSelected ? "selected" : ""}`}
-                    onClick={(e) => handleStatusSelect(e, opt.id)}
-                  >
-                    <Icon size={16} style={{ color: opt.color }} />
-                    <span>{opt.label}</span>
-                    {isSelected && <Check size={14} className="check-mark" />}
-                  </button>
-                );
-              })}
-              {inList && (
-                <button className="popover-item remove" onClick={handleRemove}>
-                  <XCircle size={16} />
-                  <span>Remove from WatchList</span>
-                </button>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     );
   }

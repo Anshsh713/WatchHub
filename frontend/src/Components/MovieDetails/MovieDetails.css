@@ -87,12 +87,33 @@
   display: flex;
   align-items: center;
   color: var(--color-text-secondary);
-  font-size: 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
   flex-wrap: wrap;
 }
 
+.Name {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 10px;
+}
+
 .Name h1 {
-  font-size: 3rem;
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+.media-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 10px;
 }
 
 .media-title {
@@ -108,6 +129,17 @@
 
 .title h5 {
   color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.title p {
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.45;
 }
 
 .Overview {
@@ -116,13 +148,18 @@
 }
 
 .Overview h1 {
-  font-size: 1.7rem;
-  font-weight: 100;
-  margin-bottom: 2%;
+  font-family: var(--font-heading);
+  font-size: clamp(1.45rem, 2.2vw, 1.8rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
 }
 
 .Overview p {
-  font-size: 0.9rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.75;
   color: var(--color-text-secondary);
 }
 
@@ -152,9 +189,22 @@
 }
 
 .cast-crew h2 {
-  font-size: 1.7rem;
-  font-weight: 100;
-  margin-bottom: 2%;
+  font-family: var(--font-heading);
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.scroll-section h2,
+.section h2 {
+  font-family: var(--font-heading);
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
 }
 
 .person-card {
@@ -182,7 +232,9 @@
 
 .person-card p {
   margin-top: 10px;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
   text-align: center;
   width: 100%;
 }
@@ -199,6 +251,9 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.25s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 .production-card:hover {
@@ -206,14 +261,40 @@
 }
 
 .theatre {
+  box-sizing: border-box;
+  width: 100%;
   margin-top: 20px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  background-color: #212529;
-  padding: 30px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  border-radius: 28px;
+  gap: 12px;
+  background: linear-gradient(145deg, #191c22, #111317);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+}
+
+.theatre h3 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 4px;
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.theatre p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.theatre h3 svg {
+  color: var(--color-primary, #e50914);
 }
 
 .theatre a {
@@ -225,20 +306,64 @@
   color: white;
 }
 
-.theatre a:hover {
-  transform: translateX(4px);
+.theatre .whaton {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  color: #f4f4f5;
+  text-align: left;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.theatre button.whaton {
+  cursor: pointer;
+  font: inherit;
+}
+
+.theatre .whaton:hover {
+  transform: translateX(3px);
+}
+
+.theatre .whaton:focus-visible {
+  outline: 2px solid var(--color-primary, #e50914);
+  outline-offset: 3px;
+}
+
+.theatre .whaton span {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 550;
+  line-height: 1.4;
+}
+
+.theatre .whaton > svg {
+  flex: 0 0 auto;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .logo-show {
-  width: 40px;
-  height: 40px;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  padding: 6px;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 11px;
 }
 
 .logo-show img {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  border-radius: 10px;
+  border-radius: 6px;
 }
 
 .scroll-section {
@@ -318,8 +443,8 @@
 }
 
 @media (max-width: 1024px) {
-  .title-area h1 {
-    font-size: 2.5rem;
+  .Name h1 {
+    font-size: clamp(2rem, 4vw, 2.6rem);
   }
 }
 
@@ -344,8 +469,8 @@
     justify-content: center;
   }
 
-  .title-area h1 {
-    font-size: 2rem;
+  .Name h1 {
+    font-size: clamp(1.8rem, 7vw, 2.3rem);
   }
 
   .close-btn {
@@ -378,7 +503,7 @@
 }
 
 .poster-placeholder .placeholder-icon {
-  font-size: 3rem;
+  font-size: 2.5rem;
   margin-bottom: 12px;
   opacity: 0.8;
   animation: pulse 2s infinite ease-in-out;
@@ -427,14 +552,17 @@
 }
 
 .related-news-header h2 {
-  font-size: 1.7rem;
-  font-weight: 100;
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
   margin-bottom: 8px;
   font-family: var(--font-heading);
 }
 
 .related-news-header p {
   font-size: 0.95rem;
+  line-height: 1.6;
   color: var(--color-text-secondary);
 }
 
@@ -504,10 +632,12 @@
 }
 
 .related-news-info h3 {
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 650;
   color: white;
-  line-height: 1.4;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
   margin-bottom: 8px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -517,7 +647,8 @@
 }
 
 .related-news-info p {
-  font-size: 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 400;
   color: var(--color-text-secondary);
   line-height: 1.5;
   margin-bottom: 15px;

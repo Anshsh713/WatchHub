@@ -17,7 +17,7 @@ import {
   X,
   Calendar,
   User,
-  ExternalLink,
+  ArrowRight,
   Ticket,
 } from "lucide-react";
 import "../TheatreBooking/TheatreBooking.css";
@@ -26,11 +26,14 @@ import { useRef } from "react";
 import ReviewFilter from "../MediaReviews/Review";
 import MovieMerchandiseSection from "../Merchandise/MovieMerchandiseSection";
 import WatchListButton from "../WatchList/WatchListButton";
+import WatchedButton from "../WatchList/WatchedButton";
 import AddToCollectionButton from "../Collections/AddToCollectionButton";
 import API from "../../Services/Axios_api";
 
 const DEFAULT_PROFILE =
   "https://static.vecteezy.com/system/resources/previews/024/983/914/non_2x/simple-user-default-icon-free-png.png";
+
+const MotionButton = motion.button;
 
 const getYouTubeEmbedUrl = (trailer) => {
   const videoId = trailer?.match(
@@ -116,6 +119,17 @@ export default function MediaDetail() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
+
+  useEffect(() => {
+    if (!selectedArticle) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setSelectedArticle(null);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedArticle]);
 
   useEffect(() => {
     if (video) {
@@ -301,17 +315,28 @@ export default function MediaDetail() {
                 variant="icon"
               />
               {mediaDetails.theatreStatus?.isInTheatre === true ? (
-                <button
+                <MotionButton
                   className="btn-book-tickets-direct icon-only"
                   aria-label="Buy tickets"
                   title="Buy tickets"
                   onClick={() => navigate(`/booking/${type || "movie"}/${id}`)}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
                 >
                   <Ticket size={18} />
-                </button>
-              ) : (
-                <button className=""></button>
-              )}
+                </MotionButton>
+              ) : null}
+              {mediaDetails.theatreStatus?.releaseDate <= today ? (
+                <WatchedButton
+                  mediaId={id}
+                  mediaType={type}
+                  title={mediaDetails.name}
+                  posterPath={mediaDetails.images?.poster}
+                  backdropPath={mediaDetails.images?.backdrop}
+                  releaseDate={mediaDetails.theatreStatus?.releaseDate}
+                />
+              ) : null}
             </div>
           </div>
           <div className="media-idea">
@@ -468,8 +493,17 @@ export default function MediaDetail() {
             {relatedNews.slice(0, 3).map((article) => (
               <div
                 className="related-news-card"
-                key={article.id}
+                key={article.url || article.id}
                 onClick={() => setSelectedArticle(article)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setSelectedArticle(article);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={`Read story preview: ${article.title}`}
               >
                 <div className="related-news-img-wrapper">
                   <img
@@ -510,8 +544,19 @@ export default function MediaDetail() {
         >
           <div
             className="article-modal-content"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="related-article-title"
             onClick={(e) => e.stopPropagation()}
           >
+            <button
+              type="button"
+              className="modal-close-btn"
+              onClick={() => setSelectedArticle(null)}
+              aria-label="Close article preview"
+            >
+              <X size={20} />
+            </button>
             <div className="modal-image-container">
               <img
                 src={selectedArticle.image}
@@ -552,19 +597,35 @@ export default function MediaDetail() {
                 </div>
               </div>
 
-              <h2 className="modal-title">{selectedArticle.title}</h2>
+              <h2 id="related-article-title" className="modal-title">
+                {selectedArticle.title}
+              </h2>
+
+              {selectedArticle.description && (
+                <p className="modal-description">
+                  {selectedArticle.description}
+                </p>
+              )}
 
               <div className="modal-divider-line"></div>
 
-              <a
-                href={selectedArticle.url}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
                 className="modal-read-full-btn bg-details-page"
+                onClick={() => {
+                  navigate(`/news/${encodeURIComponent(selectedArticle.url)}`, {
+                    state: {
+                      article: selectedArticle,
+                      allNews: relatedNews,
+                    },
+                  });
+                  setSelectedArticle(null);
+                  window.scrollTo(0, 0);
+                }}
               >
-                Read Full Coverage on {selectedArticle.source}{" "}
-                <ExternalLink size={16} />
-              </a>
+                Read Full Coverage
+                <ArrowRight size={17} />
+              </button>
             </div>
           </div>
         </div>

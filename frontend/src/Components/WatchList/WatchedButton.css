@@ -1,0 +1,36 @@
+.already-watched-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #ddd;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: all 0.2s ease;
+}
+
+.already-watched-btn:hover {
+  background: var(--color-primary, #e50914);
+  border-color: transparent;
+  color: #fff;
+}
+
+.already-watched-btn.completed {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #fff;
+}
+
+.already-watched-btn.completed:hover {
+  background: #1e40af;
+  border-color: #1e40af;
+}
+
+.already-watched-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Bookmark, Check, ChevronDown, Clock, Eye, CheckCircle2, PauseCircle, XCircle } from "lucide-react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useWatchList } from "../../Context/WatchListContext";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +12,8 @@ const STATUS_OPTIONS = [
   { id: "on_hold", label: "On Hold", icon: PauseCircle, color: "#8b5cf6" },
   { id: "dropped", label: "Dropped", icon: XCircle, color: "#ef4444" },
 ];
+
+const MotionButton = motion.button;
 
 export default function WatchListButton({
   mediaId,
@@ -144,16 +146,19 @@ export default function WatchListButton({
   if (size === "icon") {
     return (
       <div className="watchlist-btn-wrapper" ref={menuRef}>
-        <button
+        <MotionButton
           type="button"
           className={`watchlist-icon-btn ${inList ? "active" : ""} ${className}`}
           onClick={handleMainClick}
           aria-label={inList ? "Remove from WatchList" : "Add to WatchList"}
           title={inList ? "Remove from WatchList" : "Add to WatchList"}
           disabled={loadingAction}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
         >
           <Bookmark size={18} fill={inList ? "currentColor" : "none"} />
-        </button>
+        </MotionButton>
       </div>
     );
   }

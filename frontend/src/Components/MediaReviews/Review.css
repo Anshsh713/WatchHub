@@ -15,6 +15,33 @@
   color: #fff;
 }
 
+.review-count {
+  display: inline-flex;
+  min-width: 1.8rem;
+  height: 1.8rem;
+  align-items: center;
+  cursor: pointer;
+  justify-content: center;
+  margin-left: 0.35rem;
+  padding: 1rem 1rem;
+  box-shadow: 0 3px 12px rgba(37, 99, 235, 0.12);
+  color: #bfdbfe;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  vertical-align: middle;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease;
+}
+
+.review-count:hover {
+  border-color: rgba(96, 165, 250, 0.55);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.28);
+  color: #fff;
+}
+
 /* ===== Filter Group ===== */
 .filter {
   display: flex;

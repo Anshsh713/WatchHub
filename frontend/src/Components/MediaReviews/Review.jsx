@@ -5,6 +5,13 @@ import MediaReviews from "./MediaReviews";
 import RatingSemiPie from "../Common/RatingChart";
 import { useMediaReviews } from "../../Context/MediaReviewsContext";
 import { Pen, PenOff } from "lucide-react";
+import { useWatchList } from "../../Context/WatchListContext";
+import { useSelector } from "react-redux";
+import { formatCompactNumber } from "../../utils/formatters";
+
+const MotionDiv = motion.div;
+const MotionSpan = motion.span;
+const MotionUl = motion.ul;
 
 export default function ReviewFilter({ mediaID, mediaType }) {
   const [sortOpen, setSortOpen] = useState(false);
@@ -12,6 +19,8 @@ export default function ReviewFilter({ mediaID, mediaType }) {
   const [sortValue, setSortValue] = useState("Most Liked");
   const [typeValue, setTypeValue] = useState("All");
   const { fetchStats, stats } = useMediaReviews();
+  const { fetchWatchlistItem, getWatchlistItemData } = useWatchList();
+  const { status: authStatus } = useSelector((state) => state.auth);
   const optionsSort = ["Most Liked", "Most Recent", "Oldest"];
   const optionsType = ["All", "Following", "Friends", "By Me"];
   const sortMap = {
@@ -28,10 +37,27 @@ export default function ReviewFilter({ mediaID, mediaType }) {
   };
 
   const [isOn, setIsOn] = useState(false);
-  const [writingReview, setWritingReview] = useState(false);
+  const [writingReviewKey, setWritingReviewKey] = useState(null);
+  const reviewEligibilityKey = `${authStatus}-${mediaType}-${mediaID}`;
+  const watchlistItem = getWatchlistItemData(mediaID, mediaType);
+  const canWriteReview =
+    authStatus &&
+    ["completed", "watching", "on_hold", "dropped"].includes(
+      watchlistItem?.status,
+    );
+  const writingReview = writingReviewKey === reviewEligibilityKey;
+  const totalReviews = stats?.total ?? 0;
+
+  useEffect(() => {
+    if (authStatus && mediaID && mediaType) {
+      fetchWatchlistItem(mediaID, mediaType);
+    }
+  }, [authStatus, fetchWatchlistItem, mediaID, mediaType]);
 
   const toggleSwitch = () => {
     setIsOn(!isOn);
+    setSortOpen(false);
+    setTypeOpen(false);
   };
 
   const container = {
@@ -76,7 +102,21 @@ export default function ReviewFilter({ mediaID, mediaType }) {
     <div className="review">
       <RatingSemiPie stats={stats?.stats} total={stats?.total} />
       <div className="review-filter">
-        <h1>Reviews</h1>
+        <h1>
+          Reviews{" "}
+          <MotionSpan
+            key={totalReviews}
+            className="review-count"
+            title={totalReviews.toLocaleString()}
+            aria-label={`${totalReviews.toLocaleString()} reviews`}
+            initial={{ opacity: 0, scale: 0.75 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileHover={{ scale: 1.08 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          >
+            {formatCompactNumber(totalReviews)}
+          </MotionSpan>
+        </h1>
         <div className="filter" ref={filterRef}>
           <div className="dropdown">
             <button
@@ -90,7 +130,7 @@ export default function ReviewFilter({ mediaID, mediaType }) {
 
             <AnimatePresence>
               {sortOpen && (
-                <motion.ul
+                <MotionUl
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
@@ -108,7 +148,7 @@ export default function ReviewFilter({ mediaID, mediaType }) {
                       {option}
                     </li>
                   ))}
-                </motion.ul>
+                </MotionUl>
               )}
             </AnimatePresence>
           </div>
@@ -125,7 +165,7 @@ export default function ReviewFilter({ mediaID, mediaType }) {
 
             <AnimatePresence>
               {typeOpen && (
-                <motion.ul
+                <MotionUl
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
@@ -143,7 +183,7 @@ export default function ReviewFilter({ mediaID, mediaType }) {
                       {option}
                     </li>
                   ))}
-                </motion.ul>
+                </MotionUl>
               )}
             </AnimatePresence>
           </div>
@@ -159,7 +199,7 @@ export default function ReviewFilter({ mediaID, mediaType }) {
               }}
               onClick={toggleSwitch}
             >
-              <motion.div
+              <MotionDiv
                 className="toggle-handle"
                 style={{
                   ...handle,
@@ -176,11 +216,23 @@ export default function ReviewFilter({ mediaID, mediaType }) {
 
             <span>Show Spoiler</span>
           </div>
-          <div className="writing-review">
-            <button onClick={() => setWritingReview(!writingReview)}>
-              {writingReview ? <PenOff size={18} /> : <Pen size={18} />}
-            </button>
-          </div>
+          {canWriteReview && (
+            <div className="writing-review">
+              <button
+                title={writingReview ? "Close Review" : "Write Review"}
+                onClick={() => {
+                  setWritingReviewKey(
+                    writingReview ? null : reviewEligibilityKey,
+                  );
+                  setSortOpen(false);
+                  setTypeOpen(false);
+                }}
+                aria-label={writingReview ? "Close Review" : "Write Review"}
+              >
+                {writingReview ? <PenOff size={18} /> : <Pen size={18} />}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -188,7 +240,9 @@ export default function ReviewFilter({ mediaID, mediaType }) {
         mediaID={mediaID}
         mediaType={mediaType}
         writingReview={writingReview}
-        setWritingReview={setWritingReview}
+        setWritingReview={(open) =>
+          setWritingReviewKey(open ? reviewEligibilityKey : null)
+        }
         sort={sortMap[sortValue]}
         filter={filterMap[typeValue]}
         showSpoiler={isOn}

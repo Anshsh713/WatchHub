@@ -224,6 +224,8 @@ exports.updateWatchlistStatus = async (req, res) => {
     const updateFields = { status };
     if (status === "completed") {
       updateFields.watchedAt = new Date();
+    } else {
+      updateFields.watchedAt = null;
     }
 
     const item = await Watchlist.findOneAndUpdate(

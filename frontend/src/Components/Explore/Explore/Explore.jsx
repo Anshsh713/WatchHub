@@ -197,6 +197,9 @@ export default function Explore() {
 
 const ExploreCard = ({ item, itemVariants }) => {
   const [imageError, setImageError] = useState(false);
+  const mediaType = item.media_type || (item.title ? "movie" : "tv");
+  const releaseDate = item.release_date || item.first_air_date;
+  const year = releaseDate ? releaseDate.split("-")[0] : "";
 
   return (
     <motion.div variants={itemVariants}>
@@ -216,12 +219,35 @@ const ExploreCard = ({ item, itemVariants }) => {
             </div>
           )}
 
+          {item.watchhub_rating && item.watchhub_rating.total > 0 && (
+            <div
+              className="watchhub-rating-pill"
+              style={{
+                "--rating-color": item.watchhub_rating.color || "#a855f7",
+              }}
+            >
+              <span className="rating-dot-inner" />
+              <span className="rating-text-expanded">
+                {item.watchhub_rating.dominantPercent}%{" "}
+                {item.watchhub_rating.dominantRating || "Perfection"}
+              </span>
+            </div>
+          )}
+
           <div className="media-info">
             <h4>{item.title || item.name}</h4>
-
-            {(item.release_date || item.first_air_date) && (
-              <p>{(item.release_date || item.first_air_date).split("-")[0]}</p>
-            )}
+            <div className="media-meta">
+              {year && <span>{year}</span>}
+              {mediaType && (
+                <span className="media-type-tag">
+                  {mediaType === "movie"
+                    ? "Movie"
+                    : mediaType === "tv"
+                      ? "Series"
+                      : "Anime"}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </Link>

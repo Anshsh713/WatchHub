@@ -12,6 +12,32 @@ function App() {
   const hideLayout = location.pathname === "/authpage";
 
   useEffect(() => {
+    const previousScrollRestoration = window.history.scrollRestoration;
+    window.history.scrollRestoration = "manual";
+
+    return () => {
+      window.history.scrollRestoration = previousScrollRestoration;
+    };
+  }, []);
+
+  useEffect(() => {
+    const resetScroll = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    };
+
+    resetScroll();
+    const firstFrame = window.requestAnimationFrame(resetScroll);
+    const secondFrame = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(resetScroll);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      window.cancelAnimationFrame(secondFrame);
+    };
+  }, [location.key]);
+
+  useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       getMe();

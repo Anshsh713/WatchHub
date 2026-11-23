@@ -45,6 +45,20 @@ const getYouTubeEmbedUrl = (trailer) => {
     : null;
 };
 
+const formatReleaseDate = (releaseDate) => {
+  if (!releaseDate) return "";
+
+  const date = new Date(releaseDate);
+  if (Number.isNaN(date.getTime())) return releaseDate.slice(0, 12);
+
+  const twoMonthsAgo = new Date();
+  twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+
+  return date < twoMonthsAgo
+    ? releaseDate.slice(0, 4)
+    : releaseDate.slice(0, 12);
+};
+
 const ScrollablePeople = ({ title, data }) => {
   const ref = useRef(null);
   return (
@@ -271,7 +285,7 @@ export default function MediaDetail() {
                   ? "Anime"
                   : ""}
             <Dot size={30} />
-            {mediaDetails.theatreStatus.releaseDate?.slice(0, 4)}
+            {formatReleaseDate(mediaDetails.theatreStatus.releaseDate)}
             <Dot size={30} />
             {formatDuration(
               mediaDetails.duration

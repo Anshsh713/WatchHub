@@ -5,6 +5,7 @@ const MediaContext = createContext();
 
 export const MediaProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
 
   const [all, setAll] = useState([]);
@@ -142,10 +143,20 @@ export const MediaProvider = ({ children }) => {
     }
   };
 
+  const appendUniqueResults = (prev, incoming) => {
+    const seen = new Set(prev.map((item) => item.id));
+    const unique = (incoming || []).filter((item) => !seen.has(item.id));
+    return [...prev, ...unique];
+  };
+
   const fetchMediaByGenre = async (genreId, newpage = 1, mediaType = "all") => {
     try {
-      setLoading(true);
-      setResults([]);
+      if (newpage === 1) {
+        setLoading(true);
+        setResults([]);
+      } else {
+        setLoadingMore(true);
+      }
       setError(null);
 
       const res = await API.get("/media/genre", {
@@ -157,16 +168,18 @@ export const MediaProvider = ({ children }) => {
       });
 
       if (newpage === 1) {
-        setResults(res.data.results);
+        setResults(res.data.results || []);
       } else {
-        setResults((prev) => [...prev, ...res.data.results]);
+        setResults((prev) => appendUniqueResults(prev, res.data.results));
       }
 
       setPage(newpage);
-      setLoading(false);
     } catch (error) {
+      console.error(error);
       setError("Failed to fetch media by genre");
+    } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
@@ -176,8 +189,12 @@ export const MediaProvider = ({ children }) => {
     mediaType = "all",
   ) => {
     try {
-      setLoading(true);
-      setResults([]);
+      if (newpage === 1) {
+        setLoading(true);
+        setResults([]);
+      } else {
+        setLoadingMore(true);
+      }
       setError(null);
 
       const res = await API.get("/media/country", {
@@ -189,18 +206,18 @@ export const MediaProvider = ({ children }) => {
       });
 
       if (newpage === 1) {
-        setResults(res.data.results);
+        setResults(res.data.results || []);
       } else {
-        setResults((prev) => [...prev, ...res.data.results]);
+        setResults((prev) => appendUniqueResults(prev, res.data.results));
       }
 
       setPage(newpage);
     } catch (error) {
       console.error(error);
-
       setError("Failed to fetch media by country");
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
@@ -210,8 +227,12 @@ export const MediaProvider = ({ children }) => {
     mediaType = "all",
   ) => {
     try {
-      setLoading(true);
-      setResults([]);
+      if (newpage === 1) {
+        setLoading(true);
+        setResults([]);
+      } else {
+        setLoadingMore(true);
+      }
       setError(null);
 
       const res = await API.get("/media/language", {
@@ -223,18 +244,18 @@ export const MediaProvider = ({ children }) => {
       });
 
       if (newpage === 1) {
-        setResults(res.data.results);
+        setResults(res.data.results || []);
       } else {
-        setResults((prev) => [...prev, ...res.data.results]);
+        setResults((prev) => appendUniqueResults(prev, res.data.results));
       }
 
       setPage(newpage);
     } catch (error) {
       console.error(error);
-
       setError("Failed to fetch media by language");
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
@@ -244,8 +265,12 @@ export const MediaProvider = ({ children }) => {
     mediaType = "all",
   ) => {
     try {
-      setLoading(true);
-      setResults([]);
+      if (newpage === 1) {
+        setLoading(true);
+        setResults([]);
+      } else {
+        setLoadingMore(true);
+      }
       setError(null);
 
       const res = await API.get("/media/explore", {
@@ -257,32 +282,36 @@ export const MediaProvider = ({ children }) => {
       });
 
       if (newpage === 1) {
-        setResults(res.data.results);
+        setResults(res.data.results || []);
       } else {
-        setResults((prev) => [...prev, ...res.data.results]);
+        setResults((prev) => appendUniqueResults(prev, res.data.results));
       }
 
       setPage(newpage);
     } catch (error) {
       console.error(error);
-
       setError("Failed to fetch explore category");
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
-  const searchMedia = async (query) => {
+  const searchMedia = async (query, scope = {}) => {
     try {
-      if (!query.trim()) {
+      if (!query || !query.trim()) {
         setSearchResults([]);
         return;
       }
 
-      const res = await API.get("/media/search", {
-        params: { query },
-      });
-      setSearchResults(res.data);
+      const params = { query: query.trim() };
+      if (scope.genreId) params.genreId = scope.genreId;
+      if (scope.category) params.category = scope.category;
+      if (scope.countryCode) params.countryCode = scope.countryCode;
+      if (scope.languageCode) params.languageCode = scope.languageCode;
+
+      const res = await API.get("/media/search", { params });
+      setSearchResults(res.data || []);
     } catch (error) {
       setSearchResults([]);
     }
@@ -323,6 +352,7 @@ export const MediaProvider = ({ children }) => {
       value={{
         mediaMap,
         loading,
+        loadingMore,
         error,
         setCurrentType,
         currentType,

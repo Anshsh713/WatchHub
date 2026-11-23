@@ -123,6 +123,7 @@
 
 .media-title {
   display: flex;
+  flex-wrap: wrap;
   gap: 40px;
 }
 
@@ -382,6 +383,7 @@
   overflow-x: auto;
   padding: 20px 0;
   scroll-behavior: smooth;
+  scrollbar-width: none;
 }
 
 .scroll-container::-webkit-scrollbar {
@@ -390,25 +392,6 @@
 
 .scroll-container::-webkit-scrollbar-thumb {
   display: none;
-}
-
-.scroll-progress {
-  position: absolute;
-  top: -10px;
-  right: 0;
-  transform: rotate(-90deg);
-}
-
-.scroll-progress .bg {
-  stroke: #333;
-  stroke-width: 10;
-  fill: none;
-}
-
-.scroll-progress .indicator {
-  stroke: var(--color-primary);
-  stroke-width: 10;
-  fill: none;
 }
 /* ===== Reviews Section ===== */
 .Reviews-media {
@@ -478,9 +461,23 @@
     font-size: clamp(1.8rem, 7vw, 2.3rem);
   }
 
-  .close-btn {
-    top: -40px;
-    right: 0;
+  .content {
+    flex-direction: column;
+    padding: 10px;
+    gap: 24px;
+  }
+
+  .overview-cast-crew,
+  .vide-watch {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .Overview,
+  .cast-crew,
+  .Reviews-media {
+    padding-left: 10px;
+    padding-right: 10px;
   }
 }
 
@@ -771,6 +768,16 @@
   transition: all 0.2s ease;
 }
 
+.modal-close-btn.mobile-tab-only {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .modal-close-btn.mobile-tab-only {
+    display: flex;
+  }
+}
+
 .modal-close-btn:hover {
   background: white;
   color: black;
@@ -862,26 +869,6 @@
   height: 1px;
   background: rgba(255, 255, 255, 0.1);
   margin-bottom: 1.25rem;
-}
-
-.modal-content-text {
-  font-size: 1.05rem;
-  line-height: 1.7;
-  color: rgba(255, 255, 255, 0.85);
-  margin-bottom: 2.5rem;
-}
-
-.modal-content-text p {
-  margin-bottom: 1.2rem;
-}
-
-.modal-content-disclaimer {
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  background: rgba(255, 255, 255, 0.03);
-  padding: 15px;
-  border-radius: 12px;
-  border-left: 3px solid var(--color-primary);
 }
 
 .modal-read-full-btn {

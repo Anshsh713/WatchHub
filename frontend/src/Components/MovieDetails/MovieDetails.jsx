@@ -1,14 +1,7 @@
-import React, { act, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useMedia } from "../../Context/MediaContext";
-import {
-  motion,
-  AnimatePresence,
-  animate,
-  useMotionValue,
-  useMotionValueEvent,
-  useScroll,
-} from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import "./MovieDetails.css";
 import VideoLoader from "../Common/VideoLoader";
 import {
@@ -59,6 +52,57 @@ const formatReleaseDate = (releaseDate) => {
     : releaseDate.slice(0, 12);
 };
 
+const getLanguageName = (langCode) => {
+  if (!langCode) return "N/A";
+  try {
+    return (
+      new Intl.DisplayNames(["en"], { type: "language" }).of(langCode) ||
+      langCode.toUpperCase()
+    );
+  } catch {
+    return String(langCode).toUpperCase();
+  }
+};
+
+const getDirectPlatformLink = (providerName, movieTitle, fallbackLink) => {
+  if (!movieTitle) return fallbackLink;
+  const q = encodeURIComponent(movieTitle);
+  const name = providerName?.toLowerCase() || "";
+
+  if (name.includes("netflix")) {
+    return `https://www.netflix.com/search?q=${q}`;
+  }
+  if (name.includes("amazon") || name.includes("prime video")) {
+    return `https://www.primevideo.com/search/ref=atv_sr_sug_l?phrase=${q}`;
+  }
+  if (name.includes("hotstar") || name.includes("disney")) {
+    return `https://www.hotstar.com/in/explore?q=${q}`;
+  }
+  if (name.includes("jio")) {
+    return `https://www.jiocinema.com/search/${q}`;
+  }
+  if (name.includes("apple")) {
+    return `https://tv.apple.com/search?term=${q}`;
+  }
+  if (name.includes("zee5")) {
+    return `https://www.zee5.com/search?q=${q}`;
+  }
+  if (name.includes("sonyliv") || name.includes("sony liv")) {
+    return `https://www.sonyliv.com/search?query=${q}`;
+  }
+  if (name.includes("crunchyroll")) {
+    return `https://www.crunchyroll.com/search?q=${q}`;
+  }
+  if (name.includes("youtube")) {
+    return `https://www.youtube.com/results?search_query=${q}+movie`;
+  }
+
+  return (
+    fallbackLink ||
+    `https://www.google.com/search?q=${encodeURIComponent(`${providerName} watch ${movieTitle}`)}`
+  );
+};
+
 const ScrollablePeople = ({ title, data }) => {
   const ref = useRef(null);
   return (
@@ -66,8 +110,11 @@ const ScrollablePeople = ({ title, data }) => {
       <h2>{title}</h2>
 
       <motion.div ref={ref} className="scroll-container">
-        {data.map((person) => (
-          <div key={person.id || person.credit_id} className="person-card">
+        {data.map((person, idx) => (
+          <div
+            key={person.credit_id || `${person.id}-${idx}`}
+            className="person-card"
+          >
             <img
               loading="lazy"
               src={
@@ -125,6 +172,9 @@ export default function MediaDetail() {
 
   useEffect(() => {
     if (id && type) {
+      setPosterError(false);
+      setBackdropError(false);
+      setRelatedNews([]);
       fetchMediaDetails(id, type);
       setCurrentType(type);
     }
@@ -146,7 +196,7 @@ export default function MediaDetail() {
   }, [selectedArticle]);
 
   useEffect(() => {
-    if (video) {
+    if (video || selectedArticle) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";
@@ -155,7 +205,7 @@ export default function MediaDetail() {
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [video]);
+  }, [video, selectedArticle]);
 
   function formatDuration(minutes) {
     if (!minutes) return null;
@@ -184,11 +234,7 @@ export default function MediaDetail() {
     },
     {
       title: "Language",
-      content: mediaDetails?.language
-        ? new Intl.DisplayNames(["en"], { type: "language" }).of(
-            mediaDetails.language,
-          )
-        : "N/A",
+      content: getLanguageName(mediaDetails?.language),
     },
     { title: "Age Rating", content: mediaDetails.ageRating || "N/A" },
   ];
@@ -197,8 +243,8 @@ export default function MediaDetail() {
     {
       name: "BookMyShow",
       logo: "https://play-lh.googleusercontent.com/TB_8RMvDjxGmx06LBK-8opRFJ0msb6hSZalEtOMBmxgJ4jYE_i0BmdRuMWChCE76tLnxoytZ75Cew_r0_JDd",
-      link: `https://in.bookmyshow.com/search?q=${encodeURIComponent(
-        mediaDetails.name,
+      link: `https://www.google.com/search?q=${encodeURIComponent(
+        `BookMyShow ${mediaDetails.name} movie tickets`,
       )}`,
     },
     {
@@ -226,7 +272,11 @@ export default function MediaDetail() {
         unique.push({
           name: provider.provider_name,
           logo: `https://image.tmdb.org/t/p/w200${provider.logo_path}`,
-          link: platforms.link,
+          link: getDirectPlatformLink(
+            provider.provider_name,
+            mediaDetails?.name,
+            platforms.link,
+          ),
         });
       }
     }
@@ -284,13 +334,21 @@ export default function MediaDetail() {
                 : mediaDetails.type === "anime"
                   ? "Anime"
                   : ""}
-            <Dot size={30} />
-            {formatReleaseDate(mediaDetails.theatreStatus.releaseDate)}
-            <Dot size={30} />
-            {formatDuration(
-              mediaDetails.duration
-                ? mediaDetails.duration
-                : mediaDetails.episodeRuntime,
+            {mediaDetails.theatreStatus?.releaseDate && (
+              <>
+                <Dot size={30} />
+                {formatReleaseDate(mediaDetails.theatreStatus.releaseDate)}
+              </>
+            )}
+            {(mediaDetails.duration || mediaDetails.episodeRuntime) && (
+              <>
+                <Dot size={30} />
+                {formatDuration(
+                  mediaDetails.duration
+                    ? mediaDetails.duration
+                    : mediaDetails.episodeRuntime,
+                )}
+              </>
             )}
             {mediaDetails.totalSeasons ? (
               <>
@@ -323,8 +381,14 @@ export default function MediaDetail() {
                   posterPath: mediaDetails.images?.poster,
                   backdropPath: mediaDetails.images?.backdrop,
                   releaseDate: mediaDetails.theatreStatus?.releaseDate,
-                  voteAverage: mediaDetails.vote_average,
-                  genres: mediaDetails.genres?.map((g) => g.name || g),
+                  voteAverage:
+                    mediaDetails.tmdb_rating ??
+                    mediaDetails.vote_average ??
+                    0,
+                  genres:
+                    mediaDetails.genres?.map((g) => g.name || g) ||
+                    mediaDetails.vibeChart?.map((v) => v.name) ||
+                    [],
                 }}
                 variant="icon"
               />
@@ -398,12 +462,9 @@ export default function MediaDetail() {
             <VibeChart data={mediaDetails.vibeChart} />
           </div>
           <div className="watch">
-            {mediaDetails.theatreStatus.isInTheatre === true ? (
+            {mediaDetails.theatreStatus?.isInTheatre === true ? (
               <div className="theatre">
-                <h3>
-                  <Ticket size={18} aria-hidden="true" />
-                  Tickets On
-                </h3>
+                <h3>Tickets On</h3>
                 {bookingPlatforms.map((platform) =>
                   platform.name === "WatchHub Booking" ? (
                     <button
@@ -565,7 +626,7 @@ export default function MediaDetail() {
           >
             <button
               type="button"
-              className="modal-close-btn"
+              className="modal-close-btn mobile-tab-only"
               onClick={() => setSelectedArticle(null)}
               aria-label="Close article preview"
             >
@@ -605,10 +666,14 @@ export default function MediaDetail() {
                   <User size={14} />
                   <span>{selectedArticle.author}</span>
                 </div>
-                <span className="modal-divider">•</span>
-                <div className="modal-meta-item">
-                  <span> {selectedArticle.impact}</span>
-                </div>
+                {selectedArticle.impact && (
+                  <>
+                    <span className="modal-divider">•</span>
+                    <div className="modal-meta-item">
+                      <span>{selectedArticle.impact}</span>
+                    </div>
+                  </>
+                )}
               </div>
 
               <h2 id="related-article-title" className="modal-title">
@@ -650,7 +715,8 @@ export default function MediaDetail() {
         mediaId={mediaDetails.id}
         mediaTitle={mediaDetails.name}
       />*/}
-      {mediaDetails.theatreStatus.releaseDate <= today ? (
+      {mediaDetails.theatreStatus?.releaseDate &&
+      mediaDetails.theatreStatus.releaseDate <= today ? (
         <div className="Reviews-media">
           <ReviewFilter
             mediaID={mediaDetails.id}

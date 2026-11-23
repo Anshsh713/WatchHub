@@ -595,27 +595,89 @@ exports.getExploreCategories = async (req, res) => {
 
 exports.searchMedia = async (req, res) => {
   try {
-    const { query } = req.query;
+    const { query, genreId, category, countryCode, languageCode } = req.query;
 
-    if (!query) {
+    if (!query || !query.trim()) {
       return res.json([]);
     }
 
-    const data = await fetchFromTMDB("/search/multi", {
-      query,
-      page: 1,
-    });
+    const hasFilter = Boolean(genreId || category || countryCode || languageCode);
+    const pagesToFetch = hasFilter ? [1, 2] : [1];
 
-    const results = data.results
-      .filter(
-        (item) =>
-          (item.media_type === "movie" || item.media_type === "tv") &&
-          (item.title || item.name),
-      )
-      .slice(0, 10);
+    const responses = await Promise.allSettled(
+      pagesToFetch.map((p) =>
+        fetchFromTMDB("/search/multi", {
+          query: query.trim(),
+          page: p,
+          include_adult: false,
+        }),
+      ),
+    );
 
-    res.json(results);
+    let allItems = [];
+    for (const r of responses) {
+      if (r.status === "fulfilled" && r.value?.results) {
+        allItems.push(...r.value.results);
+      }
+    }
+
+    // Deduplicate and filter movies/tv with valid titles
+    const seen = new Set();
+    let results = [];
+    for (const item of allItems) {
+      if (
+        !seen.has(item.id) &&
+        (item.media_type === "movie" || item.media_type === "tv") &&
+        (item.title || item.name)
+      ) {
+        seen.add(item.id);
+        results.push(item);
+      }
+    }
+
+    // Apply genre filter
+    if (genreId) {
+      const gId = Number(genreId);
+      results = results.filter((item) => item.genre_ids?.includes(gId));
+    }
+
+    // Apply category filter
+    if (category) {
+      const cat = category.toLowerCase();
+      if (cat === "family") {
+        results = results.filter((item) => item.genre_ids?.includes(10751));
+      } else if (cat === "anime") {
+        results = results.filter(
+          (item) =>
+            (item.genre_ids?.includes(16) || item.genre_ids?.includes(10765)) &&
+            (item.original_language === "ja" || item.origin_country?.includes("JP")),
+        );
+      } else if (cat === "awards") {
+        results = results.filter((item) => (item.vote_average || 0) >= 7.0);
+      } else if (cat === "gems") {
+        results = results.filter((item) => (item.vote_average || 0) >= 6.8);
+      }
+    }
+
+    // Apply country filter
+    if (countryCode) {
+      const code = countryCode.toLowerCase();
+      results = results.filter((item) =>
+        item.origin_country?.some((c) => c.toLowerCase() === code),
+      );
+    }
+
+    // Apply language filter
+    if (languageCode) {
+      const lang = languageCode.toLowerCase();
+      results = results.filter(
+        (item) => item.original_language?.toLowerCase() === lang,
+      );
+    }
+
+    res.json(results.slice(0, 15));
   } catch (error) {
+    console.error("Search failed:", error.message);
     res.status(500).json({
       message: "Search failed",
     });

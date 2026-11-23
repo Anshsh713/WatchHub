@@ -33,6 +33,7 @@ export default function Explore() {
     fetchExploreCategory,
     results,
     loading,
+    loadingMore,
     page,
     fetchGenres,
     fetchCountries,
@@ -123,7 +124,14 @@ export default function Explore() {
     }
   };
 
-  if (loading) {
+  const currentScope = {
+    genreId: mediaType === "genres" ? mediaId : undefined,
+    countryCode: mediaType === "countries" ? mediaId : undefined,
+    languageCode: mediaType === "languages" ? mediaId : undefined,
+    category: category ? category.toLowerCase() : undefined,
+  };
+
+  if (loading && results.length === 0) {
     return (
       <div className="Explore">
         <AnimatePresence>
@@ -133,25 +141,6 @@ export default function Explore() {
     );
   }
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 15 },
-    show: {
-      opacity: 1,
-      y: 0,
-      transition: { type: "tween", duration: 0.3, ease: "easeOut" },
-    },
-  };
-
   return (
     <div className="Explore">
       <div className="explore-header" onClick={() => navigate(-1)}>
@@ -160,15 +149,13 @@ export default function Explore() {
       </div>
 
       <div className="explore-search">
-        <Search placeholder="Search..." />
+        <Search
+          placeholder={`Search in ${displayName}...`}
+          scope={currentScope}
+        />
       </div>
 
-      <motion.div
-        className="explore-grid"
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-      >
+      <div className="explore-grid">
         {results.length === 0
           ? hasFetched && (
               <div className="no-results">
@@ -178,16 +165,19 @@ export default function Explore() {
             )
           : results.map((item) => (
               <ExploreCard
-                key={item.id}
+                key={`${item.media_type || "media"}-${item.id}`}
                 item={item}
-                itemVariants={itemVariants}
               />
             ))}
-      </motion.div>
+      </div>
       {results.length > 0 && (
         <div className="load-more-container">
-          <button className="load-more-btn" onClick={handleLoadMore}>
-            Load More
+          <button
+            className="load-more-btn"
+            onClick={handleLoadMore}
+            disabled={loadingMore}
+          >
+            {loadingMore ? "Loading..." : "Load More"}
           </button>
         </div>
       )}
@@ -195,14 +185,18 @@ export default function Explore() {
   );
 }
 
-const ExploreCard = ({ item, itemVariants }) => {
+const ExploreCard = ({ item }) => {
   const [imageError, setImageError] = useState(false);
   const mediaType = item.media_type || (item.title ? "movie" : "tv");
   const releaseDate = item.release_date || item.first_air_date;
   const year = releaseDate ? releaseDate.split("-")[0] : "";
 
   return (
-    <motion.div variants={itemVariants}>
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: "tween", duration: 0.3, ease: "easeOut" }}
+    >
       <Link to={`/media/${item.media_type || "movie"}/${item.id}`}>
         <div className="media-card">
           {!imageError && item.poster_path ? (

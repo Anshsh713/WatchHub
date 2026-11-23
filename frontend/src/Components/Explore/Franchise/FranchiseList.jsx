@@ -247,18 +247,6 @@ export default function FranchiseList() {
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.08 },
-    },
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 25 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
-  };
 
   if (loading && franchises.length === 0) {
     return (
@@ -282,10 +270,9 @@ export default function FranchiseList() {
     <div className="FranchiseSection">
       {/* Top Banner Header */}
       <div className="franchise-hero">
-        <div className="hero-content">
-          <button className="back-icon" onClick={() => navigate("/interface")}>
-            <ChevronLeft size={24} /> Explore
-          </button>
+        <div className="explore-header" onClick={() => navigate(-1)}>
+          <ChevronLeft size={32} />
+          <h2>Explore Franchises</h2>
         </div>
 
         <div className="hero-actions flex gap-md">
@@ -401,16 +388,16 @@ export default function FranchiseList() {
           )}
         </div>
       ) : (
-        <motion.div
-          className="franchise-grid"
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
-        >
+        <div className="franchise-grid">
           {filteredFranchises.map((item) => {
             const isFollowing = followingIds.includes(item._id || item.id);
             return (
-              <motion.div key={item._id || item.slug} variants={cardVariants}>
+              <motion.div
+                key={item._id || item.slug}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
                 <Link
                   to={`/explore/franchise/${item.slug}`}
                   className="franchise-card glass-panel"
@@ -480,7 +467,7 @@ export default function FranchiseList() {
               </motion.div>
             );
           })}
-        </motion.div>
+        </div>
       )}
 
       {/* Modal to create franchise */}

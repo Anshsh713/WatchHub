@@ -1,6 +1,7 @@
 const Franchise = require("../models/Franchise/Franchise");
 const FranchiseFollow = require("../models/Franchise/Franchise_Following");
 const { fetchFromTMDB } = require("../ultils/tmdbService");
+const { addWatchHubRatings } = require("../ultils/watchHubRating");
 
 /*
 ============================================================
@@ -1083,6 +1084,7 @@ exports.getFranchiseContent = async (req, res) => {
 
       return dateB.localeCompare(dateA);
     });
+    results = await addWatchHubRatings(results);
 
     /*
     ==========================================================

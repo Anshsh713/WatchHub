@@ -5,9 +5,6 @@ import {
   Heart,
   Search as SearchIcon,
   Film,
-  Tv,
-  Star,
-  Calendar,
   Sparkles,
   Layers,
   Building,
@@ -17,8 +14,9 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useFranchise } from "../../../Context/FranchiseContext";
 import VideoLoader from "../../Common/VideoLoader";
-import AddToCollectionButton from "../../Collections/AddToCollectionButton";
 import AddToCollectionModal from "../../Collections/AddToCollectionModal";
+import WatchHubRatingPill from "../../Common/WatchHubRatingPill";
+import "../../Home/Home.css";
 import "./Franchise.css";
 
 export default function FranchiseDetails() {
@@ -45,11 +43,26 @@ export default function FranchiseDetails() {
   const [franchiseModalOpen, setFranchiseModalOpen] = useState(false);
 
   useEffect(() => {
+    setImageErrors({});
+    setLogoError(false);
     if (slug) {
       fetchFranchiseDetails(slug);
       fetchFranchiseContent(slug);
     }
   }, [slug]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".sort-selector")) {
+        setSortOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const isFollowing = currentFranchise
     ? followingIds.includes(currentFranchise._id || currentFranchise.id)
@@ -105,7 +118,7 @@ export default function FranchiseDetails() {
       return 0;
     });
 
-  if (loading && !currentFranchise) {
+  if (loading || (currentFranchise && currentFranchise.slug !== slug)) {
     return (
       <div className="FranchiseSection">
         <VideoLoader />
@@ -118,7 +131,7 @@ export default function FranchiseDetails() {
       <div className="FranchiseSection flex flex-col items-center justify-center min-h-screen">
         <h2>Franchise Not Found</h2>
         <p className="text-muted mt-sm">
-          The requested franchise slug standard was not found.
+          The requested franchise was not found.
         </p>
         <button
           className="btn-primary mt-md flex items-center gap-sm"
@@ -130,15 +143,6 @@ export default function FranchiseDetails() {
     );
   }
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.05 } },
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 15 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-  };
 
   return (
     <div className="FranchiseSection franchise-detail-page">
@@ -321,12 +325,7 @@ export default function FranchiseDetails() {
           </p>
         </div>
       ) : (
-        <motion.div
-          className="media-items-grid"
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
-        >
+        <div className="media-items-grid">
           {filteredContent.map((item) => {
             const mediaType = item.media_type || (item.title ? "movie" : "tv");
             const title = item.title || item.name;
@@ -338,74 +337,41 @@ export default function FranchiseDetails() {
             return (
               <motion.div
                 key={`${item.id}-${mediaType}`}
-                variants={cardVariants}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
               >
                 <Link
                   to={`/media/${mediaType}/${item.id}`}
-                  className="detail-media-card glass-panel"
+                  className="media-card franchise-home-card"
                 >
-                  <div className="poster-container">
-                    {!hasErr && posterPath ? (
-                      <img
-                        src={`https://image.tmdb.org/t/p/w500${posterPath}`}
-                        alt={title}
-                        loading="lazy"
-                        onError={() => handleImageError(item.id)}
-                      />
-                    ) : (
-                      <div className="poster-fallback flex flex-col items-center justify-center">
-                        <Film size={36} />
-                        <span className="fallback-title">{title}</span>
-                      </div>
-                    )}
+                  {!hasErr && posterPath ? (
+                    <img
+                      src={`https://image.tmdb.org/t/p/w500${posterPath}`}
+                      alt={title}
+                      loading="lazy"
+                      onError={() => handleImageError(item.id)}
+                    />
+                  ) : (
+                    <div className="media-placeholder">No Image</div>
+                  )}
 
-                    <div className="poster-gradient" />
+                  <WatchHubRatingPill item={item} />
 
-                    <div className="card-badge-top flex justify-between">
-                      <span className={`media-tag ${mediaType}`}>
-                        {mediaType === "movie" ? (
-                          <Film size={10} />
-                        ) : (
-                          <Tv size={10} />
-                        )}
-                        {mediaType.toUpperCase()}
+                  <div className="media-info">
+                    <h4>{title}</h4>
+                    <div className="media-meta">
+                      {year && <span>{year}</span>}
+                      <span className="media-type-tag">
+                        {mediaType === "movie" ? "Movie" : "Series"}
                       </span>
-                      <div className="flex items-center gap-xs">
-                        {item.vote_average > 0 && (
-                          <span className="rating-tag flex items-center gap-xs">
-                            <Star size={10} fill="#f1c40f" color="#f1c40f" />
-                            {item.vote_average.toFixed(1)}
-                          </span>
-                        )}
-                        <AddToCollectionButton
-                          variant="icon"
-                          mediaItem={{
-                            tmdbId: item.id,
-                            mediaType,
-                            title,
-                            posterPath: item.poster_path,
-                            backdropPath: item.backdrop_path,
-                            releaseDate: item.release_date || item.first_air_date,
-                            voteAverage: item.vote_average,
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="card-media-info">
-                      <h4 className="title-text">{title}</h4>
-                      {year && (
-                        <span className="year-text flex items-center gap-xs">
-                          <Calendar size={12} /> {year}
-                        </span>
-                      )}
                     </div>
                   </div>
                 </Link>
               </motion.div>
             );
           })}
-        </motion.div>
+        </div>
       )}
 
       {/* Bulk Add Franchise Modal */}

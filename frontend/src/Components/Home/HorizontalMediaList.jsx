@@ -8,6 +8,7 @@ import {
 } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import WatchHubRatingPill from "../Common/WatchHubRatingPill";
 import "./Home.css";
 
 const left = "0%";
@@ -151,24 +152,7 @@ export default function HorizontalMediaList({
                         )}
 
                         {/* WatchHub Perfection Rating Expanding Dot */}
-                        {item.watchhub_rating &&
-                          item.watchhub_rating.total > 0 && (
-                            <div
-                              className="watchhub-rating-pill"
-                              onClick={(e) => e.stopPropagation()}
-                              style={{
-                                "--rating-color":
-                                  item.watchhub_rating.color || "#a855f7",
-                              }}
-                            >
-                              <span className="rating-dot-inner" />
-                              <span className="rating-text-expanded">
-                                {item.watchhub_rating.dominantPercent}%{" "}
-                                {item.watchhub_rating.dominantRating ||
-                                  "Perfection"}
-                              </span>
-                            </div>
-                          )}
+                        <WatchHubRatingPill item={item} />
 
                         <div className="media-info">
                           <h4>{item.title || item.name}</h4>

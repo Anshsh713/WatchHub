@@ -5,6 +5,7 @@ import { ChevronLeft } from "lucide-react";
 import VideoLoader from "../../Common/VideoLoader";
 import { AnimatePresence, motion } from "framer-motion";
 import Search from "../../Common/Search";
+import WatchHubRatingPill from "../../Common/WatchHubRatingPill";
 import FranchiseList from "../Franchise/FranchiseList";
 import "./Explore.css";
 import "../../Home/Home.css";
@@ -17,9 +18,6 @@ export default function Explore() {
     params.category || (mediaType === "explore" ? mediaId : undefined);
   const navigate = useNavigate();
 
-  if (category === "franchise") {
-    return <FranchiseList />;
-  }
   const [hasFetched, setHasFetched] = useState(false);
 
   useEffect(() => {
@@ -74,7 +72,7 @@ export default function Explore() {
   }, [mediaId, mediaType]);
 
   useEffect(() => {
-    if (category) {
+    if (category && category !== "franchise") {
       fetchExploreCategory(category, 1);
     }
   }, [category]);
@@ -85,11 +83,15 @@ export default function Explore() {
     }
 
     if (mediaType === "countries") {
-      return item.code?.toString() === mediaId?.toString();
+      return (
+        item.code?.toString().toLowerCase() === mediaId?.toString().toLowerCase()
+      );
     }
 
     if (mediaType === "languages") {
-      return item.code?.toString() === mediaId?.toString();
+      return (
+        item.code?.toString().toLowerCase() === mediaId?.toString().toLowerCase()
+      );
     }
 
     return false;
@@ -130,6 +132,10 @@ export default function Explore() {
     languageCode: mediaType === "languages" ? mediaId : undefined,
     category: category ? category.toLowerCase() : undefined,
   };
+
+  if (category === "franchise") {
+    return <FranchiseList />;
+  }
 
   if (loading && results.length === 0) {
     return (
@@ -197,7 +203,7 @@ const ExploreCard = ({ item }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "tween", duration: 0.3, ease: "easeOut" }}
     >
-      <Link to={`/media/${item.media_type || "movie"}/${item.id}`}>
+      <Link to={`/media/${mediaType}/${item.id}`}>
         <div className="media-card">
           {!imageError && item.poster_path ? (
             <img
@@ -213,20 +219,7 @@ const ExploreCard = ({ item }) => {
             </div>
           )}
 
-          {item.watchhub_rating && item.watchhub_rating.total > 0 && (
-            <div
-              className="watchhub-rating-pill"
-              style={{
-                "--rating-color": item.watchhub_rating.color || "#a855f7",
-              }}
-            >
-              <span className="rating-dot-inner" />
-              <span className="rating-text-expanded">
-                {item.watchhub_rating.dominantPercent}%{" "}
-                {item.watchhub_rating.dominantRating || "Perfection"}
-              </span>
-            </div>
-          )}
+          <WatchHubRatingPill item={item} />
 
           <div className="media-info">
             <h4>{item.title || item.name}</h4>

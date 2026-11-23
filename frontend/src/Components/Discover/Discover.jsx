@@ -35,6 +35,7 @@ import {
 import { useDiscover } from "../../Context/DiscoverContext";
 import VideoLoader from "../Common/VideoLoader";
 import AddToCollectionButton from "../Collections/AddToCollectionButton";
+import WatchHubRatingPill from "../Common/WatchHubRatingPill";
 import "./Discover.css";
 
 /*
@@ -1174,6 +1175,8 @@ function HorizontalMediaSlider({ items = [], loading = false, emptyMessage, onIt
                         <span>{title}</span>
                       </div>
                     )}
+
+                    <WatchHubRatingPill item={item} />
 
                     <div className="discover-card-badges" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
                       <span className="media-type-badge">

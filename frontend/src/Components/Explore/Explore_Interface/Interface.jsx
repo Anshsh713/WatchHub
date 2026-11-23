@@ -11,14 +11,23 @@ import {
   Video,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Search from "../../Common/Search";
 import GCL from "./GCL";
 import "./Interface.css";
 
 export default function Explore_Interface() {
   const navigate = useNavigate();
-  const [mediaType, setMediaType] = React.useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const mediaType = searchParams.get("type");
+
+  const setMediaType = (type) => {
+    if (type) {
+      setSearchParams({ type });
+    } else {
+      setSearchParams({});
+    }
+  };
   const exploreOptions = [
     { name: "Genres", icon: <Drama /> },
     { name: "Countries", icon: <Globe /> },
@@ -92,14 +101,17 @@ export default function Explore_Interface() {
             animate="show"
           >
             {exploreOptions.map((option) => (
-              <div
+              <motion.div
                 key={option.name}
                 className="explore"
+                variants={itemVariants}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={() => mediaDetailtype(option.name)}
               >
                 <div className="explore-icon-wrapper">{option.icon}</div>
                 <span>{option.name}</span>
-              </div>
+              </motion.div>
             ))}
           </motion.div>
         </>

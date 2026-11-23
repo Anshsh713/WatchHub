@@ -13,11 +13,11 @@ export default function GCL({ typeofgcl, setMediaType }) {
     fetchLanguages,
     typesofmedia,
     loading,
-    fetchMediaByGenre,
   } = useMedia();
 
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [flagErrors, setFlagErrors] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -81,12 +81,18 @@ export default function GCL({ typeofgcl, setMediaType }) {
   );
 
   const renderCard = (item, index) => {
+    const cardKey = item.id
+      ? `genre-${item.id}`
+      : item.code
+        ? `${typeofgcl}-${item.code}`
+        : `idx-${index}`;
+
     if (typeofgcl === "Genres") {
       const name = item.name;
       const color = getGenreColor(name);
       return (
         <motion.div
-          key={index}
+          key={cardKey}
           className="type_card genre_card"
           whileHover={{ scale: 1.05 }}
           onClick={() => {
@@ -102,21 +108,39 @@ export default function GCL({ typeofgcl, setMediaType }) {
     } else if (typeofgcl === "Countries") {
       const name = item.name;
       const code = item.code || "us";
+      const hasFlagError = flagErrors[code];
       return (
         <motion.div
-          key={index}
+          key={cardKey}
           className="type_card country_card"
           whileHover={{ scale: 1.05 }}
           onClick={() => {
             navigate(`/countries/${item.code}`);
           }}
         >
-          <img
-            loading="lazy"
-            src={`https://flagcdn.com/w40/${code.toLowerCase()}.png`}
-            alt={name}
-            className="country_flag"
-          />
+          {!hasFlagError ? (
+            <img
+              loading="lazy"
+              src={`https://flagcdn.com/w40/${code.toLowerCase()}.png`}
+              alt={name}
+              className="country_flag"
+              onError={() =>
+                setFlagErrors((prev) => ({ ...prev, [code]: true }))
+              }
+            />
+          ) : (
+            <div
+              className="language_initials"
+              style={{
+                width: 48,
+                height: 32,
+                borderRadius: 4,
+                fontSize: "0.85rem",
+              }}
+            >
+              {code.toUpperCase()}
+            </div>
+          )}
           <span className="country_name">{name}</span>
         </motion.div>
       );
@@ -125,7 +149,7 @@ export default function GCL({ typeofgcl, setMediaType }) {
       const displayInitials = getInitials(name);
       return (
         <motion.div
-          key={index}
+          key={cardKey}
           className="type_card language_card"
           whileHover={{ scale: 1.05 }}
           onClick={() => {

@@ -1,22 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Plus, Sparkles, Layers, Building, Key } from "lucide-react";
 import { useFranchise } from "../../../Context/FranchiseContext";
 
+const INITIAL_FORM_STATE = {
+  name: "",
+  slug: "",
+  description: "",
+  logo: "",
+  banner: "",
+  sourceType: "collection",
+  tmdbCollectionId: "",
+  tmdbCompanyId: "",
+  keywords: "",
+  slugEdited: false,
+};
+
 export default function CreateFranchiseModal({ isOpen, onClose }) {
   const { createFranchise } = useFranchise();
-  const [formData, setFormData] = useState({
-    name: "",
-    slug: "",
-    description: "",
-    logo: "",
-    banner: "",
-    sourceType: "collection",
-    tmdbCollectionId: "",
-    tmdbCompanyId: "",
-    keywords: "",
-  });
+  const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const handleClose = () => {
+    setFormData(INITIAL_FORM_STATE);
+    setError(null);
+    onClose();
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        handleClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -66,7 +94,7 @@ export default function CreateFranchiseModal({ isOpen, onClose }) {
 
       await createFranchise(payload);
       setLoading(false);
-      onClose();
+      handleClose();
     } catch (err) {
       setError(err.message || "Failed to create franchise");
       setLoading(false);
@@ -121,14 +149,17 @@ export default function CreateFranchiseModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-content glass-panel">
+    <div className="modal-backdrop" onClick={handleClose}>
+      <div
+        className="modal-content glass-panel"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-header">
           <div className="modal-title flex items-center gap-sm">
             <Plus className="accent-icon" />
             <h3>Create New Franchise</h3>
           </div>
-          <button className="close-btn" onClick={onClose}>
+          <button className="close-btn" onClick={handleClose}>
             <X size={20} />
           </button>
         </div>
@@ -308,7 +339,11 @@ export default function CreateFranchiseModal({ isOpen, onClose }) {
           )}
 
           <div className="modal-actions flex justify-end gap-md">
-            <button type="button" className="btn-secondary" onClick={onClose}>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handleClose}
+            >
               Cancel
             </button>
             <button type="submit" className="btn-primary" disabled={loading}>

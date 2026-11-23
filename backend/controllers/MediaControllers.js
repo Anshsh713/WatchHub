@@ -1,4 +1,8 @@
 const { fetchFromTMDB } = require("../ultils/tmdbService");
+const {
+  addWatchHubRatings,
+  getWatchHubRatingMap,
+} = require("../ultils/watchHubRating");
 
 const memCache = {};
 
@@ -375,6 +379,7 @@ exports.getMediaByGenre = async (req, res) => {
       ...item,
       media_type: item.first_air_date ? "tv" : "movie",
     }));
+    merged = await addWatchHubRatings(merged);
 
     res.json({
       results: merged,
@@ -422,6 +427,7 @@ exports.getMediaByCountry = async (req, res) => {
     let merged = results
       .filter((r) => r.status === "fulfilled")
       .flatMap((r) => r.value.results);
+    merged = await addWatchHubRatings(merged);
     res.json({
       results: merged,
       page: Number(page),
@@ -478,6 +484,7 @@ exports.getMediaByLanguage = async (req, res) => {
       ...item,
       media_type: item.first_air_date ? "tv" : "movie",
     }));
+    merged = await addWatchHubRatings(merged);
 
     res.json({
       results: merged,
@@ -576,6 +583,7 @@ exports.getExploreCategories = async (req, res) => {
       ...item,
       media_type: item.first_air_date ? "tv" : "movie",
     }));
+    merged = await addWatchHubRatings(merged);
 
     res.json({
       results: merged,
@@ -675,6 +683,7 @@ exports.searchMedia = async (req, res) => {
       );
     }
 
+    results = await addWatchHubRatings(results);
     res.json(results.slice(0, 15));
   } catch (error) {
     console.error("Search failed:", error.message);
@@ -682,15 +691,6 @@ exports.searchMedia = async (req, res) => {
       message: "Search failed",
     });
   }
-};
-
-const MediaReview = require("../models/Media_Reviews");
-
-const RATING_COLORS = {
-  Perfection: "#a855f7",
-  "Go for it": "#00d284",
-  TimePass: "#ffb703",
-  "Skip it": "#ff6384",
 };
 
 const normalizeSectionItems = (items, fallbackType = "movie", ratingMap = {}) => {
@@ -896,69 +896,7 @@ exports.getHomeSections = async (req, res) => {
       ...(cRes.status === "fulfilled" ? cRes.value.results || [] : []),
     ];
 
-    const allMediaIds = Array.from(
-      new Set(allRawItems.map((item) => item.id?.toString()).filter(Boolean))
-    );
-
-    const ratingMap = {};
-    if (allMediaIds.length > 0) {
-      try {
-        const aggregation = await MediaReview.aggregate([
-          { $match: { MediaID: { $in: allMediaIds } } },
-          {
-            $group: {
-              _id: { mediaId: "$MediaID", rating: "$rating" },
-              count: { $sum: 1 },
-            },
-          },
-          {
-            $group: {
-              _id: "$_id.mediaId",
-              ratings: {
-                $push: {
-                  rating: "$_id.rating",
-                  count: "$count",
-                },
-              },
-              total: { $sum: "$count" },
-            },
-          },
-        ]);
-
-        if (aggregation && aggregation.length > 0) {
-          aggregation.forEach((item) => {
-            const total = item.total || 0;
-            if (total > 0) {
-              const perfectionItem = item.ratings?.find(
-                (r) => r.rating === "Perfection"
-              );
-              const perfectionPercent = perfectionItem
-                ? Math.round((perfectionItem.count / total) * 100)
-                : 0;
-
-              const highest = item.ratings?.reduce(
-                (max, curr) => (curr.count > max.count ? curr : max),
-                item.ratings[0]
-              );
-              const dominantRating = highest ? highest.rating : "Perfection";
-              const dominantPercent = highest
-                ? Math.round((highest.count / total) * 100)
-                : perfectionPercent;
-
-              ratingMap[item._id] = {
-                total,
-                perfection: perfectionPercent,
-                dominantRating,
-                dominantPercent,
-                color: RATING_COLORS[dominantRating] || "#a855f7",
-              };
-            }
-          });
-        }
-      } catch (err) {
-        console.error("Error aggregating reviews:", err.message);
-      }
-    }
+    const ratingMap = await getWatchHubRatingMap(allRawItems);
 
     const fallbackType = type === "anime" ? "tv" : type;
 
